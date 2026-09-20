@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Warehouse Control — Мониторинг Склада</title>
+    <title>POINT. Fulfillment — Мониторинг Склада</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -11,10 +11,11 @@
             theme: {
                 extend: {
                     colors: {
-                        darkBg: '#0b0f19',
-                        cardBg: '#111827',
-                        cardBorder: '#1f2937',
-                        accentBlue: '#3b82f6',
+                        darkBg: '#090d16',
+                        cardBg: '#101622',
+                        cardBorder: '#1c2536',
+                        brandOrange: '#FF7A00',
+                        brandOrangeHover: '#E06B00',
                     }
                 }
             }
@@ -22,11 +23,15 @@
     </script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-        body { background-color: #0b0f19; color: #f3f4f6; font-family: system-ui, -apple-system, sans-serif; }
+        body { background-color: #090d16; color: #f3f4f6; font-family: system-ui, -apple-system, sans-serif; }
         ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #0b0f19; }
-        ::-webkit-scrollbar-thumb { background: #1f2937; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #374151; }
+        ::-webkit-scrollbar-track { background: #090d16; }
+        ::-webkit-scrollbar-thumb { background: #1c2536; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #2d3950; }
+        
+        .text-brand { color: #FF7A00; }
+        .bg-brand { background-color: #FF7A00; }
+        .border-brand { border-color: #FF7A00; }
     </style>
 </head>
 <body class="min-h-screen flex">
@@ -34,26 +39,25 @@
     <!-- Sidebar -->
     <aside class="w-64 bg-cardBg border-r border-cardBorder p-6 flex flex-col justify-between hidden md:flex">
         <div>
-            <div class="flex items-center gap-3 mb-10">
-                <div class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-indigo-500/30">
-                    <i class="fa-solid font-bold fa-boxes-stacked"></i>
+            <!-- Brand Logo Header -->
+            <div class="mb-10 flex flex-col items-start border-b border-cardBorder/60 pb-6">
+                <div class="flex items-baseline">
+                    <span class="text-3xl font-black tracking-tight text-white uppercase">POINT</span>
+                    <span class="text-3xl font-black text-brand ml-0.5">.</span>
                 </div>
-                <div>
-                    <h1 class="font-bold text-lg leading-none">Warehouse</h1>
-                    <span class="text-xs text-gray-400 font-semibold tracking-wider">DASHBOARD 2026</span>
-                </div>
+                <span class="text-[11px] font-bold tracking-[0.25em] text-brand uppercase mt-0.5">FULFILLMENT</span>
             </div>
 
             <nav class="space-y-2">
-                <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-indigo-600/10 text-indigo-400 font-medium border border-indigo-500/20">
-                    <i class="fa-solid fa-grid-2"></i>
-                     Обзор склада
+                <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-brand/10 text-brand font-medium border border-brand/20">
+                    <i class="fa-solid fa-boxes-stacked"></i>
+                    Обзор склада
                 </a>
             </nav>
         </div>
 
         <div class="text-xs text-gray-500 text-center">
-            FF Облік товарів &copy; 2026
+            POINT. Fulfillment &copy; 2026
         </div>
     </aside>
 
@@ -62,18 +66,25 @@
         <!-- Header -->
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
             <div>
+                <!-- Mobile Logo View -->
+                <div class="md:hidden flex items-baseline mb-2">
+                    <span class="text-2xl font-black tracking-tight text-white uppercase">POINT</span>
+                    <span class="text-2xl font-black text-brand ml-0.5">.</span>
+                    <span class="text-[9px] font-bold tracking-[0.2em] text-brand uppercase ml-2">FULFILLMENT</span>
+                </div>
+
                 <div class="flex items-center gap-3">
                     <h2 class="text-2xl font-bold">Мониторинг Склада</h2>
-                    <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-900/50 text-indigo-300 border border-indigo-700/50">2026</span>
+                    <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-brand/20 text-brand border border-brand/30">2026</span>
                 </div>
                 <p class="text-sm text-gray-400 mt-1">Автоматический отслеживатель остатков и отгрузок товаров</p>
             </div>
             
             <div class="flex items-center gap-3 self-end md:self-auto">
-                <div id="lastUpdate" class="text-xs text-gray-400 bg-cardBg px-3 py-1.5 rounded-lg border border-cardBorder">
+                <div id="lastUpdate" class="text-xs text-gray-400 bg-cardBg px-3 py-2 rounded-xl border border-cardBorder">
                     <i class="fa-regular fa-clock mr-1"></i> Обновление...
                 </div>
-                <button onclick="loadData()" class="p-2 bg-cardBg hover:bg-gray-800 border border-cardBorder rounded-lg transition text-gray-300">
+                <button onclick="loadData()" class="p-2.5 bg-cardBg hover:bg-gray-800 border border-cardBorder rounded-xl transition text-gray-300">
                     <i class="fa-solid fa-rotate-right" id="refreshIcon"></i>
                 </button>
             </div>
@@ -105,7 +116,7 @@
             <!-- Card 4 -->
             <div class="bg-cardBg border border-cardBorder rounded-2xl p-5 relative overflow-hidden">
                 <span class="text-xs font-semibold text-gray-400 tracking-wider uppercase">ВСЕГО ПОЗИЦИЙ 📊</span>
-                <div class="text-3xl font-bold mt-2 text-indigo-400" id="kpiTotalItems">0</div>
+                <div class="text-3xl font-bold mt-2 text-brand" id="kpiTotalItems">0</div>
                 <p class="text-xs text-gray-400 mt-1">Уникальных товаров в базе</p>
             </div>
         </div>
@@ -114,7 +125,7 @@
         <div class="flex flex-col md:flex-row items-center justify-between gap-4 mb-6">
             <!-- Filter Tabs -->
             <div class="flex flex-wrap items-center gap-1.5 bg-cardBg p-1.5 rounded-xl border border-cardBorder w-full md:w-auto">
-                <button onclick="setFilter('all')" id="btn-all" class="filter-btn px-4 py-1.5 rounded-lg text-sm font-medium transition bg-indigo-600 text-white">Все</button>
+                <button onclick="setFilter('all')" id="btn-all" class="filter-btn px-4 py-1.5 rounded-lg text-sm font-medium transition bg-brand text-white shadow-lg shadow-brand/20">Все</button>
                 <button onclick="setFilter('critical')" id="btn-critical" class="filter-btn px-4 py-1.5 rounded-lg text-sm font-medium text-gray-400 hover:text-white transition">Заканчиваются</button>
                 <button onclick="setFilter('ship')" id="btn-ship" class="filter-btn px-4 py-1.5 rounded-lg text-sm font-medium text-gray-400 hover:text-white transition">К отправке</button>
                 <button onclick="setFilter('diff')" id="btn-diff" class="filter-btn px-4 py-1.5 rounded-lg text-sm font-medium text-gray-400 hover:text-white transition">Расхождение CRM</button>
@@ -123,14 +134,14 @@
             <!-- Search Bar -->
             <div class="relative w-full md:w-80">
                 <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
-                <input type="text" id="searchInput" oninput="renderProducts()" placeholder="Поиск по названию или ID..." class="w-full bg-cardBg border border-cardBorder rounded-xl pl-10 pr-4 py-2 text-sm text-gray-200 focus:outline-none focus:border-indigo-500 transition">
+                <input type="text" id="searchInput" oninput="renderProducts()" placeholder="Поиск по названию или ID..." class="w-full bg-cardBg border border-cardBorder rounded-xl pl-10 pr-4 py-2 text-sm text-gray-200 focus:outline-none focus:border-brand transition">
             </div>
         </div>
 
         <!-- Products List -->
         <div id="productsContainer" class="space-y-3">
             <div class="text-center py-12 text-gray-500">
-                <i class="fa-solid fa-spinner fa-spin text-2xl mb-2"></i>
+                <i class="fa-solid fa-spinner fa-spin text-2xl mb-2 text-brand"></i>
                 <p>Загрузка данных из Google Таблицы...</p>
             </div>
         </div>
@@ -190,12 +201,12 @@
         function setFilter(filter) {
             currentFilter = filter;
             document.querySelectorAll('.filter-btn').forEach(btn => {
-                btn.classList.remove('bg-indigo-600', 'text-white');
+                btn.classList.remove('bg-brand', 'text-white', 'shadow-lg', 'shadow-brand/20');
                 btn.classList.add('text-gray-400');
             });
             const activeBtn = document.getElementById(`btn-${filter}`);
             if (activeBtn) {
-                activeBtn.classList.add('bg-indigo-600', 'text-white');
+                activeBtn.classList.add('bg-brand', 'text-white', 'shadow-lg', 'shadow-brand/20');
                 activeBtn.classList.remove('text-gray-400');
             }
             renderProducts();
@@ -238,10 +249,9 @@
                 const q2 = Number(p.qty2) || 0;
                 const ship = Number(p.toShip) || 0;
 
-                // Расчет статуса и цвета шкалы
                 let statusBadge = '';
                 let progressColor = 'bg-emerald-500';
-                let progressWidth = Math.min(100, Math.max(10, (q1 / 50) * 100)); // пример нормы в 50 шт.
+                let progressWidth = Math.min(100, Math.max(10, (q1 / 50) * 100));
 
                 if (q1 < 5) {
                     statusBadge = `<span class="px-3 py-1 rounded-full text-xs font-bold bg-red-950 text-red-400 border border-red-800/60 flex items-center gap-1">Критично 🚨</span>`;
@@ -270,7 +280,7 @@
                     <div class="w-full md:w-64 space-y-1.5">
                         <div class="flex justify-between text-xs font-medium">
                             <span class="text-gray-400">Остаток: <strong class="text-white">${q1} шт</strong></span>
-                            ${ship > 0 ? `<span class="text-emerald-400 font-semibold">Отправить: ${ship} шт</span>` : ''}
+                            ${ship > 0 ? `<span class="text-brand font-semibold">Отправить: ${ship} шт</span>` : ''}
                         </div>
                         <div class="w-full h-2.5 bg-gray-800 rounded-full overflow-hidden">
                             <div class="h-full ${progressColor} transition-all duration-500 rounded-full" style="width: ${progressWidth}%"></div>
@@ -294,9 +304,7 @@
             }).join('');
         }
 
-        // Автозагрузка данных при старте
         loadData();
-        // Автообновление каждые 60 секунд
         setInterval(loadData, 60000);
     </script>
 </body>
