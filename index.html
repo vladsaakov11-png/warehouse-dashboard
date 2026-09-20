@@ -261,7 +261,7 @@
     <!-- FIREBASE SDKs & LOGIC -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getAuth, setPersistence, browserSessionPersistence, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBemQDr2DYyNF3Bmac996j_YjjgANJRR5s",
@@ -309,7 +309,10 @@
             btnText.innerText = "Авторизація...";
 
             try {
+                // Устанавливаем режим сессии: доступ сбрасывается при закрытии вкладки/браузера
+                await setPersistence(auth, browserSessionPersistence);
                 await signInWithEmailAndPassword(auth, email, pass);
+                document.getElementById('passInput').value = ''; // Очистка поля пароля
             } catch (err) {
                 console.error(err);
                 authError.classList.remove('hidden');
