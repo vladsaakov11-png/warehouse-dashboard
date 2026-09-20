@@ -66,7 +66,7 @@
 </head>
 <body class="min-h-screen flex">
 
-    <!-- FIREBASE AUTH OVERLAY (LOGIN FORM) -->
+    <!-- FIREBASE AUTH OVERLAY -->
     <div id="authOverlay" class="fixed inset-0 z-50 bg-[#070a12] flex items-center justify-center p-4">
         <div class="bg-[#0e1320] border border-[#1a2336] rounded-2xl p-8 max-w-sm w-full text-center shadow-2xl relative overflow-hidden">
             <div class="flex flex-col items-center mb-6">
@@ -258,7 +258,7 @@
         </div>
     </main>
 
-    <!-- FIREBASE SDKs & LOGIC -->
+    <!-- FIREBASE & APPLICATION LOGIC -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
@@ -276,7 +276,7 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
 
-        const API_URL = "https://script.google.com/macros/s/AKfycbxykWnzEcO8zDuV87ncqRa83tCP8jnRB_JbtEr3uhBXOPJkPZyDYXc5AqodR-1KaVFHCA/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbyB_HzR9TRqkdf_bdzwbncmf2wtjjLogglLpgY9PLtXiG1Ytmyx_Vlj0y-LkpeR4ubIng/exec";
         
         let allProducts = [];
         let currentFilter = 'all';
@@ -328,9 +328,14 @@
             if (refreshIcon) refreshIcon.classList.add('fa-spin');
 
             try {
-                const res = await fetch(API_URL);
-                allProducts = await res.json();
+                const res = await fetch(API_URL, { redirect: 'follow' });
+                const data = await res.json();
                 
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+
+                allProducts = data;
                 updateKPIs();
                 renderProducts();
             } catch (err) {
@@ -338,7 +343,7 @@
                 document.getElementById('productsContainer').innerHTML = `
                     <div class="p-6 text-center text-red-400">
                         <i class="fa-solid fa-circle-exclamation text-2xl mb-2"></i>
-                        <p>Помилка завантаження даних. Перевірте розгортання Google Apps Script.</p>
+                        <p>Помилка завантаження даних: ${err.message}</p>
                     </div>`;
             } finally {
                 if (refreshIcon) refreshIcon.classList.remove('fa-spin');
