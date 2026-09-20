@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ru" class="dark">
+<html lang="uk" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>POINT. Fulfillment — Мониторинг Склада</title>
+    <title>POINT. Fulfillment — Моніторинг Складу</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -81,8 +81,8 @@
                 <span class="text-[11px] font-bold tracking-[0.25em] text-[#FF7A00] uppercase mt-0.5">FULFILLMENT</span>
             </div>
 
-            <h3 class="text-lg font-bold mb-1">Авторизация Склада</h3>
-            <p class="text-xs text-gray-400 mb-6">Введите Email и пароль для доступа к дашборду</p>
+            <h3 class="text-lg font-bold mb-1">Авторизація Складу</h3>
+            <p class="text-xs text-gray-400 mb-6">Введіть Email та пароль для доступу до дашборду</p>
 
             <form onsubmit="handleLogin(event)" class="space-y-4">
                 <div class="text-left">
@@ -94,10 +94,10 @@
                     <input type="password" id="passInput" required placeholder="••••••••" class="w-full bg-gray-900/90 border border-cardBorder rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brand transition">
                 </div>
 
-                <div id="authError" class="text-xs text-red-400 hidden font-medium">Ошибка входа: проверьте данные</div>
+                <div id="authError" class="text-xs text-red-400 hidden font-medium">Помилка входу: перевірте дані</div>
 
                 <button type="submit" id="btnLogin" class="w-full bg-brand hover:bg-[#E06B00] text-white font-bold py-3 rounded-xl shadow-lg shadow-brand/20 transition flex items-center justify-center gap-2">
-                    <span id="btnText">Войти в дашборд</span>
+                    <span id="btnText">Увійти в дашборд</span>
                     <i class="fa-solid fa-arrow-right text-xs"></i>
                 </button>
             </form>
@@ -107,7 +107,7 @@
     <!-- Toast Notification -->
     <div id="toast" class="fixed bottom-5 right-5 z-50 bg-emerald-600 text-white px-4 py-2.5 rounded-xl shadow-2xl flex items-center gap-2 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
         <i class="fa-solid fa-circle-check"></i>
-        <span id="toastMsg" class="text-sm font-medium">ID скопирован!</span>
+        <span id="toastMsg" class="text-sm font-medium">ID скопійовано!</span>
     </div>
 
     <!-- Sidebar -->
@@ -125,7 +125,7 @@
             <nav class="space-y-2">
                 <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-brand/10 text-brand font-medium border border-brand/20">
                     <i class="fa-solid fa-boxes-stacked"></i>
-                    Склад 2 (Копія)
+                    СКЛАД 2 (копія)
                 </a>
             </nav>
         </div>
@@ -133,7 +133,7 @@
         <div class="text-xs text-gray-500 text-center flex flex-col gap-2">
             <div id="userEmail" class="text-[11px] text-gray-400 truncate font-mono"></div>
             <button onclick="handleLogout()" class="text-gray-400 hover:text-red-400 transition text-xs flex items-center justify-center gap-1">
-                <i class="fa-solid fa-right-from-bracket"></i> Выйти из аккаунта
+                <i class="fa-solid fa-right-from-bracket"></i> Вийти з акаунту
             </button>
             <span class="mt-2">POINT. Fulfillment &copy; 2026</span>
         </div>
@@ -151,22 +151,22 @@
                         <span class="text-2xl font-black text-brand ml-0.5">.</span>
                         <span class="text-[9px] font-bold tracking-[0.2em] text-brand uppercase ml-2">FULFILLMENT</span>
                     </div>
-                    <button onclick="handleLogout()" class="text-gray-400 hover:text-red-400 text-xs">Выход</button>
+                    <button onclick="handleLogout()" class="text-gray-400 hover:text-red-400 text-xs">Вихід</button>
                 </div>
 
                 <div class="flex items-center gap-3">
-                    <h2 class="text-2xl font-bold">Учёт Товаров Склада</h2>
+                    <h2 class="text-2xl font-bold">Облік Товарів Складу</h2>
                     <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-brand/20 text-brand border border-brand/30">Склад 2</span>
                 </div>
-                <p class="text-sm text-gray-400 mt-0.5">Синхронизация остатков по ID CRM (BULL1 / BULL3)</p>
+                <p class="text-sm text-gray-400 mt-0.5">Синхронізація залишків за ID CRM (BULL1 / BULL3)</p>
             </div>
             
             <div class="flex items-center gap-3 self-end md:self-auto">
                 <div class="flex items-center gap-2 bg-cardBg px-3.5 py-2 rounded-xl border border-cardBorder text-xs text-gray-400">
                     <span class="w-2 h-2 rounded-full bg-emerald-500 live-dot"></span>
-                    <span>Автообновление: <strong id="timerText" class="text-white">60s</strong></span>
+                    <span>Автооновлення: <strong id="timerText" class="text-white">60s</strong></span>
                 </div>
-                <button onclick="manualRefresh()" class="p-2.5 bg-cardBg hover:bg-gray-800 border border-cardBorder rounded-xl transition text-gray-300">
+                <button onclick="manualRefresh()" class="p-2.5 bg-cardBg hover:bg-gray-800 border border-cardBorder rounded-xl transition text-gray-300" title="Оновити дані">
                     <i class="fa-solid fa-rotate-right" id="refreshIcon"></i>
                 </button>
             </div>
@@ -174,25 +174,25 @@
 
         <!-- Futuristic Compact KPI Cards Grid -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 mb-6">
-            <!-- Card 1: Красная зона -->
+            <!-- Card 1: Красна зона -->
             <div class="cyber-card cyber-card-red border border-cardBorder rounded-xl p-3.5 flex flex-col justify-between">
                 <div class="flex items-center justify-between">
-                    <span class="text-[11px] font-bold text-gray-400 tracking-wider uppercase">КРАСНАЯ ЗОНА</span>
+                    <span class="text-[11px] font-bold text-gray-400 tracking-wider uppercase">ЧЕРВОНА ЗОНА</span>
                     <div class="w-7 h-7 rounded-lg bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-400 text-xs">
                         <i class="fa-solid fa-fire-flame-curved"></i>
                     </div>
                 </div>
                 <div class="my-1.5 flex items-baseline gap-2">
                     <div class="text-2xl font-black text-gradient-red tracking-tight" id="kpiCritical">0</div>
-                    <span class="text-[10px] text-red-400 font-medium bg-red-950/60 px-1.5 py-0.5 rounded border border-red-800/40">Остаток = 0</span>
+                    <span class="text-[10px] text-red-400 font-medium bg-red-950/60 px-1.5 py-0.5 rounded border border-red-800/40">Залишок = 0</span>
                 </div>
-                <p class="text-[11px] text-gray-500 truncate">Нет в наличии</p>
+                <p class="text-[11px] text-gray-500 truncate">Немає в наявності</p>
             </div>
 
-            <!-- Card 2: Желтая зона -->
+            <!-- Card 2: Жовта зона -->
             <div class="cyber-card cyber-card-amber border border-cardBorder rounded-xl p-3.5 flex flex-col justify-between">
                 <div class="flex items-center justify-between">
-                    <span class="text-[11px] font-bold text-gray-400 tracking-wider uppercase">ЖЕЛТАЯ ЗОНА</span>
+                    <span class="text-[11px] font-bold text-gray-400 tracking-wider uppercase">ЖОВТА ЗОНА</span>
                     <div class="w-7 h-7 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 text-xs">
                         <i class="fa-solid fa-triangle-exclamation"></i>
                     </div>
@@ -201,13 +201,13 @@
                     <div class="text-2xl font-black text-gradient-amber tracking-tight" id="kpiWarning">0</div>
                     <span class="text-[10px] text-amber-400 font-medium bg-amber-950/60 px-1.5 py-0.5 rounded border border-amber-800/40">1–19 од</span>
                 </div>
-                <p class="text-[11px] text-gray-500 truncate">Заканчиваются</p>
+                <p class="text-[11px] text-gray-500 truncate">Малий залишок</p>
             </div>
 
-            <!-- Card 3: Общий остаток -->
+            <!-- Card 3: Загальний залишок -->
             <div class="cyber-card border border-cardBorder rounded-xl p-3.5 flex flex-col justify-between">
                 <div class="flex items-center justify-between">
-                    <span class="text-[11px] font-bold text-gray-400 tracking-wider uppercase">ОБЩИЙ ОСТАТОК</span>
+                    <span class="text-[11px] font-bold text-gray-400 tracking-wider uppercase">ЗАГАЛЬНИЙ ЗАЛИШОК</span>
                     <div class="w-7 h-7 rounded-lg bg-gray-800 border border-gray-700 flex items-center justify-center text-gray-300 text-xs">
                         <i class="fa-solid fa-box-archive"></i>
                     </div>
@@ -215,13 +215,13 @@
                 <div class="my-1.5">
                     <div class="text-2xl font-black text-gradient-white tracking-tight" id="kpiTotalQty">0</div>
                 </div>
-                <p class="text-[11px] text-gray-500 truncate">Единиц на складе</p>
+                <p class="text-[11px] text-gray-500 truncate">Одиниць на складі</p>
             </div>
 
-            <!-- Card 4: Всего позиций -->
+            <!-- Card 4: Всього позицій -->
             <div class="cyber-card border border-cardBorder rounded-xl p-3.5 flex flex-col justify-between">
                 <div class="flex items-center justify-between">
-                    <span class="text-[11px] font-bold text-gray-400 tracking-wider uppercase">ВСЕГО ПОЗИЦИЙ</span>
+                    <span class="text-[11px] font-bold text-gray-400 tracking-wider uppercase">ВСЬОГО ПОЗИЦІЙ</span>
                     <div class="w-7 h-7 rounded-lg bg-brand/10 border border-brand/20 flex items-center justify-center text-brand text-xs">
                         <i class="fa-solid fa-chart-simple"></i>
                     </div>
@@ -229,7 +229,7 @@
                 <div class="my-1.5">
                     <div class="text-2xl font-black text-gradient-orange tracking-tight" id="kpiTotalItems">0</div>
                 </div>
-                <p class="text-[11px] text-gray-500 truncate">Всего строк в базе</p>
+                <p class="text-[11px] text-gray-500 truncate">Рядків у таблиці</p>
             </div>
         </div>
 
@@ -237,21 +237,21 @@
         <div class="flex flex-col md:flex-row items-center justify-between gap-4 mb-6">
             <div class="flex flex-wrap items-center gap-2 w-full md:w-auto">
                 <div class="flex items-center gap-1.5 bg-cardBg p-1.5 rounded-xl border border-cardBorder overflow-x-auto max-w-full">
-                    <button onclick="setFilter('all')" id="btn-all" class="filter-btn px-3.5 py-1.5 rounded-lg text-xs font-medium transition bg-brand text-white shadow-lg shadow-brand/20 whitespace-nowrap">Все</button>
-                    <button onclick="setFilter('empty')" id="btn-empty" class="filter-btn px-3.5 py-1.5 rounded-lg text-xs font-medium text-gray-400 hover:text-white transition whitespace-nowrap">Нет (0)</button>
-                    <button onclick="setFilter('warning')" id="btn-warning" class="filter-btn px-3.5 py-1.5 rounded-lg text-xs font-medium text-gray-400 hover:text-white transition whitespace-nowrap">Малый остаток (1–19)</button>
-                    <button onclick="setFilter('good')" id="btn-good" class="filter-btn px-3.5 py-1.5 rounded-lg text-xs font-medium text-gray-400 hover:text-white transition whitespace-nowrap">В наличии (&ge;20)</button>
+                    <button onclick="setFilter('all')" id="btn-all" class="filter-btn px-3.5 py-1.5 rounded-lg text-xs font-medium transition bg-brand text-white shadow-lg shadow-brand/20 whitespace-nowrap">Усі</button>
+                    <button onclick="setFilter('empty')" id="btn-empty" class="filter-btn px-3.5 py-1.5 rounded-lg text-xs font-medium text-gray-400 hover:text-white transition whitespace-nowrap">Немає (0)</button>
+                    <button onclick="setFilter('warning')" id="btn-warning" class="filter-btn px-3.5 py-1.5 rounded-lg text-xs font-medium text-gray-400 hover:text-white transition whitespace-nowrap">Малий залишок (1–19)</button>
+                    <button onclick="setFilter('good')" id="btn-good" class="filter-btn px-3.5 py-1.5 rounded-lg text-xs font-medium text-gray-400 hover:text-white transition whitespace-nowrap">У наявності (&ge;20)</button>
                 </div>
 
                 <button onclick="toggleSort()" id="btn-sort" class="flex items-center gap-2 bg-cardBg hover:bg-gray-800 border border-cardBorder text-gray-300 px-3.5 py-2 rounded-xl text-xs font-medium transition">
                     <i class="fa-solid fa-arrow-down-wide-short text-brand" id="sortIcon"></i>
-                    <span id="sortText">По таблице</span>
+                    <span id="sortText">За таблицею</span>
                 </button>
             </div>
 
             <div class="relative w-full md:w-80">
                 <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
-                <input type="text" id="searchInput" oninput="renderProducts()" placeholder="Поиск по ID CRM 1 или ID CRM 2..." class="w-full bg-cardBg border border-cardBorder rounded-xl pl-10 pr-4 py-2 text-sm text-gray-200 focus:outline-none focus:border-brand transition">
+                <input type="text" id="searchInput" oninput="renderProducts()" placeholder="Пошук за ID CRM 1 або ID CRM 2..." class="w-full bg-cardBg border border-cardBorder rounded-xl pl-10 pr-4 py-2 text-sm text-gray-200 focus:outline-none focus:border-brand transition">
             </div>
         </div>
 
@@ -259,14 +259,14 @@
         <div class="bg-cardBg border border-cardBorder rounded-2xl overflow-hidden">
             <div class="grid grid-cols-12 bg-gray-900/60 p-4 border-b border-cardBorder text-xs font-bold text-gray-400 tracking-wider uppercase">
                 <div class="col-span-4 md:col-span-4">ID CRM (BULL 1,3)</div>
-                <div class="col-span-4 md:col-span-4 text-center">К-СТЬ / ИНДИКАТОР</div>
+                <div class="col-span-4 md:col-span-4 text-center">К-СТЬ / ІНДИКАТОР</div>
                 <div class="col-span-4 md:col-span-4 text-right">ID (BULL 3)</div>
             </div>
 
             <div id="productsContainer" class="divide-y divide-cardBorder/60">
                 <div class="text-center py-12 text-gray-500">
                     <i class="fa-solid fa-spinner fa-spin text-2xl mb-2 text-brand"></i>
-                    <p>Загрузка данных из листа «СКЛАД 2 (копия)»...</p>
+                    <p>Завантаження даних із аркуша «СКЛАД 2 (копія)»...</p>
                 </div>
             </div>
         </div>
@@ -277,7 +277,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-        // ВСТАВЛЕННЫЕ КЛЮЧИ ИЗ ВАШЕГО ПРОЕКТА FIREBASE:
+        // ВСТАВЛЕНІ КЛЮЧІ З ВАШОГО ПРОЄКТУ FIREBASE:
         const firebaseConfig = {
             apiKey: "AIzaSyBemQDr2DYyNF3Bmac996j_YjjgANJRR5s",
             authDomain: "warehouse-dashboard-6b23a.firebaseapp.com",
@@ -299,7 +299,7 @@
         let countdown = 60;
         let isAuthenticated = false;
 
-        // Отслеживание состояния входа
+        // Відстеження стану входу
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 isAuthenticated = true;
@@ -314,7 +314,7 @@
             }
         });
 
-        // Функция входа
+        // Функція входу
         window.handleLogin = async (e) => {
             e.preventDefault();
             const email = document.getElementById('emailInput').value;
@@ -323,20 +323,20 @@
             const authError = document.getElementById('authError');
 
             authError.classList.add('hidden');
-            btnText.innerText = "Авторизация...";
+            btnText.innerText = "Авторизація...";
 
             try {
                 await signInWithEmailAndPassword(auth, email, pass);
             } catch (err) {
                 console.error(err);
                 authError.classList.remove('hidden');
-                authError.innerText = "Неверный Email или пароль!";
-            } finally {
-                btnText.innerText = "Войти в дашборд";
+                authError.innerText = "Неправильний Email або пароль!";
+            } font-medium {
+                btnText.innerText = "Увійти в дашборд";
             }
         };
 
-        // Функция выхода
+        // Функція виходу
         window.handleLogout = () => {
             signOut(auth);
         };
@@ -352,11 +352,11 @@
                 updateKPIs();
                 renderProducts();
             } catch (err) {
-                console.error("Ошибка загрузки:", err);
+                console.error("Помилка завантаження:", err);
                 document.getElementById('productsContainer').innerHTML = `
                     <div class="p-6 text-center text-red-400">
                         <i class="fa-solid fa-circle-exclamation text-2xl mb-2"></i>
-                        <p>Ошибка загрузки данных. Проверьте развертывание Google Apps Script.</p>
+                        <p>Помилка завантаження даних. Перевірте розгортання Google Apps Script.</p>
                     </div>`;
             } finally {
                 if (refreshIcon) refreshIcon.classList.remove('fa-spin');
@@ -387,7 +387,7 @@
         window.copyToClipboard = (text) => {
             if (!text || text === "—") return;
             navigator.clipboard.writeText(text).then(() => {
-                showToast(`ID ${text} скопирован!`);
+                showToast(`ID ${text} скопійовано!`);
             });
         };
 
@@ -441,15 +441,15 @@
             if (sortMode === 'default') {
                 sortMode = 'desc';
                 icon.className = 'fa-solid fa-arrow-down-wide-short text-brand';
-                text.innerText = 'От большего к меньшему';
+                text.innerText = 'Від більшого до меншого';
             } else if (sortMode === 'desc') {
                 sortMode = 'asc';
                 icon.className = 'fa-solid fa-arrow-up-wide-short text-brand';
-                text.innerText = 'От меньшего к большему';
+                text.innerText = 'Від меншого до більшого';
             } else {
                 sortMode = 'default';
                 icon.className = 'fa-solid fa-list-ol text-gray-400';
-                text.innerText = 'По таблице';
+                text.innerText = 'За таблицею';
             }
 
             renderProducts();
@@ -484,7 +484,7 @@
                 container.innerHTML = `
                     <div class="text-center py-12 text-gray-500">
                         <i class="fa-solid fa-box-open text-3xl mb-2 text-gray-600"></i>
-                        <p>Позиции не найдены</p>
+                        <p>Позиції не знайдено</p>
                     </div>`;
                 return;
             }
@@ -509,7 +509,7 @@
                 return `
                 <div class="grid grid-cols-12 p-3.5 items-center hover:bg-gray-800/40 transition gap-2">
                     <div class="col-span-4 font-bold text-white flex items-center gap-2">
-                        <button onclick="copyToClipboard('${p.id1}')" title="Кликните, чтобы скопировать" class="hover:text-brand transition flex items-center gap-1.5 text-left group">
+                        <button onclick="copyToClipboard('${p.id1}')" title="Клікніть, щоб скопіювати" class="hover:text-brand transition flex items-center gap-1.5 text-left group">
                             <i class="fa-regular fa-copy text-xs text-gray-500 group-hover:text-brand"></i>
                             <span class="text-sm md:text-base">${p.id1}</span>
                         </button>
@@ -524,7 +524,7 @@
 
                     <div class="col-span-4 text-right font-medium text-gray-300">
                         ${p.id2 !== "—" ? `
-                            <button onclick="copyToClipboard('${p.id2}')" title="Кликните, чтобы скопировать" class="bg-gray-800/90 hover:bg-gray-700 px-2.5 py-1 rounded-lg border border-gray-700 text-xs text-gray-200 transition inline-flex items-center gap-1 group">
+                            <button onclick="copyToClipboard('${p.id2}')" title="Клікніть, щоб скопіювати" class="bg-gray-800/90 hover:bg-gray-700 px-2.5 py-1 rounded-lg border border-gray-700 text-xs text-gray-200 transition inline-flex items-center gap-1 group">
                                 <span>ID: ${p.id2}</span>
                                 <i class="fa-regular fa-copy text-[10px] text-gray-400 group-hover:text-brand"></i>
                             </button>` 
