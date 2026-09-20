@@ -55,6 +55,7 @@
         .text-gradient-red { background: linear-gradient(135deg, #FCA5A5 0%, #EF4444 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .text-gradient-amber { background: linear-gradient(135deg, #FDE68A 0%, #F59E0B 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .text-gradient-white { background: linear-gradient(135deg, #FFFFFF 0%, #9CA3AF 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .text-gradient-emerald { background: linear-gradient(135deg, #A7F3D0 0%, #10B981 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 
         @keyframes pulse-ring {
             0% { transform: scale(0.95); opacity: 0.8; }
@@ -103,7 +104,7 @@
     <!-- Toast Notification -->
     <div id="toast" class="fixed bottom-5 right-5 z-50 bg-emerald-600 text-white px-4 py-2.5 rounded-xl shadow-2xl flex items-center gap-2 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
         <i class="fa-solid fa-circle-check"></i>
-        <span id="toastMsg" class="text-sm font-medium">ID скопійовано!</span>
+        <span id="toastMsg" class="text-sm font-medium">Текст скопійовано!</span>
     </div>
 
     <!-- Sidebar -->
@@ -120,7 +121,7 @@
             <nav class="space-y-2">
                 <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-brand/10 text-brand font-medium border border-brand/20">
                     <i class="fa-solid fa-boxes-stacked"></i>
-                    СКЛАД 2 (копія)
+                    ОБЛІК СКЛАДУ
                 </a>
             </nav>
         </div>
@@ -149,9 +150,9 @@
 
                 <div class="flex items-center gap-3">
                     <h2 class="text-2xl font-bold">Облік Товарів Складу</h2>
-                    <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-brand/20 text-brand border border-brand/30">Склад 2</span>
+                    <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-brand/20 text-brand border border-brand/30">Основний Склад</span>
                 </div>
-                <p class="text-sm text-gray-400 mt-0.5">Синхронізація залишків за ID CRM (BULL1 / BULL3)</p>
+                <p class="text-sm text-gray-400 mt-0.5">Моніторинг залишків, закупівлі та вартості запасу</p>
             </div>
             
             <div class="flex items-center gap-3 self-end md:self-auto">
@@ -168,7 +169,8 @@
             </div>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 mb-6">
+        <!-- KPI Карточки -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5 mb-6">
             <div class="cyber-card cyber-card-red border border-cardBorder rounded-xl p-3.5 flex flex-col justify-between">
                 <div class="flex items-center justify-between">
                     <span class="text-[11px] font-bold text-gray-400 tracking-wider uppercase">ЧЕРВОНА ЗОНА</span>
@@ -178,9 +180,9 @@
                 </div>
                 <div class="my-1.5 flex items-baseline gap-2">
                     <div class="text-2xl font-black text-gradient-red tracking-tight" id="kpiCritical">0</div>
-                    <span class="text-[10px] text-red-400 font-medium bg-red-950/60 px-1.5 py-0.5 rounded border border-red-800/40">Залишок = 0</span>
+                    <span class="text-[10px] text-red-400 font-medium bg-red-950/60 px-1.5 py-0.5 rounded border border-red-800/40">0 од</span>
                 </div>
-                <p class="text-[11px] text-gray-500 truncate">Немає в наявності</p>
+                <p class="text-[11px] text-gray-500 truncate">Позицій немає в наявності</p>
             </div>
 
             <div class="cyber-card cyber-card-amber border border-cardBorder rounded-xl p-3.5 flex flex-col justify-between">
@@ -199,7 +201,7 @@
 
             <div class="cyber-card border border-cardBorder rounded-xl p-3.5 flex flex-col justify-between">
                 <div class="flex items-center justify-between">
-                    <span class="text-[11px] font-bold text-gray-400 tracking-wider uppercase">ЗАГАЛЬНИЙ ЗАЛИШОК</span>
+                    <span class="text-[11px] font-bold text-gray-400 tracking-wider uppercase">ОДИНИЦЬ ТОВАРУ</span>
                     <div class="w-7 h-7 rounded-lg bg-gray-800 border border-gray-700 flex items-center justify-center text-gray-300 text-xs">
                         <i class="fa-solid fa-box-archive"></i>
                     </div>
@@ -207,23 +209,38 @@
                 <div class="my-1.5">
                     <div class="text-2xl font-black text-gradient-white tracking-tight" id="kpiTotalQty">0</div>
                 </div>
-                <p class="text-[11px] text-gray-500 truncate">Одиниць на складі</p>
+                <p class="text-[11px] text-gray-500 truncate">Загальна к-сть штук</p>
             </div>
 
             <div class="cyber-card border border-cardBorder rounded-xl p-3.5 flex flex-col justify-between">
                 <div class="flex items-center justify-between">
-                    <span class="text-[11px] font-bold text-gray-400 tracking-wider uppercase">ВСЬОГО ПОЗИЦІЙ</span>
-                    <div class="w-7 h-7 rounded-lg bg-brand/10 border border-brand/20 flex items-center justify-center text-brand text-xs">
-                        <i class="fa-solid fa-chart-simple"></i>
+                    <span class="text-[11px] font-bold text-gray-400 tracking-wider uppercase">ЗАЛИШОК (ГРН)</span>
+                    <div class="w-7 h-7 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 text-xs">
+                        <i class="fa-solid fa-hryvnia-sign"></i>
                     </div>
                 </div>
                 <div class="my-1.5">
-                    <div class="text-2xl font-black text-gradient-orange tracking-tight" id="kpiTotalItems">0</div>
+                    <div class="text-2xl font-black text-gradient-emerald tracking-tight" id="kpiTotalSumUah">0 ₴</div>
                 </div>
-                <p class="text-[11px] text-gray-500 truncate">Рядків у таблиці</p>
+                <p class="text-[11px] text-gray-500 truncate">Загальна вартість складених товарів</p>
+            </div>
+
+            <div class="cyber-card border border-cardBorder rounded-xl p-3.5 flex flex-col justify-between">
+                <div class="flex items-center justify-between">
+                    <span class="text-[11px] font-bold text-gray-400 tracking-wider uppercase">ЗАЛИШОК ($)</span>
+                    <div class="w-7 h-7 rounded-lg bg-brand/10 border border-brand/20 flex items-center justify-center text-brand text-xs">
+                        <i class="fa-solid fa-dollar-sign"></i>
+                    </div>
+                </div>
+                <div class="my-1.5 flex items-baseline justify-between">
+                    <div class="text-2xl font-black text-gradient-orange tracking-tight" id="kpiTotalSumUsd">$0</div>
+                    <span class="text-[10px] text-gray-400 bg-gray-800/80 px-1.5 py-0.5 rounded border border-gray-700" id="usdRateBadge">Курс: 45</span>
+                </div>
+                <p class="text-[11px] text-gray-500 truncate">Оцінка в валюті</p>
             </div>
         </div>
 
+        <!-- Фильтры и Поиск -->
         <div class="flex flex-col md:flex-row items-center justify-between gap-4 mb-6">
             <div class="flex flex-wrap items-center gap-2 w-full md:w-auto">
                 <div class="flex items-center gap-1.5 bg-cardBg p-1.5 rounded-xl border border-cardBorder overflow-x-auto max-w-full">
@@ -239,27 +256,30 @@
                 </button>
             </div>
 
-            <!-- Поле поиска с кнопкой очистки -->
+            <!-- Поле поиска -->
             <div class="relative w-full md:w-80">
                 <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm pointer-events-none"></i>
-                <input type="text" id="searchInput" oninput="handleSearchInput()" placeholder="Пошук за ID CRM 1 або ID CRM 2..." class="w-full bg-cardBg border border-cardBorder rounded-xl pl-10 pr-9 py-2 text-sm text-gray-200 focus:outline-none focus:border-brand transition">
+                <input type="text" id="searchInput" oninput="handleSearchInput()" placeholder="Пошук за назвою або ID..." class="w-full bg-cardBg border border-cardBorder rounded-xl pl-10 pr-9 py-2 text-sm text-gray-200 focus:outline-none focus:border-brand transition">
                 <button id="clearSearchBtn" onclick="clearSearch()" class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition p-1">
                     <i class="fa-solid fa-xmark text-sm"></i>
                 </button>
             </div>
         </div>
 
-        <div class="bg-cardBg border border-cardBorder rounded-2xl overflow-hidden">
-            <div class="grid grid-cols-12 bg-gray-900/60 p-4 border-b border-cardBorder text-xs font-bold text-gray-400 tracking-wider uppercase">
-                <div class="col-span-4 md:col-span-4">ID CRM (BULL 1,3)</div>
-                <div class="col-span-4 md:col-span-4 text-center">К-СТЬ / ІНДИКАТОР</div>
-                <div class="col-span-4 md:col-span-4 text-right">ID (BULL 3)</div>
+        <!-- Таблица товаров -->
+        <div class="bg-cardBg border border-cardBorder rounded-2xl overflow-hidden shadow-xl">
+            <div class="grid grid-cols-12 bg-gray-900/80 p-4 border-b border-cardBorder text-xs font-bold text-gray-400 tracking-wider uppercase">
+                <div class="col-span-1 md:col-span-1">ID</div>
+                <div class="col-span-5 md:col-span-5">НАЗВА ТОВАРУ</div>
+                <div class="col-span-2 md:col-span-2 text-center">К-СТЬ</div>
+                <div class="col-span-2 md:col-span-2 text-right">ЗАКУП, ГРН</div>
+                <div class="col-span-2 md:col-span-2 text-right">ЗАЛИШОК, ГРН</div>
             </div>
 
             <div id="productsContainer" class="divide-y divide-cardBorder/60">
                 <div class="text-center py-12 text-gray-500">
                     <i class="fa-solid fa-spinner fa-spin text-2xl mb-2 text-brand"></i>
-                    <p>Завантаження даних із аркуша «СКЛАД 2 (копія)»...</p>
+                    <p>Завантаження даних з аркуша «СКЛАД»...</p>
                 </div>
             </div>
         </div>
@@ -283,9 +303,11 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
 
-        const API_URL = "https://script.google.com/macros/s/AKfycbyB_HzR9TRqkdf_bdzwbncmf2wtjjLogglLpgY9PLtXiG1Ytmyx_Vlj0y-LkpeR4ubIng/exec";
+        // Обновленный URL вашего Google Apps Script
+        const API_URL = "https://script.google.com/macros/s/AKfycbxHxTydxr0bCSPtjuuwq72QA6eUVgsmApc4Jjwy3qsJA5E8RBM90F2qspizWg6I7_nu/exec";
         
         let allProducts = [];
+        let summaryData = {};
         let currentFilter = 'all';
         let sortMode = 'default';
         let countdown = 60;
@@ -332,7 +354,6 @@
             signOut(auth);
         };
 
-        // Завантаження даних через JSONP (обхід CORS)
         window.loadData = () => {
             const refreshIcon = document.getElementById('refreshIcon');
             if (refreshIcon) refreshIcon.classList.add('fa-spin');
@@ -353,7 +374,13 @@
                     return;
                 }
 
-                allProducts = data;
+                if (data.products) {
+                    allProducts = data.products;
+                    summaryData = data.summary || {};
+                } else {
+                    allProducts = Array.isArray(data) ? data : [];
+                }
+
                 updateKPIs();
                 renderProducts();
                 resetTimer();
@@ -404,7 +431,7 @@
         window.copyToClipboard = (text) => {
             if (!text || text === "—") return;
             navigator.clipboard.writeText(text).then(() => {
-                showToast(`ID ${text} скопійовано!`);
+                showToast(`Скопійовано: "${text}"`);
             });
         };
 
@@ -422,19 +449,33 @@
         function updateKPIs() {
             let critical = 0;
             let warning = 0;
-            let totalQty = 0;
+            let calcTotalQty = 0;
+            let calcTotalSumUah = 0;
 
             allProducts.forEach(p => {
                 const q = Number(p.qty) || 0;
+                const sum = Number(p.totalSum) || 0;
+
                 if (q === 0) critical++;
                 else if (q <= 19) warning++;
-                totalQty += q;
+
+                calcTotalQty += q;
+                calcTotalSumUah += sum;
             });
+
+            const finalQty = summaryData.totalQty || calcTotalQty;
+            const finalSumUah = summaryData.totalSumUah || calcTotalSumUah;
+            const finalSumUsd = summaryData.totalSumUsd || (summaryData.usdRate ? (finalSumUah / summaryData.usdRate) : 0);
 
             document.getElementById('kpiCritical').innerText = critical;
             document.getElementById('kpiWarning').innerText = warning;
-            document.getElementById('kpiTotalQty').innerText = totalQty.toLocaleString();
-            document.getElementById('kpiTotalItems').innerText = allProducts.length;
+            document.getElementById('kpiTotalQty').innerText = finalQty.toLocaleString('uk-UA');
+            document.getElementById('kpiTotalSumUah').innerText = Math.round(finalSumUah).toLocaleString('uk-UA') + ' ₴';
+            document.getElementById('kpiTotalSumUsd').innerText = '$' + Math.round(finalSumUsd).toLocaleString('en-US');
+            
+            if (summaryData.usdRate) {
+                document.getElementById('usdRateBadge').innerText = `Курс: ${summaryData.usdRate}`;
+            }
         }
 
         window.setFilter = (filter) => {
@@ -458,11 +499,11 @@
             if (sortMode === 'default') {
                 sortMode = 'desc';
                 icon.className = 'fa-solid fa-arrow-down-wide-short text-brand';
-                text.innerText = 'Від більшого до меншого';
+                text.innerText = 'Залишкі (більше -> менше)';
             } else if (sortMode === 'desc') {
                 sortMode = 'asc';
                 icon.className = 'fa-solid fa-arrow-up-wide-short text-brand';
-                text.innerText = 'Від меншого до більшого';
+                text.innerText = 'Залишкі (менше -> більше)';
             } else {
                 sortMode = 'default';
                 icon.className = 'fa-solid fa-list-ol text-gray-400';
@@ -497,8 +538,8 @@
 
             let filtered = allProducts.filter(p => {
                 const matchesSearch = 
-                    String(p.id1).toLowerCase().includes(search) ||
-                    String(p.id2).toLowerCase().includes(search);
+                    String(p.id).toLowerCase().includes(search) ||
+                    String(p.name).toLowerCase().includes(search);
 
                 if (!matchesSearch) return false;
 
@@ -520,16 +561,19 @@
                 container.innerHTML = `
                     <div class="text-center py-12 text-gray-500">
                         <i class="fa-solid fa-box-open text-3xl mb-2 text-gray-600"></i>
-                        <p>Позиції не знайдено</p>
+                        <p>Товарів не знайдено</p>
                     </div>`;
                 return;
             }
 
             container.innerHTML = filtered.map(p => {
                 const q = Number(p.qty) || 0;
+                const price = Number(p.price) || 0;
+                const totalSum = Number(p.totalSum) || (q * price);
+
                 let qtyBadge = '';
                 let progressColor = 'bg-emerald-500';
-                let progressWidth = Math.min(100, Math.max(6, (q / 50) * 100));
+                let progressWidth = Math.min(100, Math.max(6, (q / 300) * 100));
 
                 if (q === 0) {
                     qtyBadge = `<span class="px-2.5 py-1 rounded-md text-xs font-bold bg-red-950/80 text-red-400 border border-red-800/60">0 од</span>`;
@@ -544,27 +588,36 @@
 
                 return `
                 <div class="grid grid-cols-12 p-3.5 items-center hover:bg-gray-800/40 transition gap-2">
-                    <div class="col-span-4 font-bold text-white flex items-center gap-2">
-                        <button onclick="copyToClipboard('${p.id1}')" title="Клікніть, щоб скопіювати" class="hover:text-brand transition flex items-center gap-1.5 text-left group">
-                            <i class="fa-regular fa-copy text-xs text-gray-500 group-hover:text-brand"></i>
-                            <span class="text-sm md:text-base">${p.id1}</span>
+                    <!-- ID -->
+                    <div class="col-span-1 font-mono text-xs text-gray-400">
+                        <button onclick="copyToClipboard('${p.id}')" title="Скопіювати ID" class="hover:text-brand transition">
+                            #${p.id}
                         </button>
                     </div>
 
-                    <div class="col-span-4 flex flex-col items-center justify-center gap-1">
+                    <!-- Название товара -->
+                    <div class="col-span-5 font-bold text-white text-sm md:text-base">
+                        <button onclick="copyToClipboard('${p.name.replace(/'/g, "\\'")}')" title="Клікніть, щоб скопіювати назву" class="hover:text-brand transition text-left">
+                            ${p.name}
+                        </button>
+                    </div>
+
+                    <!-- Остаток и шкала -->
+                    <div class="col-span-2 flex flex-col items-center justify-center gap-1">
                         <div>${qtyBadge}</div>
-                        <div class="w-full max-w-[120px] h-1.5 bg-gray-800 rounded-full overflow-hidden">
+                        <div class="w-full max-w-[100px] h-1.5 bg-gray-800 rounded-full overflow-hidden">
                             <div class="h-full ${progressColor} transition-all duration-300 rounded-full" style="width: ${progressWidth}%"></div>
                         </div>
                     </div>
 
-                    <div class="col-span-4 text-right font-medium text-gray-300">
-                        ${p.id2 !== "—" ? `
-                            <button onclick="copyToClipboard('${p.id2}')" title="Клікніть, щоб скопіювати" class="bg-gray-800/90 hover:bg-gray-700 px-2.5 py-1 rounded-lg border border-gray-700 text-xs text-gray-200 transition inline-flex items-center gap-1 group">
-                                <span>ID: ${p.id2}</span>
-                                <i class="fa-regular fa-copy text-[10px] text-gray-400 group-hover:text-brand"></i>
-                            </button>` 
-                        : '<span class="text-gray-600">—</span>'}
+                    <!-- Закупка -->
+                    <div class="col-span-2 text-right font-medium text-gray-300 text-sm">
+                        ${price > 0 ? `${price} ₴` : '<span class="text-gray-600">—</span>'}
+                    </div>
+
+                    <!-- Стоимость остатка -->
+                    <div class="col-span-2 text-right font-bold text-emerald-400 text-sm">
+                        ${totalSum > 0 ? `${totalSum.toLocaleString('uk-UA')} ₴` : '<span class="text-gray-600">—</span>'}
                     </div>
                 </div>
                 `;
