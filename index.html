@@ -258,7 +258,7 @@
         </div>
     </main>
 
-    <!-- FIREBASE & APPLICATION LOGIC -->
+    <!-- FIREBASE SDKs & LOGIC -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
@@ -323,32 +323,46 @@
             signOut(auth);
         };
 
-        window.loadData = async () => {
+        // Завантаження даних через JSONP (обхід CORS)
+        window.loadData = () => {
             const refreshIcon = document.getElementById('refreshIcon');
             if (refreshIcon) refreshIcon.classList.add('fa-spin');
 
-            try {
-                const res = await fetch(API_URL, { redirect: 'follow' });
-                const data = await res.json();
+            const oldScript = document.getElementById('jsonp-script');
+            if (oldScript) oldScript.remove();
+
+            window.handleDataResponse = (data) => {
+                if (refreshIcon) refreshIcon.classList.remove('fa-spin');
                 
-                if (data.error) {
-                    throw new Error(data.error);
+                if (data && data.error) {
+                    console.error("Помилка Apps Script:", data.error);
+                    document.getElementById('productsContainer').innerHTML = `
+                        <div class="p-6 text-center text-red-400">
+                            <i class="fa-solid fa-circle-exclamation text-2xl mb-2"></i>
+                            <p>Помилка аркуша: ${data.error}</p>
+                        </div>`;
+                    return;
                 }
 
                 allProducts = data;
                 updateKPIs();
                 renderProducts();
-            } catch (err) {
-                console.error("Помилка завантаження:", err);
+                resetTimer();
+            };
+
+            const script = document.createElement('script');
+            script.id = 'jsonp-script';
+            script.src = `${API_URL}?callback=handleDataResponse&t=${Date.now()}`;
+            script.onerror = () => {
+                if (refreshIcon) refreshIcon.classList.remove('fa-spin');
                 document.getElementById('productsContainer').innerHTML = `
                     <div class="p-6 text-center text-red-400">
                         <i class="fa-solid fa-circle-exclamation text-2xl mb-2"></i>
-                        <p>Помилка завантаження даних: ${err.message}</p>
+                        <p>Помилка завантаження даних. Перевірте доступи Google Apps Script.</p>
                     </div>`;
-            } finally {
-                if (refreshIcon) refreshIcon.classList.remove('fa-spin');
-                resetTimer();
-            }
+            };
+
+            document.body.appendChild(script);
         };
 
         function resetTimer() {
