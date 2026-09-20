@@ -245,25 +245,26 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-        // КОНФИГУРАЦИЯ FIREBASE
+        // НАСТОЯЩАЯ КОНФИГУРАЦИЯ FIREBASE
         const firebaseConfig = {
-            apiKey: "AIzaSyD...", // Вставьте ваш реальный apiKey
-            authDomain: "warehouse-dashboard-seven.firebaseapp.com",
-            projectId: "warehouse-dashboard-seven",
-            storageBucket: "warehouse-dashboard-seven.appspot.com",
-            messagingSenderId: "1234567890",
-            appId: "1:1234567890:web:abcdef"
+            apiKey: "AIzaSyBemQDr2DYyNF3Bmac996j_YjjgANJRR5s",
+            authDomain: "warehouse-dashboard-6b23a.firebaseapp.com",
+            projectId: "warehouse-dashboard-6b23a",
+            storageBucket: "warehouse-dashboard-6b23a.firebasestorage.app",
+            messagingSenderId: "275907622369",
+            appId: "1:275907622369:web:2f6980be29bc9e3bcacea0",
+            measurementId: "G-8QJWLGNH5Y"
         };
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
 
-        // ВАШ GOOGLE APPS SCRIPT URL
+        // GOOGLE APPS SCRIPT URL (При необходимости замените на ваш рабочий deployment URL)
         const GAS_URL = "https://script.google.com/macros/s/AKfycbx.../exec"; 
 
         let inventoryData = [];
         let currentFilter = 'all';
-        let sortAsc = null; // null = оригинальный порядок, true = по возрастанию, false = по убыванию
+        let sortAsc = null;
         let timerInterval = null;
         let countdown = 60;
 
@@ -357,7 +358,6 @@
 
         // Рендеринг таблицы и статистики
         function render() {
-            // Расчет статистики
             let countRed = 0;
             let countYellow = 0;
             let totalQty = 0;
@@ -374,18 +374,15 @@
             document.getElementById('statTotalQty').innerText = totalQty.toLocaleString();
             document.getElementById('statTotalRows').innerText = inventoryData.length;
 
-            // Поиск и Фильтрация
             const searchQuery = document.getElementById('searchInput').value.toLowerCase().trim();
 
             let filtered = inventoryData.filter(item => {
                 const q = Number(item.qty) || 0;
                 
-                // Фильтр по зонам
                 if (currentFilter === 'red' && q !== 0) return false;
                 if (currentFilter === 'yellow' && (q < 1 || q > 19)) return false;
                 if (currentFilter === 'green' && q < 20) return false;
 
-                // Поиск по ID
                 if (searchQuery) {
                     const match1 = String(item.id1 || '').toLowerCase().includes(searchQuery);
                     const match2 = String(item.id2 || '').toLowerCase().includes(searchQuery);
@@ -395,14 +392,12 @@
                 return true;
             });
 
-            // Сортировка
             if (sortAsc === true) {
                 filtered.sort((a, b) => (Number(a.qty) || 0) - (Number(b.qty) || 0));
             } else if (sortAsc === false) {
                 filtered.sort((a, b) => (Number(b.qty) || 0) - (Number(a.qty) || 0));
             }
 
-            // Отрисовка строк
             const tbody = document.getElementById('tableBody');
             if (filtered.length === 0) {
                 tbody.innerHTML = `
@@ -418,7 +413,6 @@
             tbody.innerHTML = filtered.map(item => {
                 const q = Number(item.qty) || 0;
                 
-                // Оформление количества и индикаторов
                 let badgeClass = "bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
                 let barClass = "bg-emerald-500";
                 let barWidth = Math.min(100, (q / 50) * 100);
@@ -486,13 +480,13 @@
         document.getElementById('sortBtn').addEventListener('click', () => {
             const sortBtn = document.getElementById('sortBtn');
             if (sortAsc === null) {
-                sortAsc = true; // По возрастанию
+                sortAsc = true;
                 sortBtn.innerHTML = `<i class="fa-solid fa-arrow-up-1-9 text-xs text-brand-500"></i><span class="text-brand-500">За зростанням</span>`;
             } else if (sortAsc === true) {
-                sortAsc = false; // По убыванию
+                sortAsc = false;
                 sortBtn.innerHTML = `<i class="fa-solid fa-arrow-down-9-1 text-xs text-brand-500"></i><span class="text-brand-500">За спаданням</span>`;
             } else {
-                sortAsc = null; // Оригинальный порядок
+                sortAsc = null;
                 sortBtn.innerHTML = `<i class="fa-solid fa-arrow-down-short-wide text-xs"></i><span>За таблицею</span>`;
             }
             render();
