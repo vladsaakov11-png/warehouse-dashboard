@@ -45,49 +45,18 @@
             top: 0; left: 0; right: 0; height: 1px;
             background: linear-gradient(90deg, transparent, rgba(255, 122, 0, 0.3), transparent);
         }
-        .cyber-card:hover {
-            transform: translateY(-2px);
-            border-color: rgba(255, 122, 0, 0.4);
-            box-shadow: 0 8px 25px -5px rgba(255, 122, 0, 0.15);
-        }
 
-        .cyber-card-red:hover {
-            border-color: rgba(239, 68, 68, 0.4);
-            box-shadow: 0 8px 25px -5px rgba(239, 68, 68, 0.2);
-        }
-        .cyber-card-red::before {
-            background: linear-gradient(90deg, transparent, rgba(239, 68, 68, 0.4), transparent);
-        }
+        .cyber-card-red:hover { border-color: rgba(239, 68, 68, 0.4); box-shadow: 0 8px 25px -5px rgba(239, 68, 68, 0.2); }
+        .cyber-card-red::before { background: linear-gradient(90deg, transparent, rgba(239, 68, 68, 0.4), transparent); }
 
-        .cyber-card-amber:hover {
-            border-color: rgba(245, 158, 11, 0.4);
-            box-shadow: 0 8px 25px -5px rgba(245, 158, 11, 0.2);
-        }
-        .cyber-card-amber::before {
-            background: linear-gradient(90deg, transparent, rgba(245, 158, 11, 0.4), transparent);
-        }
+        .cyber-card-amber:hover { border-color: rgba(245, 158, 11, 0.4); box-shadow: 0 8px 25px -5px rgba(245, 158, 11, 0.2); }
+        .cyber-card-amber::before { background: linear-gradient(90deg, transparent, rgba(245, 158, 11, 0.4), transparent); }
 
         /* Gradient Text */
-        .text-gradient-orange {
-            background: linear-gradient(135deg, #FF9E43 0%, #FF7A00 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .text-gradient-red {
-            background: linear-gradient(135deg, #FCA5A5 0%, #EF4444 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .text-gradient-amber {
-            background: linear-gradient(135deg, #FDE68A 0%, #F59E0B 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .text-gradient-white {
-            background: linear-gradient(135deg, #FFFFFF 0%, #9CA3AF 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
+        .text-gradient-orange { background: linear-gradient(135deg, #FF9E43 0%, #FF7A00 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .text-gradient-red { background: linear-gradient(135deg, #FCA5A5 0%, #EF4444 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .text-gradient-amber { background: linear-gradient(135deg, #FDE68A 0%, #F59E0B 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .text-gradient-white { background: linear-gradient(135deg, #FFFFFF 0%, #9CA3AF 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 
         /* Pulse Animation */
         @keyframes pulse-ring {
@@ -95,14 +64,47 @@
             50% { transform: scale(1.1); opacity: 0.4; }
             100% { transform: scale(0.95); opacity: 0.8; }
         }
-        .live-dot {
-            animation: pulse-ring 2s infinite ease-in-out;
-        }
+        .live-dot { animation: pulse-ring 2s infinite ease-in-out; }
     </style>
 </head>
 <body class="min-h-screen flex">
 
-    <!-- Toast Notification for Copying -->
+    <!-- FIREBASE AUTH OVERLAY (LOGIN FORM) -->
+    <div id="authOverlay" class="fixed inset-0 z-50 bg-[#070a12] flex items-center justify-center p-4">
+        <div class="bg-[#0e1320] border border-[#1a2336] rounded-2xl p-8 max-w-sm w-full text-center shadow-2xl relative overflow-hidden">
+            <!-- Header Logo -->
+            <div class="flex flex-col items-center mb-6">
+                <div class="flex items-baseline">
+                    <span class="text-3xl font-black tracking-tight text-white uppercase">POINT</span>
+                    <span class="text-3xl font-black text-[#FF7A00] ml-0.5">.</span>
+                </div>
+                <span class="text-[11px] font-bold tracking-[0.25em] text-[#FF7A00] uppercase mt-0.5">FULFILLMENT</span>
+            </div>
+
+            <h3 class="text-lg font-bold mb-1">Авторизация Склада</h3>
+            <p class="text-xs text-gray-400 mb-6">Введите Email и пароль для доступа к дашборду</p>
+
+            <form onsubmit="handleLogin(event)" class="space-y-4">
+                <div class="text-left">
+                    <label class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block mb-1">Email</label>
+                    <input type="email" id="emailInput" required placeholder="user@point.com" class="w-full bg-gray-900/90 border border-cardBorder rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brand transition">
+                </div>
+                <div class="text-left">
+                    <label class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block mb-1">Пароль</label>
+                    <input type="password" id="passInput" required placeholder="••••••••" class="w-full bg-gray-900/90 border border-cardBorder rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brand transition">
+                </div>
+
+                <div id="authError" class="text-xs text-red-400 hidden font-medium">Ошибка входа: проверьте данные</div>
+
+                <button type="submit" id="btnLogin" class="w-full bg-brand hover:bg-[#E06B00] text-white font-bold py-3 rounded-xl shadow-lg shadow-brand/20 transition flex items-center justify-center gap-2">
+                    <span id="btnText">Войти в дашборд</span>
+                    <i class="fa-solid fa-arrow-right text-xs"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
     <div id="toast" class="fixed bottom-5 right-5 z-50 bg-emerald-600 text-white px-4 py-2.5 rounded-xl shadow-2xl flex items-center gap-2 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
         <i class="fa-solid fa-circle-check"></i>
         <span id="toastMsg" class="text-sm font-medium">ID скопирован!</span>
@@ -128,21 +130,28 @@
             </nav>
         </div>
 
-        <div class="text-xs text-gray-500 text-center">
-            POINT. Fulfillment &copy; 2026
+        <div class="text-xs text-gray-500 text-center flex flex-col gap-2">
+            <div id="userEmail" class="text-[11px] text-gray-400 truncate font-mono"></div>
+            <button onclick="handleLogout()" class="text-gray-400 hover:text-red-400 transition text-xs flex items-center justify-center gap-1">
+                <i class="fa-solid fa-right-from-bracket"></i> Выйти из аккаунта
+            </button>
+            <span class="mt-2">POINT. Fulfillment &copy; 2026</span>
         </div>
     </aside>
 
     <!-- Main Content -->
-    <main class="flex-1 p-4 md:p-8 overflow-y-auto">
+    <main class="flex-1 p-4 md:p-8 overflow-y-auto hidden" id="mainDashboard">
         <!-- Header -->
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
             <div>
                 <!-- Mobile Logo View -->
-                <div class="md:hidden flex items-baseline mb-2">
-                    <span class="text-2xl font-black tracking-tight text-white uppercase">POINT</span>
-                    <span class="text-2xl font-black text-brand ml-0.5">.</span>
-                    <span class="text-[9px] font-bold tracking-[0.2em] text-brand uppercase ml-2">FULFILLMENT</span>
+                <div class="md:hidden flex items-baseline mb-2 justify-between">
+                    <div class="flex items-baseline">
+                        <span class="text-2xl font-black tracking-tight text-white uppercase">POINT</span>
+                        <span class="text-2xl font-black text-brand ml-0.5">.</span>
+                        <span class="text-[9px] font-bold tracking-[0.2em] text-brand uppercase ml-2">FULFILLMENT</span>
+                    </div>
+                    <button onclick="handleLogout()" class="text-gray-400 hover:text-red-400 text-xs">Выход</button>
                 </div>
 
                 <div class="flex items-center gap-3">
@@ -227,7 +236,6 @@
         <!-- Controls: Filters, Sort & Search -->
         <div class="flex flex-col md:flex-row items-center justify-between gap-4 mb-6">
             <div class="flex flex-wrap items-center gap-2 w-full md:w-auto">
-                <!-- Filter Tabs -->
                 <div class="flex items-center gap-1.5 bg-cardBg p-1.5 rounded-xl border border-cardBorder overflow-x-auto max-w-full">
                     <button onclick="setFilter('all')" id="btn-all" class="filter-btn px-3.5 py-1.5 rounded-lg text-xs font-medium transition bg-brand text-white shadow-lg shadow-brand/20 whitespace-nowrap">Все</button>
                     <button onclick="setFilter('empty')" id="btn-empty" class="filter-btn px-3.5 py-1.5 rounded-lg text-xs font-medium text-gray-400 hover:text-white transition whitespace-nowrap">Нет (0)</button>
@@ -235,14 +243,12 @@
                     <button onclick="setFilter('good')" id="btn-good" class="filter-btn px-3.5 py-1.5 rounded-lg text-xs font-medium text-gray-400 hover:text-white transition whitespace-nowrap">В наличии (&ge;20)</button>
                 </div>
 
-                <!-- Sort Button -->
                 <button onclick="toggleSort()" id="btn-sort" class="flex items-center gap-2 bg-cardBg hover:bg-gray-800 border border-cardBorder text-gray-300 px-3.5 py-2 rounded-xl text-xs font-medium transition">
                     <i class="fa-solid fa-arrow-down-wide-short text-brand" id="sortIcon"></i>
                     <span id="sortText">По таблице</span>
                 </button>
             </div>
 
-            <!-- Search Bar -->
             <div class="relative w-full md:w-80">
                 <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
                 <input type="text" id="searchInput" oninput="renderProducts()" placeholder="Поиск по ID CRM 1 или ID CRM 2..." class="w-full bg-cardBg border border-cardBorder rounded-xl pl-10 pr-4 py-2 text-sm text-gray-200 focus:outline-none focus:border-brand transition">
@@ -266,15 +272,76 @@
         </div>
     </main>
 
-    <script>
+    <!-- FIREBASE SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+        // ВСТАВЛЕННЫЕ КЛЮЧИ ИЗ ВАШЕГО ПРОЕКТА FIREBASE:
+        const firebaseConfig = {
+            apiKey: "AIzaSyBemQDr2DYyNF3Bmac996j_YjjgANJRR5s",
+            authDomain: "warehouse-dashboard-6b23a.firebaseapp.com",
+            projectId: "warehouse-dashboard-6b23a",
+            storageBucket: "warehouse-dashboard-6b23a.firebasestorage.app",
+            messagingSenderId: "275907622369",
+            appId: "1:275907622369:web:2f6980be29bc9e3bcacea0",
+            measurementId: "G-8QJWLGNH5Y"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
         const API_URL = "https://script.google.com/macros/s/AKfycbxykWnzEcO8zDuV87ncqRa83tCP8jnRB_JbtEr3uhBXOPJkPZyDYXc5AqodR-1KaVFHCA/exec";
         
         let allProducts = [];
         let currentFilter = 'all';
         let sortMode = 'default';
         let countdown = 60;
+        let isAuthenticated = false;
 
-        async function loadData() {
+        // Отслеживание состояния входа
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                isAuthenticated = true;
+                document.getElementById('authOverlay').classList.add('hidden');
+                document.getElementById('mainDashboard').classList.remove('hidden');
+                document.getElementById('userEmail').innerText = user.email;
+                loadData();
+            } else {
+                isAuthenticated = false;
+                document.getElementById('authOverlay').classList.remove('hidden');
+                document.getElementById('mainDashboard').classList.add('hidden');
+            }
+        });
+
+        // Функция входа
+        window.handleLogin = async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('emailInput').value;
+            const pass = document.getElementById('passInput').value;
+            const btnText = document.getElementById('btnText');
+            const authError = document.getElementById('authError');
+
+            authError.classList.add('hidden');
+            btnText.innerText = "Авторизация...";
+
+            try {
+                await signInWithEmailAndPassword(auth, email, pass);
+            } catch (err) {
+                console.error(err);
+                authError.classList.remove('hidden');
+                authError.innerText = "Неверный Email или пароль!";
+            } finally {
+                btnText.innerText = "Войти в дашборд";
+            }
+        };
+
+        // Функция выхода
+        window.handleLogout = () => {
+            signOut(auth);
+        };
+
+        window.loadData = async () => {
             const refreshIcon = document.getElementById('refreshIcon');
             if (refreshIcon) refreshIcon.classList.add('fa-spin');
 
@@ -295,33 +362,34 @@
                 if (refreshIcon) refreshIcon.classList.remove('fa-spin');
                 resetTimer();
             }
-        }
+        };
 
         function resetTimer() {
             countdown = 60;
             document.getElementById('timerText').innerText = `${countdown}s`;
         }
 
-        function manualRefresh() {
-            loadData();
-        }
+        window.manualRefresh = () => {
+            window.loadData();
+        };
 
-        // Live Pulse Countdown Timer
         setInterval(() => {
-            countdown--;
-            if (countdown <= 0) {
-                loadData();
-            } else {
-                document.getElementById('timerText').innerText = `${countdown}s`;
+            if (isAuthenticated) {
+                countdown--;
+                if (countdown <= 0) {
+                    window.loadData();
+                } else {
+                    document.getElementById('timerText').innerText = `${countdown}s`;
+                }
             }
         }, 1000);
 
-        function copyToClipboard(text) {
+        window.copyToClipboard = (text) => {
             if (!text || text === "—") return;
             navigator.clipboard.writeText(text).then(() => {
                 showToast(`ID ${text} скопирован!`);
             });
-        }
+        };
 
         function showToast(msg) {
             const toast = document.getElementById('toast');
@@ -352,7 +420,7 @@
             document.getElementById('kpiTotalItems').innerText = allProducts.length;
         }
 
-        function setFilter(filter) {
+        window.setFilter = (filter) => {
             currentFilter = filter;
             document.querySelectorAll('.filter-btn').forEach(btn => {
                 btn.classList.remove('bg-brand', 'text-white', 'shadow-lg', 'shadow-brand/20');
@@ -364,9 +432,9 @@
                 activeBtn.classList.remove('text-gray-400');
             }
             renderProducts();
-        }
+        };
 
-        function toggleSort() {
+        window.toggleSort = () => {
             const icon = document.getElementById('sortIcon');
             const text = document.getElementById('sortText');
 
@@ -385,9 +453,9 @@
             }
 
             renderProducts();
-        }
+        };
 
-        function renderProducts() {
+        window.renderProducts = () => {
             const container = document.getElementById('productsContainer');
             const search = document.getElementById('searchInput').value.toLowerCase().trim();
 
@@ -440,7 +508,6 @@
 
                 return `
                 <div class="grid grid-cols-12 p-3.5 items-center hover:bg-gray-800/40 transition gap-2">
-                    <!-- ID CRM 1 -->
                     <div class="col-span-4 font-bold text-white flex items-center gap-2">
                         <button onclick="copyToClipboard('${p.id1}')" title="Кликните, чтобы скопировать" class="hover:text-brand transition flex items-center gap-1.5 text-left group">
                             <i class="fa-regular fa-copy text-xs text-gray-500 group-hover:text-brand"></i>
@@ -448,7 +515,6 @@
                         </button>
                     </div>
 
-                    <!-- Quantity & Progress Bar -->
                     <div class="col-span-4 flex flex-col items-center justify-center gap-1">
                         <div>${qtyBadge}</div>
                         <div class="w-full max-w-[120px] h-1.5 bg-gray-800 rounded-full overflow-hidden">
@@ -456,7 +522,6 @@
                         </div>
                     </div>
 
-                    <!-- ID CRM 2 -->
                     <div class="col-span-4 text-right font-medium text-gray-300">
                         ${p.id2 !== "—" ? `
                             <button onclick="copyToClipboard('${p.id2}')" title="Кликните, чтобы скопировать" class="bg-gray-800/90 hover:bg-gray-700 px-2.5 py-1 rounded-lg border border-gray-700 text-xs text-gray-200 transition inline-flex items-center gap-1 group">
@@ -468,9 +533,7 @@
                 </div>
                 `;
             }).join('');
-        }
-
-        loadData();
+        };
     </script>
 </body>
 </html>
