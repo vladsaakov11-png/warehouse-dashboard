@@ -155,9 +155,12 @@
             </div>
             
             <div class="flex items-center gap-3 self-end md:self-auto">
-                <div class="flex items-center gap-2 bg-cardBg px-3.5 py-2 rounded-xl border border-cardBorder text-xs text-gray-400">
-                    <span class="w-2 h-2 rounded-full bg-emerald-500 live-dot"></span>
-                    <span>Автооновлення: <strong id="timerText" class="text-white">60s</strong></span>
+                <div class="flex flex-col items-end">
+                    <div class="flex items-center gap-2 bg-cardBg px-3.5 py-1.5 rounded-xl border border-cardBorder text-xs text-gray-400">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 live-dot"></span>
+                        <span>Автооновлення: <strong id="timerText" class="text-white">60s</strong></span>
+                    </div>
+                    <span id="lastUpdatedText" class="text-[10px] text-gray-500 mt-1 pr-1 font-mono">Оновлено: --:--:--</span>
                 </div>
                 <button onclick="manualRefresh()" class="p-2.5 bg-cardBg hover:bg-gray-800 border border-cardBorder rounded-xl transition text-gray-300" title="Оновити дані">
                     <i class="fa-solid fa-rotate-right" id="refreshIcon"></i>
@@ -236,9 +239,13 @@
                 </button>
             </div>
 
+            <!-- Поле поиска с кнопкой очистки -->
             <div class="relative w-full md:w-80">
-                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
-                <input type="text" id="searchInput" oninput="renderProducts()" placeholder="Пошук за ID CRM 1 або ID CRM 2..." class="w-full bg-cardBg border border-cardBorder rounded-xl pl-10 pr-4 py-2 text-sm text-gray-200 focus:outline-none focus:border-brand transition">
+                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm pointer-events-none"></i>
+                <input type="text" id="searchInput" oninput="handleSearchInput()" placeholder="Пошук за ID CRM 1 або ID CRM 2..." class="w-full bg-cardBg border border-cardBorder rounded-xl pl-10 pr-9 py-2 text-sm text-gray-200 focus:outline-none focus:border-brand transition">
+                <button id="clearSearchBtn" onclick="clearSearch()" class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition p-1">
+                    <i class="fa-solid fa-xmark text-sm"></i>
+                </button>
             </div>
         </div>
 
@@ -309,10 +316,9 @@
             btnText.innerText = "Авторизація...";
 
             try {
-                // Устанавливаем режим сессии: доступ сбрасывается при закрытии вкладки/браузера
                 await setPersistence(auth, browserSessionPersistence);
                 await signInWithEmailAndPassword(auth, email, pass);
-                document.getElementById('passInput').value = ''; // Очистка поля пароля
+                document.getElementById('passInput').value = '';
             } catch (err) {
                 console.error(err);
                 authError.classList.remove('hidden');
@@ -351,6 +357,7 @@
                 updateKPIs();
                 renderProducts();
                 resetTimer();
+                updateLastUpdatedTime();
             };
 
             const script = document.createElement('script');
@@ -371,6 +378,12 @@
         function resetTimer() {
             countdown = 60;
             document.getElementById('timerText').innerText = `${countdown}s`;
+        }
+
+        function updateLastUpdatedTime() {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('uk-UA', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            document.getElementById('lastUpdatedText').innerText = `Оновлено о ${timeStr}`;
         }
 
         window.manualRefresh = () => {
@@ -456,6 +469,25 @@
                 text.innerText = 'За таблицею';
             }
 
+            renderProducts();
+        };
+
+        window.handleSearchInput = () => {
+            const val = document.getElementById('searchInput').value;
+            const clearBtn = document.getElementById('clearSearchBtn');
+            if (val.trim().length > 0) {
+                clearBtn.classList.remove('hidden');
+            } else {
+                clearBtn.classList.add('hidden');
+            }
+            renderProducts();
+        };
+
+        window.clearSearch = () => {
+            const input = document.getElementById('searchInput');
+            input.value = '';
+            document.getElementById('clearSearchBtn').classList.add('hidden');
+            input.focus();
             renderProducts();
         };
 
