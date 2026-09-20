@@ -31,7 +31,6 @@
         
         .text-brand { color: #FF7A00; }
         .bg-brand { background-color: #FF7A00; }
-        .border-brand { border-color: #FF7A00; }
 
         /* Futuristic Cyber Card Styles */
         .cyber-card {
@@ -52,21 +51,12 @@
             box-shadow: 0 8px 25px -5px rgba(255, 122, 0, 0.15);
         }
 
-        /* Specific Glow effects for cards */
         .cyber-card-red:hover {
             border-color: rgba(239, 68, 68, 0.4);
             box-shadow: 0 8px 25px -5px rgba(239, 68, 68, 0.2);
         }
         .cyber-card-red::before {
             background: linear-gradient(90deg, transparent, rgba(239, 68, 68, 0.4), transparent);
-        }
-
-        .cyber-card-green:hover {
-            border-color: rgba(16, 185, 129, 0.4);
-            box-shadow: 0 8px 25px -5px rgba(16, 185, 129, 0.2);
-        }
-        .cyber-card-green::before {
-            background: linear-gradient(90deg, transparent, rgba(16, 185, 129, 0.4), transparent);
         }
 
         /* Gradient Text */
@@ -77,11 +67,6 @@
         }
         .text-gradient-red {
             background: linear-gradient(135deg, #FCA5A5 0%, #EF4444 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .text-gradient-green {
-            background: linear-gradient(135deg, #6EE7B7 0%, #10B981 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
@@ -109,7 +94,7 @@
             <nav class="space-y-2">
                 <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-brand/10 text-brand font-medium border border-brand/20">
                     <i class="fa-solid fa-boxes-stacked"></i>
-                    Обзор склада
+                    Склад 2 (Копія)
                 </a>
             </nav>
         </div>
@@ -132,10 +117,10 @@
                 </div>
 
                 <div class="flex items-center gap-3">
-                    <h2 class="text-2xl font-bold">Мониторинг Склада</h2>
-                    <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-brand/20 text-brand border border-brand/30">2026</span>
+                    <h2 class="text-2xl font-bold">Учёт Товаров Склада</h2>
+                    <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-brand/20 text-brand border border-brand/30">Склад 2</span>
                 </div>
-                <p class="text-sm text-gray-400 mt-0.5">Автоматический отслеживатель остатков и отгрузок товаров</p>
+                <p class="text-sm text-gray-400 mt-0.5">Синхронизация остатков по ID CRM (BULL1 / BULL3)</p>
             </div>
             
             <div class="flex items-center gap-3 self-end md:self-auto">
@@ -149,7 +134,7 @@
         </div>
 
         <!-- Futuristic Compact KPI Cards Grid -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 mb-6">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5 mb-6">
             <!-- Card 1: Красная зона -->
             <div class="cyber-card cyber-card-red border border-cardBorder rounded-xl p-3.5 flex flex-col justify-between">
                 <div class="flex items-center justify-between">
@@ -160,9 +145,9 @@
                 </div>
                 <div class="my-1.5 flex items-baseline gap-2">
                     <div class="text-2xl font-black text-gradient-red tracking-tight" id="kpiCritical">0</div>
-                    <span class="text-[10px] text-red-400 font-medium bg-red-950/60 px-1.5 py-0.5 rounded border border-red-800/40">Остаток &lt; 5</span>
+                    <span class="text-[10px] text-red-400 font-medium bg-red-950/60 px-1.5 py-0.5 rounded border border-red-800/40">Остаток = 0</span>
                 </div>
-                <p class="text-[11px] text-gray-500 truncate">Требуют немедленного внимания</p>
+                <p class="text-[11px] text-gray-500 truncate">Позиции с нулевым остатком</p>
             </div>
 
             <!-- Card 2: Общий остаток -->
@@ -176,24 +161,10 @@
                 <div class="my-1.5">
                     <div class="text-2xl font-black text-gradient-white tracking-tight" id="kpiTotalQty">0</div>
                 </div>
-                <p class="text-[11px] text-gray-500 truncate">Единиц товара на складе</p>
+                <p class="text-[11px] text-gray-500 truncate">Общее число единиц на складе</p>
             </div>
 
-            <!-- Card 3: К отправке -->
-            <div class="cyber-card cyber-card-green border border-cardBorder rounded-xl p-3.5 flex flex-col justify-between">
-                <div class="flex items-center justify-between">
-                    <span class="text-[11px] font-bold text-gray-400 tracking-wider uppercase">К ОТПРАВКЕ</span>
-                    <div class="w-7 h-7 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 text-xs">
-                        <i class="fa-solid fa-truck-fast"></i>
-                    </div>
-                </div>
-                <div class="my-1.5">
-                    <div class="text-2xl font-black text-gradient-green tracking-tight" id="kpiToShip">0</div>
-                </div>
-                <p class="text-[11px] text-gray-500 truncate">Запланировано отгрузок</p>
-            </div>
-
-            <!-- Card 4: Всего позиций -->
+            <!-- Card 3: Всего позиций -->
             <div class="cyber-card border border-cardBorder rounded-xl p-3.5 flex flex-col justify-between">
                 <div class="flex items-center justify-between">
                     <span class="text-[11px] font-bold text-gray-400 tracking-wider uppercase">ВСЕГО ПОЗИЦИЙ</span>
@@ -204,7 +175,7 @@
                 <div class="my-1.5">
                     <div class="text-2xl font-black text-gradient-orange tracking-tight" id="kpiTotalItems">0</div>
                 </div>
-                <p class="text-[11px] text-gray-500 truncate">Уникальных SKU в базе</p>
+                <p class="text-[11px] text-gray-500 truncate">Всего строк в таблице</p>
             </div>
         </div>
 
@@ -213,29 +184,37 @@
             <!-- Filter Tabs -->
             <div class="flex flex-wrap items-center gap-1.5 bg-cardBg p-1.5 rounded-xl border border-cardBorder w-full md:w-auto">
                 <button onclick="setFilter('all')" id="btn-all" class="filter-btn px-4 py-1.5 rounded-lg text-sm font-medium transition bg-brand text-white shadow-lg shadow-brand/20">Все</button>
-                <button onclick="setFilter('critical')" id="btn-critical" class="filter-btn px-4 py-1.5 rounded-lg text-sm font-medium text-gray-400 hover:text-white transition">Заканчиваются</button>
-                <button onclick="setFilter('ship')" id="btn-ship" class="filter-btn px-4 py-1.5 rounded-lg text-sm font-medium text-gray-400 hover:text-white transition">К отправке</button>
-                <button onclick="setFilter('diff')" id="btn-diff" class="filter-btn px-4 py-1.5 rounded-lg text-sm font-medium text-gray-400 hover:text-white transition">Расхождение CRM</button>
+                <button onclick="setFilter('available')" id="btn-available" class="filter-btn px-4 py-1.5 rounded-lg text-sm font-medium text-gray-400 hover:text-white transition">В наличии (&gt;0)</button>
+                <button onclick="setFilter('empty')" id="btn-empty" class="filter-btn px-4 py-1.5 rounded-lg text-sm font-medium text-gray-400 hover:text-white transition">Нет в наличии (0)</button>
             </div>
 
             <!-- Search Bar -->
             <div class="relative w-full md:w-80">
                 <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
-                <input type="text" id="searchInput" oninput="renderProducts()" placeholder="Поиск по названию или ID..." class="w-full bg-cardBg border border-cardBorder rounded-xl pl-10 pr-4 py-2 text-sm text-gray-200 focus:outline-none focus:border-brand transition">
+                <input type="text" id="searchInput" oninput="renderProducts()" placeholder="Поиск по ID CRM 1 или ID CRM 2..." class="w-full bg-cardBg border border-cardBorder rounded-xl pl-10 pr-4 py-2 text-sm text-gray-200 focus:outline-none focus:border-brand transition">
             </div>
         </div>
 
-        <!-- Products List -->
-        <div id="productsContainer" class="space-y-3">
-            <div class="text-center py-12 text-gray-500">
-                <i class="fa-solid fa-spinner fa-spin text-2xl mb-2 text-brand"></i>
-                <p>Загрузка данных из Google Таблицы...</p>
+        <!-- Products Table / List -->
+        <div class="bg-cardBg border border-cardBorder rounded-2xl overflow-hidden">
+            <div class="grid grid-cols-12 bg-gray-900/60 p-4 border-b border-cardBorder text-xs font-bold text-gray-400 tracking-wider uppercase">
+                <div class="col-span-4 md:col-span-4">ID CRM (BULL 1,3)</div>
+                <div class="col-span-4 md:col-span-4 text-center">К-СТЬ (КОЛИЧЕСТВО)</div>
+                <div class="col-span-4 md:col-span-4 text-right">ID (BULL 3)</div>
+            </div>
+
+            <div id="productsContainer" class="divide-y divide-cardBorder/60">
+                <div class="text-center py-12 text-gray-500">
+                    <i class="fa-solid fa-spinner fa-spin text-2xl mb-2 text-brand"></i>
+                    <p>Загрузка данных из листа «СКЛАД 2 (копия)»...</p>
+                </div>
             </div>
         </div>
     </main>
 
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbyB_HzR9TRqkdf_bdzwbncmf2wtjjLogglLpgY9PLtXiG1Ytmyx_Vlj0y-LkpeR4ubIng/exec";
+        // Обновленная ссылка вашего Google Apps Script
+        const API_URL = "https://script.google.com/macros/s/AKfycbxykWnzEcO8zDuV87ncqRa83tCP8jnRB_JbtEr3uhBXOPJkPZyDYXc5AqodR-1KaVFHCA/exec";
         
         let allProducts = [];
         let currentFilter = 'all';
@@ -256,9 +235,9 @@
             } catch (err) {
                 console.error("Ошибка загрузки:", err);
                 document.getElementById('productsContainer').innerHTML = `
-                    <div class="bg-red-900/20 border border-red-500/30 rounded-xl p-6 text-center text-red-400">
+                    <div class="p-6 text-center text-red-400">
                         <i class="fa-solid fa-circle-exclamation text-2xl mb-2"></i>
-                        <p>Ошибка загрузки данных из таблицы. Проверьте интеграцию.</p>
+                        <p>Ошибка загрузки данных. Проверьте развертывание Google Apps Script.</p>
                     </div>`;
             } finally {
                 if (refreshIcon) refreshIcon.classList.remove('fa-spin');
@@ -268,20 +247,14 @@
         function updateKPIs() {
             let critical = 0;
             let totalQty = 0;
-            let totalShip = 0;
 
             allProducts.forEach(p => {
-                const q1 = Number(p.qty1) || 0;
-                const ship = Number(p.toShip) || 0;
-                
-                if (q1 < 5) critical++;
-                totalQty += q1;
-                totalShip += ship;
+                if (p.qty === 0) critical++;
+                totalQty += p.qty;
             });
 
             document.getElementById('kpiCritical').innerText = critical;
             document.getElementById('kpiTotalQty').innerText = totalQty.toLocaleString();
-            document.getElementById('kpiToShip').innerText = totalShip.toLocaleString();
             document.getElementById('kpiTotalItems').innerText = allProducts.length;
         }
 
@@ -305,86 +278,42 @@
 
             let filtered = allProducts.filter(p => {
                 const matchesSearch = 
-                    String(p.title).toLowerCase().includes(search) ||
                     String(p.id1).toLowerCase().includes(search) ||
                     String(p.id2).toLowerCase().includes(search);
 
                 if (!matchesSearch) return false;
 
-                const q1 = Number(p.qty1) || 0;
-                const q2 = Number(p.qty2) || 0;
-                const ship = Number(p.toShip) || 0;
-
-                if (currentFilter === 'critical') return q1 < 5;
-                if (currentFilter === 'ship') return ship > 0;
-                if (currentFilter === 'diff') return (p.id2 || q2) && q1 !== q2;
+                if (currentFilter === 'available') return p.qty > 0;
+                if (currentFilter === 'empty') return p.qty === 0;
 
                 return true;
             });
 
             if (filtered.length === 0) {
                 container.innerHTML = `
-                    <div class="text-center py-12 text-gray-500 bg-cardBg rounded-2xl border border-cardBorder">
+                    <div class="text-center py-12 text-gray-500">
                         <i class="fa-solid fa-box-open text-3xl mb-2 text-gray-600"></i>
-                        <p>Товары не найдены</p>
+                        <p>Позиции не найдены</p>
                     </div>`;
                 return;
             }
 
             container.innerHTML = filtered.map(p => {
-                const q1 = Number(p.qty1) || 0;
-                const q2 = Number(p.qty2) || 0;
-                const ship = Number(p.toShip) || 0;
-
-                let statusBadge = '';
-                let progressColor = 'bg-emerald-500';
-                let progressWidth = Math.min(100, Math.max(10, (q1 / 50) * 100));
-
-                if (q1 < 5) {
-                    statusBadge = `<span class="px-3 py-1 rounded-full text-xs font-bold bg-red-950 text-red-400 border border-red-800/60 flex items-center gap-1">Критично 🚨</span>`;
-                    progressColor = 'bg-red-500';
-                } else if (q1 < 15) {
-                    statusBadge = `<span class="px-3 py-1 rounded-full text-xs font-bold bg-amber-950 text-amber-400 border border-amber-800/60 flex items-center gap-1">Малый остаток ⚠️</span>`;
-                    progressColor = 'bg-amber-500';
-                } else {
-                    statusBadge = `<span class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-950 text-emerald-400 border border-emerald-800/60 flex items-center gap-1">В наличии 📦</span>`;
-                }
+                let qtyBadge = p.qty > 0 
+                    ? `<span class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-950/80 text-emerald-400 border border-emerald-800/60">${p.qty} од</span>`
+                    : `<span class="px-3 py-1 rounded-full text-xs font-bold bg-red-950/80 text-red-400 border border-red-800/60">0 од</span>`;
 
                 return `
-                <div class="bg-cardBg border border-cardBorder hover:border-gray-700 rounded-2xl p-4 md:p-5 transition flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <!-- Title and IDs -->
-                    <div class="space-y-1 flex-1">
-                        <div class="flex items-center gap-2">
-                            <h3 class="font-bold text-lg text-white">${p.title}</h3>
-                        </div>
-                        <div class="flex flex-wrap items-center gap-2 text-xs text-gray-400">
-                            <span class="bg-gray-800/80 px-2 py-0.5 rounded border border-gray-700">ID 1: <strong class="text-gray-200">${p.id1 || '—'}</strong></span>
-                            ${p.id2 ? `<span class="bg-gray-800/80 px-2 py-0.5 rounded border border-gray-700">ID 2 (CRM): <strong class="text-gray-200">${p.id2}</strong></span>` : ''}
-                        </div>
+                <div class="grid grid-cols-12 p-4 items-center hover:bg-gray-800/30 transition">
+                    <div class="col-span-4 font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-hashtag text-xs text-brand"></i>
+                        <span>${p.id1}</span>
                     </div>
-
-                    <!-- Progress Bar / Stock Status -->
-                    <div class="w-full md:w-64 space-y-1.5">
-                        <div class="flex justify-between text-xs font-medium">
-                            <span class="text-gray-400">Остаток: <strong class="text-white">${q1} шт</strong></span>
-                            ${ship > 0 ? `<span class="text-brand font-semibold">Отправить: ${ship} шт</span>` : ''}
-                        </div>
-                        <div class="w-full h-2.5 bg-gray-800 rounded-full overflow-hidden">
-                            <div class="h-full ${progressColor} transition-all duration-500 rounded-full" style="width: ${progressWidth}%"></div>
-                        </div>
+                    <div class="col-span-4 text-center">
+                        ${qtyBadge}
                     </div>
-
-                    <!-- Secondary CRM Stock & Badge -->
-                    <div class="flex items-center justify-between md:justify-end gap-4 border-t md:border-t-0 pt-3 md:pt-0 border-gray-800">
-                        ${p.id2 ? `
-                        <div class="text-right">
-                            <div class="text-xs text-gray-400">CRM 2 Остаток</div>
-                            <div class="text-sm font-bold ${q1 !== q2 ? 'text-amber-400' : 'text-gray-300'}">${q2} шт</div>
-                        </div>` : ''}
-
-                        <div>
-                            ${statusBadge}
-                        </div>
+                    <div class="col-span-4 text-right font-medium text-gray-300">
+                        ${p.id2 !== "—" ? `<span class="bg-gray-800 px-2.5 py-1 rounded-lg border border-gray-700/60 text-xs">ID: ${p.id2}</span>` : '<span class="text-gray-600">—</span>'}
                     </div>
                 </div>
                 `;
