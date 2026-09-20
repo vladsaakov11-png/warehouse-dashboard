@@ -11,9 +11,9 @@
             theme: {
                 extend: {
                     colors: {
-                        darkBg: '#090d16',
-                        cardBg: '#101622',
-                        cardBorder: '#1c2536',
+                        darkBg: '#070a12',
+                        cardBg: '#0e1320',
+                        cardBorder: '#1a2336',
                         brandOrange: '#FF7A00',
                         brandOrangeHover: '#E06B00',
                     }
@@ -23,15 +23,73 @@
     </script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-        body { background-color: #090d16; color: #f3f4f6; font-family: system-ui, -apple-system, sans-serif; }
+        body { background-color: #070a12; color: #f3f4f6; font-family: system-ui, -apple-system, sans-serif; }
         ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #090d16; }
-        ::-webkit-scrollbar-thumb { background: #1c2536; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #2d3950; }
+        ::-webkit-scrollbar-track { background: #070a12; }
+        ::-webkit-scrollbar-thumb { background: #1a2336; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #2a3854; }
         
         .text-brand { color: #FF7A00; }
         .bg-brand { background-color: #FF7A00; }
         .border-brand { border-color: #FF7A00; }
+
+        /* Futuristic Cyber Card Styles */
+        .cyber-card {
+            background: linear-gradient(135deg, rgba(16, 23, 38, 0.9) 0%, rgba(10, 14, 24, 0.95) 100%);
+            backdrop-filter: blur(12px);
+            position: relative;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .cyber-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 122, 0, 0.3), transparent);
+        }
+        .cyber-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(255, 122, 0, 0.4);
+            box-shadow: 0 8px 25px -5px rgba(255, 122, 0, 0.15);
+        }
+
+        /* Specific Glow effects for cards */
+        .cyber-card-red:hover {
+            border-color: rgba(239, 68, 68, 0.4);
+            box-shadow: 0 8px 25px -5px rgba(239, 68, 68, 0.2);
+        }
+        .cyber-card-red::before {
+            background: linear-gradient(90deg, transparent, rgba(239, 68, 68, 0.4), transparent);
+        }
+
+        .cyber-card-green:hover {
+            border-color: rgba(16, 185, 129, 0.4);
+            box-shadow: 0 8px 25px -5px rgba(16, 185, 129, 0.2);
+        }
+        .cyber-card-green::before {
+            background: linear-gradient(90deg, transparent, rgba(16, 185, 129, 0.4), transparent);
+        }
+
+        /* Gradient Text */
+        .text-gradient-orange {
+            background: linear-gradient(135deg, #FF9E43 0%, #FF7A00 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .text-gradient-red {
+            background: linear-gradient(135deg, #FCA5A5 0%, #EF4444 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .text-gradient-green {
+            background: linear-gradient(135deg, #6EE7B7 0%, #10B981 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .text-gradient-white {
+            background: linear-gradient(135deg, #FFFFFF 0%, #9CA3AF 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
     </style>
 </head>
 <body class="min-h-screen flex">
@@ -64,7 +122,7 @@
     <!-- Main Content -->
     <main class="flex-1 p-4 md:p-8 overflow-y-auto">
         <!-- Header -->
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
             <div>
                 <!-- Mobile Logo View -->
                 <div class="md:hidden flex items-baseline mb-2">
@@ -77,7 +135,7 @@
                     <h2 class="text-2xl font-bold">Мониторинг Склада</h2>
                     <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-brand/20 text-brand border border-brand/30">2026</span>
                 </div>
-                <p class="text-sm text-gray-400 mt-1">Автоматический отслеживатель остатков и отгрузок товаров</p>
+                <p class="text-sm text-gray-400 mt-0.5">Автоматический отслеживатель остатков и отгрузок товаров</p>
             </div>
             
             <div class="flex items-center gap-3 self-end md:self-auto">
@@ -90,34 +148,63 @@
             </div>
         </div>
 
-        <!-- KPI Cards Grid -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            <!-- Card 1 -->
-            <div class="bg-cardBg border border-cardBorder rounded-2xl p-5 relative overflow-hidden">
-                <span class="text-xs font-semibold text-gray-400 tracking-wider uppercase">КРАСНАЯ ЗОНА 🔥</span>
-                <div class="text-3xl font-bold mt-2 text-red-500" id="kpiCritical">0</div>
-                <p class="text-xs text-gray-400 mt-1">Требуют внимания (остаток &lt; 5)</p>
+        <!-- Futuristic Compact KPI Cards Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 mb-6">
+            <!-- Card 1: Красная зона -->
+            <div class="cyber-card cyber-card-red border border-cardBorder rounded-xl p-3.5 flex flex-col justify-between">
+                <div class="flex items-center justify-between">
+                    <span class="text-[11px] font-bold text-gray-400 tracking-wider uppercase">КРАСНАЯ ЗОНА</span>
+                    <div class="w-7 h-7 rounded-lg bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-400 text-xs">
+                        <i class="fa-solid fa-fire-flame-curved"></i>
+                    </div>
+                </div>
+                <div class="my-1.5 flex items-baseline gap-2">
+                    <div class="text-2xl font-black text-gradient-red tracking-tight" id="kpiCritical">0</div>
+                    <span class="text-[10px] text-red-400 font-medium bg-red-950/60 px-1.5 py-0.5 rounded border border-red-800/40">Остаток &lt; 5</span>
+                </div>
+                <p class="text-[11px] text-gray-500 truncate">Требуют немедленного внимания</p>
             </div>
 
-            <!-- Card 2 -->
-            <div class="bg-cardBg border border-cardBorder rounded-2xl p-5 relative overflow-hidden">
-                <span class="text-xs font-semibold text-gray-400 tracking-wider uppercase">ОБЩИЙ ОСТАТОК 📦</span>
-                <div class="text-3xl font-bold mt-2 text-white" id="kpiTotalQty">0</div>
-                <p class="text-xs text-gray-400 mt-1">Единиц товара на складе</p>
+            <!-- Card 2: Общий остаток -->
+            <div class="cyber-card border border-cardBorder rounded-xl p-3.5 flex flex-col justify-between">
+                <div class="flex items-center justify-between">
+                    <span class="text-[11px] font-bold text-gray-400 tracking-wider uppercase">ОБЩИЙ ОСТАТОК</span>
+                    <div class="w-7 h-7 rounded-lg bg-gray-800 border border-gray-700 flex items-center justify-center text-gray-300 text-xs">
+                        <i class="fa-solid fa-box-archive"></i>
+                    </div>
+                </div>
+                <div class="my-1.5">
+                    <div class="text-2xl font-black text-gradient-white tracking-tight" id="kpiTotalQty">0</div>
+                </div>
+                <p class="text-[11px] text-gray-500 truncate">Единиц товара на складе</p>
             </div>
 
-            <!-- Card 3 -->
-            <div class="bg-cardBg border border-cardBorder rounded-2xl p-5 relative overflow-hidden">
-                <span class="text-xs font-semibold text-gray-400 tracking-wider uppercase">К ОТПРАВКЕ 🚚</span>
-                <div class="text-3xl font-bold mt-2 text-emerald-400" id="kpiToShip">0</div>
-                <p class="text-xs text-gray-400 mt-1">Запланировано отгрузок</p>
+            <!-- Card 3: К отправке -->
+            <div class="cyber-card cyber-card-green border border-cardBorder rounded-xl p-3.5 flex flex-col justify-between">
+                <div class="flex items-center justify-between">
+                    <span class="text-[11px] font-bold text-gray-400 tracking-wider uppercase">К ОТПРАВКЕ</span>
+                    <div class="w-7 h-7 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 text-xs">
+                        <i class="fa-solid fa-truck-fast"></i>
+                    </div>
+                </div>
+                <div class="my-1.5">
+                    <div class="text-2xl font-black text-gradient-green tracking-tight" id="kpiToShip">0</div>
+                </div>
+                <p class="text-[11px] text-gray-500 truncate">Запланировано отгрузок</p>
             </div>
 
-            <!-- Card 4 -->
-            <div class="bg-cardBg border border-cardBorder rounded-2xl p-5 relative overflow-hidden">
-                <span class="text-xs font-semibold text-gray-400 tracking-wider uppercase">ВСЕГО ПОЗИЦИЙ 📊</span>
-                <div class="text-3xl font-bold mt-2 text-brand" id="kpiTotalItems">0</div>
-                <p class="text-xs text-gray-400 mt-1">Уникальных товаров в базе</p>
+            <!-- Card 4: Всего позиций -->
+            <div class="cyber-card border border-cardBorder rounded-xl p-3.5 flex flex-col justify-between">
+                <div class="flex items-center justify-between">
+                    <span class="text-[11px] font-bold text-gray-400 tracking-wider uppercase">ВСЕГО ПОЗИЦИЙ</span>
+                    <div class="w-7 h-7 rounded-lg bg-brand/10 border border-brand/20 flex items-center justify-center text-brand text-xs">
+                        <i class="fa-solid fa-chart-simple"></i>
+                    </div>
+                </div>
+                <div class="my-1.5">
+                    <div class="text-2xl font-black text-gradient-orange tracking-tight" id="kpiTotalItems">0</div>
+                </div>
+                <p class="text-[11px] text-gray-500 truncate">Уникальных SKU в базе</p>
             </div>
         </div>
 
