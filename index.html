@@ -133,30 +133,34 @@
         <span id="toastMsg" class="text-sm font-medium">Текст скопійовано!</span>
     </div>
 
-    <!-- Sidebar -->
-    <aside class="w-64 bg-cardBg border-r border-cardBorder p-6 flex flex-col justify-between hidden md:flex">
+    <!-- Компактная боковая панель (ширина w-32) -->
+    <aside class="w-32 bg-cardBg border-r border-cardBorder p-3 flex flex-col justify-between hidden md:flex shrink-0">
         <div>
-            <div class="mb-5 flex flex-col items-start border-b border-cardBorder/60 pb-3">
+            <!-- Компактный логотип -->
+            <div class="mb-5 flex flex-col items-center border-b border-cardBorder/60 pb-3 text-center">
                 <div class="flex items-baseline">
-                    <span class="text-3xl font-black tracking-tight text-white uppercase">POINT</span>
-                    <span class="text-3xl font-black text-brand ml-0.5">.</span>
+                    <span class="text-lg font-black tracking-tight text-white uppercase">POINT</span>
+                    <span class="text-lg font-black text-brand ml-0.5">.</span>
                 </div>
-                <span class="text-[11px] font-bold tracking-[0.25em] text-brand uppercase mt-0.5">FULFILLMENT</span>
+                <span class="text-[8px] font-bold tracking-[0.15em] text-brand uppercase -mt-0.5">FULFILLMENT</span>
             </div>
 
+            <!-- Компактная навигационная кнопка -->
             <nav class="space-y-2">
-                <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-brand/10 text-brand font-medium border border-brand/20">
-                    <i class="fa-solid fa-boxes-stacked"></i>
-                    ОБЛІК СКЛАДУ
+                <a href="#" class="flex flex-col items-center justify-center text-center p-2 rounded-xl bg-brand/10 text-brand font-bold border border-brand/20 gap-1.5 hover:bg-brand/20 transition">
+                    <i class="fa-solid fa-boxes-stacked text-base"></i>
+                    <span class="text-[10px] leading-tight uppercase">Облік складу</span>
                 </a>
             </nav>
         </div>
 
-        <div class="text-xs text-gray-500 text-center flex flex-col gap-2">
-            <button onclick="handleLogout()" class="text-gray-400 hover:text-red-400 transition text-xs flex items-center justify-center gap-1">
-                <i class="fa-solid fa-right-from-bracket"></i> Вийти з акаунту
+        <!-- Компактный футер -->
+        <div class="text-[10px] text-gray-500 text-center flex flex-col items-center gap-2">
+            <button onclick="handleLogout()" class="text-gray-400 hover:text-red-400 transition text-[11px] flex items-center justify-center gap-1" title="Вийти">
+                <i class="fa-solid fa-right-from-bracket"></i>
+                <span>Вийти</span>
             </button>
-            <span class="mt-2">POINT. Fulfillment &copy; 2026</span>
+            <span class="text-[9px] text-gray-600">© 2026</span>
         </div>
     </aside>
 
@@ -173,7 +177,7 @@
                     <button onclick="handleLogout()" class="text-gray-400 hover:text-red-400 text-xs">Вихід</button>
                 </div>
 
-                <!-- Стильный заголовок с неоновой плашкой -->
+                <!-- Заголовок с неоновой плашкой BULL -->
                 <div class="flex items-center gap-3">
                     <h2 class="text-2xl font-extrabold tracking-tight text-white">Облік товарів</h2>
                     <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-brandOrange/20 to-brandOrange/5 border border-brandOrange/50 shadow-[0_0_12px_rgba(255,122,0,0.25)]">
@@ -392,7 +396,7 @@
                 console.error(err);
                 authError.classList.remove('hidden');
                 authError.innerText = "Неправильний Email або пароль!";
-            } finally {
+            } font-medium {
                 btnText.innerText = "Увійти в дашборд";
             }
         };
