@@ -136,6 +136,44 @@
         </div>
     </div>
 
+    <!-- МОДАЛЬНЕ ВІКНО ЗАКУПІВЛІ / СПИСАННЯ -->
+    <div id="actionModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-cardBg border border-cardBorder rounded-2xl p-6 max-w-md w-full shadow-2xl relative">
+            <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white transition">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            <h3 id="modalTitle" class="text-lg font-bold text-white mb-1">Оформити закупівлю</h3>
+            <p id="modalSubtitle" class="text-xs text-gray-400 mb-4">Товар: <span id="modalProductName" class="text-brand font-semibold">--</span></p>
+
+            <form onsubmit="submitPurchaseForm(event)" class="space-y-4">
+                <input type="hidden" id="modalProductId">
+                <input type="hidden" id="modalActionType" value="purchase">
+
+                <div>
+                    <label class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block mb-1">Кількість (шт)</label>
+                    <input type="number" id="modalQtyInput" required min="1" placeholder="100" class="w-full bg-gray-900 border border-cardBorder rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brand transition">
+                </div>
+
+                <div id="priceFieldContainer">
+                    <label class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block mb-1">Ціна закупівлі за шт (₴)</label>
+                    <input type="number" id="modalPriceInput" step="0.01" min="0" placeholder="150.00" class="w-full bg-gray-900 border border-cardBorder rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brand transition">
+                </div>
+
+                <div>
+                    <label class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block mb-1">Примітка / Джерело</label>
+                    <input type="text" id="modalNoteInput" placeholder="Постачальник / Номер накладної" class="w-full bg-gray-900 border border-cardBorder rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brand transition">
+                </div>
+
+                <div class="flex items-center gap-3 pt-2">
+                    <button type="button" onclick="closeModal()" class="w-1/2 bg-gray-800 hover:bg-gray-700 text-gray-300 font-bold py-2.5 rounded-xl transition">Скасувати</button>
+                    <button type="submit" id="btnSubmitModal" class="w-1/2 bg-brand hover:bg-[#E06B00] text-white font-bold py-2.5 rounded-xl shadow-lg shadow-brand/20 transition flex items-center justify-center gap-2">
+                        <span>Зберегти</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Toast Notification -->
     <div id="toast" class="fixed bottom-5 right-5 z-50 bg-emerald-600 text-white px-4 py-2.5 rounded-xl shadow-2xl flex items-center gap-2 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
         <i class="fa-solid fa-circle-check"></i>
@@ -192,7 +230,7 @@
                 </div>
 
                 <div class="flex items-center gap-3">
-                    <h2 class="text-2xl font-extrabold tracking-tight text-white">Облік товарів</h2>
+                    <h2 class="text-2xl font-extrabold tracking-tight text-white">Облік товарів та закупівель</h2>
                     <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-brandOrange/20 to-brandOrange/5 border border-brandOrange/50 shadow-[0_0_12px_rgba(255,122,0,0.25)]">
                         <span class="w-1.5 h-1.5 rounded-full bg-brandOrange animate-pulse"></span>
                         <span class="text-xs font-black tracking-wider text-brandOrange uppercase">BULL</span>
@@ -215,7 +253,7 @@
         </div>
 
         <!-- KPI Карточки -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
             <div class="cyber-card cyber-card-brand border border-cardBorder rounded-xl p-4 flex flex-col justify-between cursor-pointer">
                 <div class="flex items-center justify-between">
                     <span class="text-[11px] font-bold text-gray-400 tracking-wider uppercase">ОДИНИЦЬ ТОВАРУ</span>
@@ -227,6 +265,19 @@
                     <div class="text-3xl font-black text-gradient-white tracking-tight" id="kpiTotalQty">0</div>
                 </div>
                 <p class="text-[11px] text-gray-500 truncate">Загальна к-сть штук на складі</p>
+            </div>
+
+            <div class="cyber-card cyber-card-brand border border-cardBorder rounded-xl p-4 flex flex-col justify-between cursor-pointer">
+                <div class="flex items-center justify-between">
+                    <span class="text-[11px] font-bold text-gray-400 tracking-wider uppercase">ЗАГАЛЬНА ЗАКУПІВЛЯ (ПЕРІОД)</span>
+                    <div class="w-8 h-8 rounded-lg bg-brandOrange/10 border border-brandOrange/20 flex items-center justify-center text-brandOrange text-sm">
+                        <i class="fa-solid fa-cart-flatbed"></i>
+                    </div>
+                </div>
+                <div class="my-2">
+                    <div class="text-3xl font-black text-gradient-orange tracking-tight" id="kpiPurchasesSum">0 ₴</div>
+                </div>
+                <p class="text-[11px] text-gray-500 truncate" id="kpiPurchasesQtyText">Закуплено 0 шт за період</p>
             </div>
 
             <div class="cyber-card cyber-card-brand border border-cardBorder rounded-xl p-4 flex flex-col justify-between cursor-pointer">
@@ -253,7 +304,7 @@
         <div class="cyber-card border border-cardBorder rounded-xl p-3.5 mb-6 flex flex-col md:flex-row md:items-center justify-between gap-3">
             <div class="flex items-center gap-2">
                 <i class="fa-solid fa-truck-fast text-brand"></i>
-                <span class="text-xs font-bold uppercase tracking-wider text-gray-300">Аналіз відправок за період:</span>
+                <span class="text-xs font-bold uppercase tracking-wider text-gray-300">Аналіз закупівлі та відправок:</span>
             </div>
 
             <div class="flex flex-wrap items-center gap-2">
@@ -294,27 +345,33 @@
 
         <!-- Таблица товаров -->
         <div class="bg-cardBg border border-cardBorder rounded-2xl overflow-hidden shadow-xl">
-            <div class="grid grid-cols-12 bg-gray-900/80 p-4 border-b border-cardBorder text-xs font-bold text-gray-400 tracking-wider uppercase select-none">
-                <div class="col-span-2 md:col-span-1">ID</div>
-                <div class="col-span-4 md:col-span-4">НАЗВА ТОВАРУ</div>
+            <div class="grid grid-cols-12 bg-gray-900/80 p-4 border-b border-cardBorder text-[11px] font-bold text-gray-400 tracking-wider uppercase select-none">
+                <div class="col-span-1">ID</div>
+                <div class="col-span-3">НАЗВА ТОВАРУ</div>
+                <div class="col-span-2 text-center">ЦІНА ЗАКУП. (₴)</div>
                 
-                <div onclick="toggleSort('qty')" class="col-span-2 md:col-span-2 text-center cursor-pointer hover:text-white transition flex items-center justify-center gap-1.5 group" title="Натисніть для сортування">
+                <div onclick="toggleSort('qty')" class="col-span-1 text-center cursor-pointer hover:text-white transition flex items-center justify-center gap-1 group">
                     <span id="headerQtyText">ЗАЛИШОК</span>
                     <i id="sortIconQty" class="fa-solid fa-sort text-gray-600 group-hover:text-brand transition text-[10px]"></i>
                 </div>
 
-                <div onclick="toggleSort('shipments')" class="col-span-2 md:col-span-2 text-center cursor-pointer hover:text-white transition flex items-center justify-center gap-1.5 group" title="Натисніть для сортування">
+                <div onclick="toggleSort('shipments')" class="col-span-1 text-center cursor-pointer hover:text-white transition flex items-center justify-center gap-1 group">
                     <span id="headerDynText">ВІДПРАВКИ</span>
                     <i id="sortIconDyn" class="fa-solid fa-sort text-gray-600 group-hover:text-brand transition text-[10px]"></i>
                 </div>
 
-                <div class="col-span-2 md:col-span-3 text-right">ЗАЛИШОК (ГРН)</div>
+                <div onclick="toggleSort('purchases')" class="col-span-2 text-center cursor-pointer hover:text-white transition flex items-center justify-center gap-1 group">
+                    <span id="headerPurchasesText">ЗАКУПКА (ПЕРІОД)</span>
+                    <i id="sortIconPurchases" class="fa-solid fa-sort text-gray-600 group-hover:text-brand transition text-[10px]"></i>
+                </div>
+
+                <div class="col-span-2 text-right">ІСНУЮЧИЙ ЗАЛИШОК (ГРН) / ДІЇ</div>
             </div>
 
             <div id="productsContainer" class="divide-y divide-cardBorder/60">
                 <div class="text-center py-12 text-gray-500">
                     <i class="fa-solid fa-spinner fa-spin text-2xl mb-2 text-brand"></i>
-                    <p>Завантаження даних складу та відправок...</p>
+                    <p>Завантаження даних складу, закупівель та відправок...</p>
                 </div>
             </div>
         </div>
@@ -342,6 +399,7 @@
         
         let allProducts = [];
         let allShipments = [];
+        let allPurchases = [];
         let currentFilter = 'all';
         let sortField = null;
         let sortOrder = 'default';
@@ -441,6 +499,7 @@
 
                 allProducts = data.products || [];
                 allShipments = data.shipments || [];
+                allPurchases = data.purchases || [];
 
                 updateKPIs();
                 window.renderProducts();
@@ -507,19 +566,63 @@
             }, 2500);
         }
 
+        function getDateThreshold() {
+            const now = new Date();
+            if (currentPeriod === '1d') return new Date(now.getTime() - 24 * 60 * 60 * 1000);
+            if (currentPeriod === '7d') return new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+            if (currentPeriod === '30d') return new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+            return new Date(0);
+        }
+
+        function calculatePurchasesForPeriod(productId) {
+            if (!allPurchases || allPurchases.length === 0) return { qty: 0, sum: 0 };
+            
+            let minDate = getDateThreshold();
+            let sDate = minDate, eDate = new Date();
+
+            if (currentPeriod === 'custom') {
+                const sVal = document.getElementById('startDate').value;
+                const eVal = document.getElementById('endDate').value;
+                sDate = sVal ? new Date(sVal) : new Date(0);
+                eDate = eVal ? new Date(eVal) : new Date();
+                eDate.setHours(23, 59, 59, 999);
+            }
+
+            return allPurchases.reduce((acc, pur) => {
+                if (String(pur.productId) === String(productId)) {
+                    const pDate = new Date(pur.date);
+                    const isMatch = currentPeriod === 'custom' ? (pDate >= sDate && pDate <= eDate) : (pDate >= minDate);
+                    if (isMatch) {
+                        acc.qty += Number(pur.qty) || 0;
+                        acc.sum += Number(pur.totalSum) || ((Number(pur.qty) || 0) * (Number(pur.price) || 0));
+                    }
+                }
+                return acc;
+            }, { qty: 0, sum: 0 });
+        }
+
         function updateKPIs() {
             let calcTotalQty = 0;
             let calcTotalSumUah = 0;
+            let periodPurchasesQty = 0;
+            let periodPurchasesSum = 0;
 
             allProducts.forEach(p => {
                 const q = Number(p.qty) || 0;
-                const sum = Number(p.totalSum) || (p.price ? q * Number(p.price) : 0);
+                const price = Number(p.price) || 0;
+                const sum = Number(p.totalSum) || (price ? q * price : 0);
                 calcTotalQty += q;
                 calcTotalSumUah += sum;
+
+                const purData = calculatePurchasesForPeriod(p.id);
+                periodPurchasesQty += purData.qty;
+                periodPurchasesSum += purData.sum;
             });
 
             document.getElementById('kpiTotalQty').innerText = calcTotalQty.toLocaleString('uk-UA');
             document.getElementById('kpiTotalSumUah').innerText = `${calcTotalSumUah.toLocaleString('uk-UA')} ₴`;
+            document.getElementById('kpiPurchasesSum').innerText = `${periodPurchasesSum.toLocaleString('uk-UA')} ₴`;
+            document.getElementById('kpiPurchasesQtyText').innerText = `Закуплено ${periodPurchasesQty.toLocaleString('uk-UA')} шт за період`;
 
             const displayRate = liveUsdRate ? liveUsdRate.toFixed(2) : '41.50';
             document.getElementById('usdRateBadge').innerText = `Курс: ${displayRate}`;
@@ -564,6 +667,7 @@
                 customInputs.classList.add('hidden');
             }
 
+            updateKPIs();
             window.renderProducts();
         };
 
@@ -589,14 +693,13 @@
         function updateSortHeaderUI() {
             const iconQty = document.getElementById('sortIconQty');
             const iconDyn = document.getElementById('sortIconDyn');
+            const iconPur = document.getElementById('sortIconPurchases');
             const textQty = document.getElementById('headerQtyText');
             const textDyn = document.getElementById('headerDynText');
+            const textPur = document.getElementById('headerPurchasesText');
 
-            iconQty.className = 'fa-solid fa-sort text-gray-600 group-hover:text-brand transition text-[10px]';
-            textQty.className = '';
-
-            iconDyn.className = 'fa-solid fa-sort text-gray-600 group-hover:text-brand transition text-[10px]';
-            textDyn.className = '';
+            [iconQty, iconDyn, iconPur].forEach(i => i.className = 'fa-solid fa-sort text-gray-600 group-hover:text-brand transition text-[10px]');
+            [textQty, textDyn, textPur].forEach(t => t.className = '');
 
             if (sortField === 'qty') {
                 textQty.className = 'text-brand font-bold';
@@ -604,6 +707,9 @@
             } else if (sortField === 'shipments') {
                 textDyn.className = 'text-brand font-bold';
                 iconDyn.className = sortOrder === 'asc' ? 'fa-solid fa-sort-up text-brand transition text-[10px]' : 'fa-solid fa-sort-down text-brand transition text-[10px]';
+            } else if (sortField === 'purchases') {
+                textPur.className = 'text-brand font-bold';
+                iconPur.className = sortOrder === 'asc' ? 'fa-solid fa-sort-up text-brand transition text-[10px]' : 'fa-solid fa-sort-down text-brand transition text-[10px]';
             }
         }
 
@@ -626,37 +732,22 @@
 
         function calculateShipmentsForPeriod(productId) {
             if (!allShipments || allShipments.length === 0) return 0;
-            const now = new Date();
-            let minDate = new Date(0);
+            let minDate = getDateThreshold();
+            let sDate = minDate, eDate = new Date();
 
-            if (currentPeriod === '1d') {
-                minDate = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-            } else if (currentPeriod === '7d') {
-                minDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-            } else if (currentPeriod === '30d') {
-                minDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-            } else if (currentPeriod === 'custom') {
+            if (currentPeriod === 'custom') {
                 const sVal = document.getElementById('startDate').value;
                 const eVal = document.getElementById('endDate').value;
-                const sDate = sVal ? new Date(sVal) : new Date(0);
-                const eDate = eVal ? new Date(eVal) : new Date();
+                sDate = sVal ? new Date(sVal) : new Date(0);
+                eDate = eVal ? new Date(eVal) : new Date();
                 eDate.setHours(23, 59, 59, 999);
-
-                return allShipments.reduce((acc, sh) => {
-                    if (String(sh.productId) === String(productId)) {
-                        const shDate = new Date(sh.date);
-                        if (shDate >= sDate && shDate <= eDate) {
-                            return acc + (Number(sh.qty) || 0);
-                        }
-                    }
-                    return acc;
-                }, 0);
             }
 
             return allShipments.reduce((acc, sh) => {
                 if (String(sh.productId) === String(productId)) {
                     const shDate = new Date(sh.date);
-                    if (shDate >= minDate) {
+                    const isMatch = currentPeriod === 'custom' ? (shDate >= sDate && shDate <= eDate) : (shDate >= minDate);
+                    if (isMatch) {
                         return acc + (Number(sh.qty) || 0);
                     }
                 }
@@ -664,13 +755,74 @@
             }, 0);
         }
 
+        window.openPurchaseModal = (id, name, currentPrice) => {
+            document.getElementById('modalTitle').innerText = "Оформити закупівлю";
+            document.getElementById('modalProductName').innerText = name;
+            document.getElementById('modalProductId').value = id;
+            document.getElementById('modalActionType').value = "purchase";
+            document.getElementById('modalPriceInput').value = currentPrice || "";
+            document.getElementById('priceFieldContainer').classList.remove('hidden');
+            document.getElementById('actionModal').classList.remove('hidden');
+        };
+
+        window.openRemoveModal = (id, name) => {
+            document.getElementById('modalTitle').innerText = "Списати / Видалити закупку";
+            document.getElementById('modalProductName').innerText = name;
+            document.getElementById('modalProductId').value = id;
+            document.getElementById('modalActionType').value = "remove";
+            document.getElementById('priceFieldContainer').classList.add('hidden');
+            document.getElementById('actionModal').classList.remove('hidden');
+        };
+
+        window.closeModal = () => {
+            document.getElementById('actionModal').classList.add('hidden');
+            document.getElementById('modalQtyInput').value = '';
+            document.getElementById('modalPriceInput').value = '';
+            document.getElementById('modalNoteInput').value = '';
+        };
+
+        window.submitPurchaseForm = async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('modalProductId').value;
+            const action = document.getElementById('modalActionType').value;
+            const qty = document.getElementById('modalQtyInput').value;
+            const price = document.getElementById('modalPriceInput').value;
+            const note = document.getElementById('modalNoteInput').value;
+
+            const btn = document.getElementById('btnSubmitModal');
+            btn.disabled = true;
+            btn.innerText = "Збереження...";
+
+            try {
+                const params = new URLSearchParams({
+                    action: action,
+                    productId: id,
+                    qty: qty,
+                    price: price || 0,
+                    note: note || ''
+                });
+
+                await fetch(`${API_URL}?${params.toString()}`, { mode: 'no-cors' });
+                showToast(action === 'purchase' ? "Закупку успішно збережено!" : "Списання виконано!");
+                window.closeModal();
+                setTimeout(() => window.loadData(), 1000);
+            } catch (err) {
+                console.error("Помилка відправки:", err);
+                showToast("Помилка при збереженні!");
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Зберегти";
+            }
+        };
+
         window.renderProducts = () => {
             const container = document.getElementById('productsContainer');
             const searchVal = document.getElementById('searchInput').value.toLowerCase().trim();
 
             let items = allProducts.map(p => {
                 const shipments = calculateShipmentsForPeriod(p.id);
-                return { ...p, calculatedShipments: shipments };
+                const purchases = calculatePurchasesForPeriod(p.id);
+                return { ...p, calculatedShipments: shipments, calculatedPurchases: purchases };
             });
 
             // Поиск
@@ -695,6 +847,8 @@
                 items.sort((a, b) => sortOrder === 'asc' ? Number(a.qty) - Number(b.qty) : Number(b.qty) - Number(a.qty));
             } else if (sortField === 'shipments') {
                 items.sort((a, b) => sortOrder === 'asc' ? a.calculatedShipments - b.calculatedShipments : b.calculatedShipments - a.calculatedShipments);
+            } else if (sortField === 'purchases') {
+                items.sort((a, b) => sortOrder === 'asc' ? a.calculatedPurchases.sum - b.calculatedPurchases.sum : b.calculatedPurchases.sum - a.calculatedPurchases.sum);
             }
 
             if (items.length === 0) {
@@ -709,7 +863,8 @@
             let html = '';
             items.forEach(p => {
                 const qty = Number(p.qty) || 0;
-                const totalSum = Number(p.totalSum) || (p.price ? qty * Number(p.price) : 0);
+                const unitPrice = Number(p.price) || 0;
+                const totalSum = Number(p.totalSum) || (unitPrice ? qty * unitPrice : 0);
 
                 let badgeColor = 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20';
                 if (qty === 0) {
@@ -719,23 +874,37 @@
                 }
 
                 html += `
-                <div class="grid grid-cols-12 p-4 items-center hover:bg-gray-800/40 transition text-sm">
-                    <div class="col-span-2 md:col-span-1 font-mono text-xs text-gray-400">
+                <div class="grid grid-cols-12 p-4 items-center hover:bg-gray-800/40 transition text-xs">
+                    <div class="col-span-1 font-mono text-gray-400">
                         <span onclick="copyToClipboard('${p.id}')" class="cursor-pointer hover:text-brand transition" title="Скопіювати ID">#${p.id}</span>
                     </div>
-                    <div class="col-span-4 md:col-span-4 font-semibold text-gray-200 pr-2 truncate">
+                    <div class="col-span-3 font-semibold text-gray-200 pr-2 truncate">
                         <span onclick="copyToClipboard('${p.name}')" class="cursor-pointer hover:text-brand transition" title="Скопіювати назву">${p.name}</span>
                     </div>
-                    <div class="col-span-2 md:col-span-2 text-center">
-                        <span class="inline-flex items-center justify-center px-2.5 py-1 rounded-lg border text-xs font-bold ${badgeColor}">
+                    <div class="col-span-2 text-center text-gray-300 font-medium">
+                        ${unitPrice > 0 ? `${unitPrice.toLocaleString('uk-UA')} ₴` : '<span class="text-gray-600">—</span>'}
+                    </div>
+                    <div class="col-span-1 text-center">
+                        <span class="inline-flex items-center justify-center px-2 py-0.5 rounded-lg border text-[11px] font-bold ${badgeColor}">
                             ${qty} шт
                         </span>
                     </div>
-                    <div class="col-span-2 md:col-span-2 text-center font-bold text-gray-300">
+                    <div class="col-span-1 text-center font-bold text-gray-300">
                         ${p.calculatedShipments > 0 ? `<span class="text-brand">+${p.calculatedShipments}</span>` : `<span class="text-gray-600">0</span>`}
                     </div>
-                    <div class="col-span-2 md:col-span-3 text-right font-black text-gray-200">
-                        ${totalSum.toLocaleString('uk-UA')} ₴
+                    <div class="col-span-2 text-center font-bold text-gray-300">
+                        ${p.calculatedPurchases.qty > 0 ? `<span class="text-emerald-400">+${p.calculatedPurchases.qty} шт (${p.calculatedPurchases.sum.toLocaleString('uk-UA')} ₴)</span>` : `<span class="text-gray-600">—</span>`}
+                    </div>
+                    <div class="col-span-2 text-right font-black text-gray-200 flex items-center justify-end gap-2">
+                        <span>${totalSum.toLocaleString('uk-UA')} ₴</span>
+                        <div class="flex items-center gap-1 ml-2">
+                            <button onclick="openPurchaseModal('${p.id}', '${p.name.replace(/'/g, "\\'")}', ${unitPrice})" class="p-1.5 bg-brand/10 hover:bg-brand/20 border border-brand/30 text-brand rounded-lg transition" title="Закупити / Додати">
+                                <i class="fa-solid fa-plus text-[10px]"></i>
+                            </button>
+                            <button onclick="openRemoveModal('${p.id}', '${p.name.replace(/'/g, "\\'")}')" class="p-1.5 bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-400 rounded-lg transition" title="Списати">
+                                <i class="fa-solid fa-minus text-[10px]"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>`;
             });
