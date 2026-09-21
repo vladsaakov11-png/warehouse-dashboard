@@ -1,765 +1,407 @@
 <!DOCTYPE html>
 <html lang="uk" class="dark">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>POINT. Fulfillment — Моніторинг Складу</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        darkBg: '#070a12',
-                        cardBg: '#0e1320',
-                        cardBorder: '#1a2336',
-                        brandOrange: '#FF7A00',
-                        brandOrangeHover: '#E06B00',
-                    }
-                }
-            }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>POINT. Fulfillment — Моніторинг Складу</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            darkBg: '#070a12',
+            cardBg: '#0e1320',
+            cardBorder: '#1a2336',
+            brandOrange: '#FF7A00',
+            brandOrangeHover: '#E06B00',
+          }
         }
-    </script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <style>
-        body { background-color: #070a12; color: #f3f4f6; font-family: system-ui, -apple-system, sans-serif; }
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #070a12; }
-        ::-webkit-scrollbar-thumb { background: #1a2336; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #2a3854; }
-        
-        .text-brand { color: #FF7A00; }
-        .bg-brand { background-color: #FF7A00; }
-
-        .cyber-card {
-            background: linear-gradient(135deg, rgba(16, 23, 38, 0.9) 0%, rgba(10, 14, 24, 0.95) 100%);
-            backdrop-filter: blur(12px);
-            position: relative;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .cyber-card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0; height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(255, 122, 0, 0.3), transparent);
-        }
-
-        .cyber-card-brand:hover { 
-            border-color: rgba(255, 122, 0, 0.6); 
-            box-shadow: 0 8px 25px -5px rgba(255, 122, 0, 0.3); 
-            transform: translateY(-2px); 
-        }
-
-        .period-btn-hover, .filter-btn-hover {
-            transition: all 0.25s ease;
-        }
-        .period-btn-hover:hover, .filter-btn-hover:hover {
-            border-color: rgba(255, 122, 0, 0.6) !important;
-            box-shadow: 0 0 12px rgba(255, 122, 0, 0.4);
-            color: #ffffff !important;
-            transform: translateY(-1px);
-        }
-
-        .nav-card-active {
-            background: linear-gradient(135deg, rgba(255, 122, 0, 0.12) 0%, rgba(14, 19, 32, 0.95) 100%);
-            border: 1px solid rgba(255, 122, 0, 0.35);
-            box-shadow: 0 0 15px rgba(255, 122, 0, 0.12), inset 0 0 10px rgba(255, 122, 0, 0.05);
-            position: relative;
-            overflow: hidden;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .nav-card-active:hover {
-            border-color: rgba(255, 122, 0, 0.8);
-            box-shadow: 0 0 25px rgba(255, 122, 0, 0.35), inset 0 0 15px rgba(255, 122, 0, 0.1);
-            transform: translateY(-2px);
-        }
-
-        @keyframes boxFloat {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-3px); }
-        }
-
-        .box-top { animation: boxFloat 2.5s ease-in-out infinite; transform-origin: center; }
-
-        .text-gradient-orange { background: linear-gradient(135deg, #FF9E43 0%, #FF7A00 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .text-gradient-white { background: linear-gradient(135deg, #FFFFFF 0%, #9CA3AF 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .text-gradient-emerald { background: linear-gradient(135deg, #A7F3D0 0%, #10B981 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-
-        @keyframes pulse-ring {
-            0% { transform: scale(0.95); opacity: 0.8; }
-            50% { transform: scale(1.1); opacity: 0.4; }
-            100% { transform: scale(0.95); opacity: 0.8; }
-        }
-        .live-dot { animation: pulse-ring 2s infinite ease-in-out; }
-    </style>
+      }
+    }
+  </script>
 </head>
-<body class="min-h-screen flex">
+<body class="bg-darkBg text-gray-200 font-sans antialiased min-h-screen flex">
 
-    <!-- FIREBASE AUTH OVERLAY -->
-    <div id="authOverlay" class="fixed inset-0 z-50 bg-[#070a12] flex items-center justify-center p-4">
-        <div class="bg-[#0e1320] border border-[#1a2336] rounded-2xl p-8 max-w-sm w-full text-center shadow-2xl relative overflow-hidden">
-            <div class="flex flex-col items-center mb-6">
-                <div class="flex items-baseline">
-                    <span class="text-3xl font-black tracking-tight text-white uppercase">POINT</span>
-                    <span class="text-3xl font-black text-[#FF7A00] ml-0.5">.</span>
-                </div>
-                <span class="text-[11px] font-bold tracking-[0.25em] text-[#FF7A00] uppercase mt-0.5">FULFILLMENT</span>
-            </div>
+  <!-- ССЫЛКА НА ВАШ GOOGLE APPS SCRIPT -->
+  <script>
+    const API_URL = "https://script.google.com/macros/s/ВАШ_SCRIPTS_ID/exec";
+  </script>
 
-            <h3 class="text-lg font-bold mb-1">Авторизація Складу</h3>
-            <p class="text-xs text-gray-400 mb-6">Введіть Email та пароль для доступу до дашборду</p>
+  <!-- БОКОВОЕ МЕНЮ (SIDEBAR) -->
+  <aside class="w-24 bg-cardBg border-r border-cardBorder flex flex-col justify-between py-6 items-center shrink-0">
+    <div class="space-y-8 w-full flex flex-col items-center">
+      <!-- Логотип -->
+      <div class="flex flex-col items-center">
+        <span class="text-brandOrange font-black text-xl tracking-wider">POINT<span class="text-white">.</span></span>
+        <span class="text-[9px] tracking-widest text-gray-400 font-bold -mt-1 uppercase">Fulfillment</span>
+      </div>
 
-            <form onsubmit="handleLogin(event)" class="space-y-4">
-                <div class="text-left">
-                    <label class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block mb-1">Email</label>
-                    <input type="email" id="emailInput" required placeholder="user@point.com" class="w-full bg-gray-900/90 border border-cardBorder rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brand transition">
-                </div>
-                <div class="text-left">
-                    <label class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block mb-1">Пароль</label>
-                    <div class="relative">
-                        <input type="password" id="passInput" required placeholder="••••••••" class="w-full bg-gray-900/90 border border-cardBorder rounded-xl pl-4 pr-10 py-2.5 text-sm text-white focus:outline-none focus:border-brand transition">
-                        <button type="button" onclick="togglePasswordVisibility()" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition">
-                            <i id="passIcon" class="fa-solid fa-eye"></i>
-                        </button>
-                    </div>
-                </div>
+      <!-- Кнопки навигации -->
+      <nav class="space-y-3 w-full px-2">
+        <!-- Кнопка ОБЛІК -->
+        <button id="btn-tab-stock" onclick="switchTab('stock')" class="w-full flex flex-col items-center p-3 rounded-xl bg-orange-500/10 text-brandOrange border border-brandOrange/30 font-semibold transition">
+          <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+          <span class="text-[10px] uppercase font-bold tracking-wider">Облік</span>
+        </button>
 
-                <div id="authError" class="text-xs text-red-400 hidden font-medium">Помилка входу: перевірте дані</div>
+        <!-- Кнопка ЗАКУПІВЛІ -->
+        <button id="btn-tab-purchases" onclick="switchTab('purchases')" class="w-full flex flex-col items-center p-3 rounded-xl text-gray-400 hover:text-white hover:bg-gray-800/50 transition">
+          <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z"/></svg>
+          <span class="text-[10px] uppercase font-bold tracking-wider">Закупівлі</span>
+        </button>
+      </nav>
+    </div>
 
-                <button type="submit" id="btnLogin" class="w-full bg-brand hover:bg-[#E06B00] text-white font-bold py-3 rounded-xl shadow-lg shadow-brand/20 transition flex items-center justify-center gap-2">
-                    <span id="btnText">Увійти в дашборд</span>
-                    <i class="fa-solid fa-arrow-right text-xs"></i>
-                </button>
-            </form>
+    <!-- Выйти -->
+    <div class="text-center">
+      <span class="text-[10px] text-gray-500">© 2026</span>
+    </div>
+  </aside>
+
+  <!-- ОСНОВНОЙ КОНТЕНТ -->
+  <main class="flex-1 overflow-y-auto min-h-screen">
+
+    <!-- HEADER / ШАПКА -->
+    <header class="p-6 pb-0 flex justify-between items-center">
+      <div class="flex items-center gap-3">
+        <h1 id="page-title" class="text-2xl font-black text-white">Облік товарів</h1>
+        <span class="bg-brandOrange/20 text-brandOrange text-xs font-bold px-2.5 py-1 rounded-full border border-brandOrange/30">● BULL</span>
+      </div>
+      
+      <div class="flex items-center gap-4">
+        <div class="text-xs text-gray-400 flex items-center gap-2 bg-cardBg px-3 py-1.5 rounded-lg border border-cardBorder">
+          <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+          <span>Автооновлення: <strong id="timer-text" class="text-white">60s</strong></span>
         </div>
-    </div>
+        <button onclick="fetchData()" class="p-2 bg-cardBg hover:bg-gray-800 border border-cardBorder rounded-lg text-gray-300 transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+        </button>
+      </div>
+    </header>
 
-    <!-- Toast Notification -->
-    <div id="toast" class="fixed bottom-5 right-5 z-50 bg-emerald-600 text-white px-4 py-2.5 rounded-xl shadow-2xl flex items-center gap-2 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
-        <i class="fa-solid fa-circle-check"></i>
-        <span id="toastMsg" class="text-sm font-medium">Текст скопійовано!</span>
-    </div>
+    <!-- 1. ВКЛАДКА: ОБЛІК СКТАДУ -->
+    <section id="tab-content-stock" class="p-6 space-y-6">
+      
+      <!-- МЕТРИКИ -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="bg-cardBg border border-cardBorder p-5 rounded-2xl relative overflow-hidden">
+          <div class="text-xs text-gray-400 font-bold tracking-wider uppercase mb-2">ОДИНИЦЬ ТОВАРУ</div>
+          <div id="metric-total-qty" class="text-4xl font-black text-white">0</div>
+          <div class="text-xs text-gray-500 mt-2">Загальна к-сть штук на складі</div>
+        </div>
 
-    <!-- Сайдбар -->
-    <aside class="w-32 bg-cardBg border-r border-cardBorder p-3 flex flex-col justify-between hidden md:flex shrink-0">
+        <div class="bg-cardBg border border-cardBorder p-5 rounded-2xl relative overflow-hidden flex justify-between items-center">
+          <div>
+            <div class="text-xs text-gray-400 font-bold tracking-wider uppercase mb-2">ЗАЛИШОК СКУПКИ</div>
+            <div id="metric-total-sum" class="text-4xl font-black text-brandOrange">0 ₴</div>
+            <div class="text-xs text-gray-500 mt-2">Оцінка в валюті: <span id="metric-total-usd" class="text-white font-bold">$0</span></div>
+          </div>
+          <div class="text-right">
+            <span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 text-xs px-2.5 py-1 rounded-md font-bold">Курс: <span id="metric-rate">0</span></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ФИЛЬТРЫ -->
+      <div class="bg-cardBg border border-cardBorder p-4 rounded-2xl flex flex-wrap justify-between items-center gap-4">
+        <div class="flex items-center gap-2">
+          <span class="text-xs font-bold text-gray-400 uppercase tracking-wider mr-2">Аналіз відправок:</span>
+          <button onclick="setPeriod('24h')" id="btn-p-24h" class="px-3 py-1.5 rounded-lg text-xs font-bold transition bg-brandOrange text-black">24г (доба)</button>
+          <button onclick="setPeriod('7d')" id="btn-p-7d" class="px-3 py-1.5 rounded-lg text-xs font-bold transition bg-darkBg text-gray-400 hover:text-white">7 днів</button>
+          <button onclick="setPeriod('30d')" id="btn-p-30d" class="px-3 py-1.5 rounded-lg text-xs font-bold transition bg-darkBg text-gray-400 hover:text-white">30 днів</button>
+        </div>
+
+        <div class="relative flex-1 max-w-xs">
+          <input type="text" id="search-input" oninput="renderStockTable()" placeholder="Пошук за назвою або ID..." class="w-full bg-darkBg border border-cardBorder rounded-xl px-4 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-brandOrange">
+        </div>
+      </div>
+
+      <!-- ТАБЛИЦА СКЛАДА -->
+      <div class="bg-cardBg border border-cardBorder rounded-2xl overflow-hidden">
+        <table class="w-full text-left text-xs text-gray-300">
+          <thead class="bg-gray-900/60 text-gray-400 uppercase tracking-wider border-b border-cardBorder">
+            <tr>
+              <th class="p-4">ID</th>
+              <th class="p-4">Назва товару</th>
+              <th class="p-4">Залишок</th>
+              <th class="p-4">Відправки за період</th>
+              <th class="p-4 text-right">Залишок (ГРН)</th>
+            </tr>
+          </thead>
+          <tbody id="stock-table-body">
+            <tr><td colspan="5" class="text-center p-8 text-gray-500">Завантаження данных...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 2. ВКЛАДКА: ЗАКУПІВЛІ -->
+    <section id="tab-content-purchases" class="hidden p-6 space-y-6">
+      <div class="flex justify-between items-center">
         <div>
-            <div class="mb-5 flex flex-col items-center border-b border-cardBorder/60 pb-3 text-center">
-                <div class="flex items-baseline">
-                    <span class="text-lg font-black tracking-tight text-white uppercase">POINT</span>
-                    <span class="text-lg font-black text-brand ml-0.5">.</span>
-                </div>
-                <span class="text-[8px] font-bold tracking-[0.15em] text-brand uppercase -mt-0.5">FULFILLMENT</span>
-            </div>
+          <h2 class="text-xl font-bold text-white">Журнал Закупівель</h2>
+          <p class="text-xs text-gray-400">Управління заявками на постачання товарів</p>
+        </div>
+        <button onclick="openPurchaseModal()" class="px-4 py-2.5 bg-brandOrange hover:bg-brandOrangeHover text-black font-black text-xs uppercase tracking-wider rounded-xl transition flex items-center gap-2">
+          <span>+ Нова закупівля</span>
+        </button>
+      </div>
 
-            <nav class="space-y-2">
-                <a href="#" class="nav-card-active flex flex-col items-center justify-center text-center p-3 rounded-2xl group transition">
-                    <div class="mb-2 relative">
-                        <svg class="w-8 h-8 text-brand transition-transform duration-300 group-hover:scale-110" viewBox="0 0 24 24" fill="currentColor">
-                            <path class="box-top transition-colors duration-300" d="M12 2L7 5v4l5 3 5-3V5l-5-3zm0 2.2l2.8 1.7-2.8 1.7-2.8-1.7L12 4.2z" fill="#FF7A00"/>
-                            <path class="box-side transition-colors duration-300" d="M6 12l-5 3v4l5 3 5-3v-4l-5-3zm0 2.2l2.8 1.7-2.8 1.7-2.8-1.7L6 14.2z" fill="#E06B00"/>
-                            <path class="box-side transition-colors duration-300" d="M18 12l-5 3v4l5 3 5-3v-4l-5-3zm0 2.2l2.8 1.7-2.8 1.7-2.8-1.7L18 14.2z" fill="#E06B00"/>
-                        </svg>
-                    </div>
-                    <span class="text-[10px] font-black tracking-wider text-brand uppercase group-hover:text-white transition-colors duration-300">
-                        Облік
-                    </span>
-                </a>
-            </nav>
+      <!-- ТАБЛИЦА ЗАКУПОК -->
+      <div class="bg-cardBg border border-cardBorder rounded-2xl overflow-hidden">
+        <table class="w-full text-left text-xs text-gray-300">
+          <thead class="bg-gray-900/60 text-gray-400 uppercase tracking-wider border-b border-cardBorder">
+            <tr>
+              <th class="p-4">ID CRM</th>
+              <th class="p-4">Назва товару</th>
+              <th class="p-4">Замовлено</th>
+              <th class="p-4">Прийнято</th>
+              <th class="p-4">Відхилення</th>
+              <th class="p-4">Постачальник</th>
+              <th class="p-4 text-right">Дата замовлення</th>
+            </tr>
+          </thead>
+          <tbody id="purchases-table-body">
+            <tr><td colspan="7" class="text-center p-8 text-gray-500">Немає записів</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- МОДАЛЬНОЕ ОКНО "НОВАЯ ЗАКУПКА" -->
+  <div id="purchase-modal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+    <div class="bg-cardBg border border-cardBorder p-6 rounded-2xl w-full max-w-md space-y-4 shadow-2xl">
+      <div class="flex justify-between items-center border-b border-cardBorder pb-3">
+        <h3 class="text-base font-bold text-white">Створити нову закупівлю</h3>
+        <button onclick="closePurchaseModal()" class="text-gray-400 hover:text-white">✕</button>
+      </div>
+      
+      <div class="space-y-3">
+        <div>
+          <label class="block text-xs font-bold text-gray-400 mb-1">Оберіть товар</label>
+          <select id="modal-product-select" class="w-full bg-darkBg border border-cardBorder rounded-xl p-3 text-xs text-white focus:outline-none focus:border-brandOrange">
+            <!-- Подгрузится из JS -->
+          </select>
         </div>
 
-        <div class="text-[10px] text-gray-500 text-center flex flex-col items-center gap-2">
-            <button onclick="handleLogout()" class="text-gray-400 hover:text-red-400 transition text-[11px] flex items-center justify-center gap-1" title="Вийти">
-                <i class="fa-solid fa-right-from-bracket"></i>
-                <span>Вийти</span>
-            </button>
-            <span class="text-[9px] text-gray-600">© 2026</span>
-        </div>
-    </aside>
-
-    <!-- Main Content -->
-    <main class="flex-1 p-4 md:p-8 overflow-y-auto hidden" id="mainDashboard">
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-            <div>
-                <div class="md:hidden flex items-baseline mb-2 justify-between">
-                    <div class="flex items-baseline">
-                        <span class="text-2xl font-black tracking-tight text-white uppercase">POINT</span>
-                        <span class="text-2xl font-black text-brand ml-0.5">.</span>
-                        <span class="text-[9px] font-bold tracking-[0.2em] text-brand uppercase ml-2">FULFILLMENT</span>
-                    </div>
-                    <button onclick="handleLogout()" class="text-gray-400 hover:text-red-400 text-xs">Вихід</button>
-                </div>
-
-                <div class="flex items-center gap-3">
-                    <h2 class="text-2xl font-extrabold tracking-tight text-white">Облік товарів</h2>
-                    <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-brandOrange/20 to-brandOrange/5 border border-brandOrange/50 shadow-[0_0_12px_rgba(255,122,0,0.25)]">
-                        <span class="w-1.5 h-1.5 rounded-full bg-brandOrange animate-pulse"></span>
-                        <span class="text-xs font-black tracking-wider text-brandOrange uppercase">BULL</span>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="flex items-center gap-3 self-end md:self-auto">
-                <div class="flex flex-col items-end">
-                    <div class="flex items-center gap-2 bg-cardBg px-3.5 py-1.5 rounded-xl border border-cardBorder text-xs text-gray-400">
-                        <span class="w-2 h-2 rounded-full bg-emerald-500 live-dot"></span>
-                        <span>Автооновлення: <strong id="timerText" class="text-white">60s</strong></span>
-                    </div>
-                    <span id="lastUpdatedText" class="text-[10px] text-gray-500 mt-1 pr-1 font-mono">Оновлено: --:--:--</span>
-                </div>
-                <button onclick="manualRefresh()" class="p-2.5 bg-cardBg hover:bg-gray-800 border border-cardBorder rounded-xl transition text-gray-300" title="Оновити дані">
-                    <i class="fa-solid fa-rotate-right" id="refreshIcon"></i>
-                </button>
-            </div>
+        <div>
+          <label class="block text-xs font-bold text-gray-400 mb-1">Кількість (од)</label>
+          <input type="number" id="modal-qty-input" placeholder="Наприклад: 50" class="w-full bg-darkBg border border-cardBorder rounded-xl p-3 text-xs text-white focus:outline-none focus:border-brandOrange">
         </div>
 
-        <!-- KPI Карточки -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-            <div class="cyber-card cyber-card-brand border border-cardBorder rounded-xl p-4 flex flex-col justify-between cursor-pointer">
-                <div class="flex items-center justify-between">
-                    <span class="text-[11px] font-bold text-gray-400 tracking-wider uppercase">ОДИНИЦЬ ТОВАРУ</span>
-                    <div class="w-8 h-8 rounded-lg bg-gray-800 border border-gray-700 flex items-center justify-center text-gray-300 text-sm">
-                        <i class="fa-solid fa-box-archive"></i>
-                    </div>
-                </div>
-                <div class="my-2">
-                    <div class="text-3xl font-black text-gradient-white tracking-tight" id="kpiTotalQty">0</div>
-                </div>
-                <p class="text-[11px] text-gray-500 truncate">Загальна к-сть штук на складі</p>
-            </div>
-
-            <div class="cyber-card cyber-card-brand border border-cardBorder rounded-xl p-4 flex flex-col justify-between cursor-pointer">
-                <div class="flex items-center justify-between">
-                    <span class="text-[11px] font-bold text-gray-400 tracking-wider uppercase">ЗАЛИШОК СКУПКИ</span>
-                    <div class="flex items-center gap-2">
-                        <span class="text-[10px] text-brand font-medium bg-brand/10 px-2 py-0.5 rounded border border-brand/20" id="usdRateBadge">Курс: Live...</span>
-                        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 text-sm">
-                            <i class="fa-solid fa-wallet"></i>
-                        </div>
-                    </div>
-                </div>
-                <div class="my-1.5">
-                    <div class="text-3xl font-black text-gradient-emerald tracking-tight" id="kpiTotalSumUah">0 ₴</div>
-                </div>
-                <div class="flex items-center justify-between pt-2 border-t border-cardBorder/40">
-                    <span class="text-[11px] text-gray-400">Оцінка в валюті:</span>
-                    <span class="text-base font-black text-gradient-orange" id="kpiTotalSumUsd">$0</span>
-                </div>
-            </div>
+        <div>
+          <label class="block text-xs font-bold text-gray-400 mb-1">Постачальник</label>
+          <input type="text" id="modal-supplier-input" placeholder="ПІБ або Назва" class="w-full bg-darkBg border border-cardBorder rounded-xl p-3 text-xs text-white focus:outline-none focus:border-brandOrange">
         </div>
+      </div>
 
-        <!-- Блок выбора периода -->
-        <div class="cyber-card border border-cardBorder rounded-xl p-3.5 mb-6 flex flex-col md:flex-row md:items-center justify-between gap-3">
-            <div class="flex items-center gap-2">
-                <i class="fa-solid fa-truck-fast text-brand"></i>
-                <span class="text-xs font-bold uppercase tracking-wider text-gray-300">Аналіз відправок за період:</span>
-            </div>
+      <div class="flex justify-end gap-3 pt-4 border-t border-cardBorder">
+        <button onclick="closePurchaseModal()" class="px-4 py-2 bg-darkBg border border-cardBorder text-gray-300 hover:text-white text-xs font-bold rounded-xl">Скасувати</button>
+        <button id="modal-submit-btn" onclick="submitPurchaseForm()" class="px-5 py-2 bg-brandOrange hover:bg-brandOrangeHover text-black font-black text-xs rounded-xl transition">Зберегти</button>
+      </div>
+    </div>
+  </div>
 
-            <div class="flex flex-wrap items-center gap-2">
-                <div class="flex items-center gap-1.5 bg-gray-900 p-1 rounded-xl border border-cardBorder">
-                    <button onclick="setPeriod('1d')" id="period-1d" class="period-btn period-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent bg-brand text-white shadow-lg shadow-brand/20">24г (доба)</button>
-                    <button onclick="setPeriod('7d')" id="period-7d" class="period-btn period-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400">7 днів</button>
-                    <button onclick="setPeriod('30d')" id="period-30d" class="period-btn period-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400">30 днів</button>
-                    <button onclick="setPeriod('custom')" id="period-custom" class="period-btn period-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400">Свій період</button>
-                </div>
+  <!-- JS ЛОГИКА -->
+  <script>
+    let productsData = [];
+    let purchasesData = [];
+    let currentPeriod = '24h';
 
-                <div id="customDateInputs" class="hidden items-center gap-2">
-                    <input type="date" id="startDate" onchange="renderProducts()" class="bg-gray-900 border border-cardBorder rounded-lg px-2.5 py-1 text-xs text-white focus:outline-none focus:border-brand">
-                    <span class="text-xs text-gray-500">—</span>
-                    <input type="date" id="endDate" onchange="renderProducts()" class="bg-gray-900 border border-cardBorder rounded-lg px-2.5 py-1 text-xs text-white focus:outline-none focus:border-brand">
-                </div>
-            </div>
-        </div>
+    // Получение данных по JSONP
+    function fetchData() {
+      const script = document.createElement('script');
+      script.src = `${API_URL}?callback=handleApiResponse&_=${new Date().getTime()}`;
+      document.body.appendChild(script);
+      document.body.removeChild(script);
+    }
 
-        <!-- Фильтры и Поиск -->
-        <div class="flex flex-col md:flex-row items-center justify-between gap-4 mb-6">
-            <div class="flex flex-wrap items-center gap-2 w-full md:w-auto">
-                <div class="flex items-center gap-1.5 bg-cardBg p-1.5 rounded-xl border border-cardBorder overflow-x-auto max-w-full">
-                    <button onclick="setFilter('all')" id="btn-all" class="filter-btn filter-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent bg-brand text-white shadow-lg shadow-brand/20 whitespace-nowrap">Усі</button>
-                    <button onclick="setFilter('empty')" id="btn-empty" class="filter-btn filter-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400 whitespace-nowrap">Немає (0)</button>
-                    <button onclick="setFilter('warning')" id="btn-warning" class="filter-btn filter-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400 whitespace-nowrap">Малий залишок (1–19)</button>
-                    <button onclick="setFilter('good')" id="btn-good" class="filter-btn filter-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400 whitespace-nowrap">У наявності (&ge;20)</button>
-                </div>
-            </div>
+    // Обработка ответа
+    function handleApiResponse(data) {
+      productsData = data.products || [];
+      purchasesData = data.purchases || [];
 
-            <div class="relative w-full md:w-80">
-                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm pointer-events-none"></i>
-                <input type="text" id="searchInput" oninput="handleSearchInput()" placeholder="Пошук за назвою або ID..." class="w-full bg-cardBg border border-cardBorder rounded-xl pl-10 pr-9 py-2 text-sm text-gray-200 focus:outline-none focus:border-brand transition">
-                <button id="clearSearchBtn" onclick="clearSearch()" class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition p-1">
-                    <i class="fa-solid fa-xmark text-sm"></i>
-                </button>
-            </div>
-        </div>
+      // Заполнение шапки метрик
+      let totalQty = 0;
+      let totalSum = 0;
+      productsData.forEach(p => {
+        totalQty += p.qty;
+        totalSum += p.totalSum;
+      });
 
-        <!-- Таблица товаров -->
-        <div class="bg-cardBg border border-cardBorder rounded-2xl overflow-hidden shadow-xl">
-            <div class="grid grid-cols-12 bg-gray-900/80 p-4 border-b border-cardBorder text-xs font-bold text-gray-400 tracking-wider uppercase select-none">
-                <div class="col-span-1 md:col-span-1">ID</div>
-                <div class="col-span-4 md:col-span-4">НАЗВА ТОВАРУ</div>
-                
-                <div onclick="toggleSort('qty')" class="col-span-2 md:col-span-2 text-center cursor-pointer hover:text-white transition flex items-center justify-center gap-1.5 group" title="Натисніть для сортування">
-                    <span id="headerQtyText">ЗАЛИШОК</span>
-                    <i id="sortIconQty" class="fa-solid fa-sort text-gray-600 group-hover:text-brand transition text-[10px]"></i>
-                </div>
+      document.getElementById('metric-total-qty').innerText = totalQty.toLocaleString('uk-UA');
+      document.getElementById('metric-total-sum').innerText = totalSum.toLocaleString('uk-UA') + ' ₴';
+      
+      if (data.exchangeRate) document.getElementById('metric-rate').innerText = data.exchangeRate;
+      if (data.totalUsd) document.getElementById('metric-total-usd').innerText = '$' + data.totalUsd.toLocaleString('en-US');
 
-                <div onclick="toggleSort('shipments')" class="col-span-2 md:col-span-2 text-center cursor-pointer hover:text-white transition flex items-center justify-center gap-1.5 group" title="Натисніть для сортування">
-                    <span id="headerDynText">ВІДПРАВКИ ЗА ПЕРІОД</span>
-                    <i id="sortIconDyn" class="fa-solid fa-sort text-gray-600 group-hover:text-brand transition text-[10px]"></i>
-                </div>
+      renderStockTable();
+      renderPurchasesTable();
+      populateModalSelect();
+    }
 
-                <div class="col-span-3 md:col-span-3 text-right">ЗАЛИШОК (ГРН)</div>
-            </div>
+    // Отрисовка склада
+    function renderStockTable() {
+      const tbody = document.getElementById('stock-table-body');
+      const query = document.getElementById('search-input').value.toLowerCase().trim();
 
-            <div id="productsContainer" class="divide-y divide-cardBorder/60">
-                <div class="text-center py-12 text-gray-500">
-                    <i class="fa-solid fa-spinner fa-spin text-2xl mb-2 text-brand"></i>
-                    <p>Завантаження даних складу та відправок...</p>
-                </div>
-            </div>
-        </div>
-    </main>
+      const filtered = productsData.filter(p => 
+        p.name.toLowerCase().includes(query) || p.id.toLowerCase().includes(query)
+      );
 
-    <!-- FIREBASE SDKs & LOGIC -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, setPersistence, browserSessionPersistence, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="text-center p-8 text-gray-500">Товарів не знайдено</td></tr>`;
+        return;
+      }
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyBemQDr2DYyNF3Bmac996j_YjjgANJRR5s",
-            authDomain: "warehouse-dashboard-6b23a.firebaseapp.com",
-            projectId: "warehouse-dashboard-6b23a",
-            storageBucket: "warehouse-dashboard-6b23a.firebasestorage.app",
-            messagingSenderId: "275907622369",
-            appId: "1:275907622369:web:2f6980be29bc9e3bcacea0",
-            measurementId: "G-8QJWLGNH5Y"
-        };
+      tbody.innerHTML = filtered.map(p => {
+        let shipQty = p.ship24h || 0;
+        if (currentPeriod === '7d') shipQty = p.ship7d || 0;
+        if (currentPeriod === '30d') shipQty = p.ship30d || 0;
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
+        return `
+          <tr class="border-b border-cardBorder/50 hover:bg-gray-800/20 transition">
+            <td class="p-4 font-mono font-bold text-gray-400">#${p.id}</td>
+            <td class="p-4 font-semibold text-white">${p.name}</td>
+            <td class="p-4 font-bold ${p.qty > 0 ? 'text-emerald-400' : 'text-red-400'}">${p.qty} шт</td>
+            <td class="p-4 font-bold text-brandOrange">${shipQty > 0 ? '+' + shipQty + ' відпр.' : '—'}</td>
+            <td class="p-4 text-right font-bold text-white">${p.totalSum.toLocaleString('uk-UA')} ₴</td>
+          </tr>
+        `;
+      }).join('');
+    }
 
-        const API_URL = "https://script.google.com/macros/s/AKfycbxHxTydxr0bCSPtjuuwq72QA6eUVgsmApc4Jjwy3qsJA5E8RBM90F2qspizWg6I7_nu/exec";
-        
-        let allProducts = [];
-        let allShipments = [];
-        let currentFilter = 'all';
-        let sortField = null;
-        let sortOrder = 'default';
-        let currentPeriod = '1d';
-        let countdown = 60;
-        let isAuthenticated = false;
-        let liveUsdRate = 41.5;
+    // Отрисовка закупок
+    function renderPurchasesTable() {
+      const tbody = document.getElementById('purchases-table-body');
+      if (!purchasesData.length) {
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center p-8 text-gray-500">Закупівель поки немає</td></tr>`;
+        return;
+      }
 
-        async function fetchLiveUsdRate() {
-            try {
-                const res = await fetch("https://open.er-api.com/v6/latest/USD");
-                const data = await res.json();
-                if (data && data.rates && data.rates.UAH) {
-                    liveUsdRate = data.rates.UAH;
-                }
-            } catch (err) {
-                console.warn("Не вдалося завантажити живий курс USD:", err);
-            }
+      tbody.innerHTML = purchasesData.map(p => {
+        const devClass = p.deviation < 0 ? 'text-red-400' : 'text-emerald-400';
+        return `
+          <tr class="border-b border-cardBorder/50 hover:bg-gray-800/20 transition">
+            <td class="p-4 font-mono font-bold text-gray-400">#${p.id}</td>
+            <td class="p-4 font-semibold text-white">${p.productName || '—'}</td>
+            <td class="p-4 font-bold text-white">${p.orderedQty} шт</td>
+            <td class="p-4">${p.acceptedQty ? p.acceptedQty + ' шт' : '—'}</td>
+            <td class="p-4 font-bold ${devClass}">${p.deviation || 0}</td>
+            <td class="p-4 text-gray-300">${p.supplier || '—'}</td>
+            <td class="p-4 text-right text-gray-400">${p.orderDate || '—'}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // Управление фильтром периодов
+    function setPeriod(period) {
+      currentPeriod = period;
+      ['24h', '7d', '30d'].forEach(p => {
+        const btn = document.getElementById(`btn-p-${p}`);
+        if (p === period) {
+          btn.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition bg-brandOrange text-black";
+        } else {
+          btn.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition bg-darkBg text-gray-400 hover:text-white";
         }
+      });
+      renderStockTable();
+    }
 
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                isAuthenticated = true;
-                document.getElementById('authOverlay').classList.add('hidden');
-                document.getElementById('mainDashboard').classList.remove('hidden');
-                await fetchLiveUsdRate();
-                loadData();
-            } else {
-                isAuthenticated = false;
-                document.getElementById('authOverlay').classList.remove('hidden');
-                document.getElementById('mainDashboard').classList.add('hidden');
-            }
-        });
+    // Переключение вкладок
+    function switchTab(tab) {
+      const stockTab = document.getElementById('tab-content-stock');
+      const purchasesTab = document.getElementById('tab-content-purchases');
+      const btnStock = document.getElementById('btn-tab-stock');
+      const btnPurchases = document.getElementById('btn-tab-purchases');
+      const pageTitle = document.getElementById('page-title');
 
-        window.togglePasswordVisibility = () => {
-            const passInput = document.getElementById('passInput');
-            const passIcon = document.getElementById('passIcon');
-            if (passInput.type === 'password') {
-                passInput.type = 'text';
-                passIcon.classList.remove('fa-eye');
-                passIcon.classList.add('fa-eye-slash');
-            } else {
-                passInput.type = 'password';
-                passIcon.classList.remove('fa-eye-slash');
-                passIcon.classList.add('fa-eye');
-            }
-        };
+      if (tab === 'stock') {
+        stockTab.classList.remove('hidden');
+        purchasesTab.classList.add('hidden');
+        pageTitle.innerText = "Облік товарів";
+        btnStock.className = "w-full flex flex-col items-center p-3 rounded-xl bg-orange-500/10 text-brandOrange border border-brandOrange/30 font-semibold transition";
+        btnPurchases.className = "w-full flex flex-col items-center p-3 rounded-xl text-gray-400 hover:text-white hover:bg-gray-800/50 transition";
+      } else {
+        stockTab.classList.add('hidden');
+        purchasesTab.classList.remove('hidden');
+        pageTitle.innerText = "Закупівлі товарів";
+        btnPurchases.className = "w-full flex flex-col items-center p-3 rounded-xl bg-orange-500/10 text-brandOrange border border-brandOrange/30 font-semibold transition";
+        btnStock.className = "w-full flex flex-col items-center p-3 rounded-xl text-gray-400 hover:text-white hover:bg-gray-800/50 transition";
+      }
+    }
 
-        window.handleLogin = async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('emailInput').value;
-            const pass = document.getElementById('passInput').value;
-            const btnText = document.getElementById('btnText');
-            const authError = document.getElementById('authError');
+    // Модальное окно
+    function openPurchaseModal() {
+      document.getElementById('purchase-modal').classList.remove('hidden');
+    }
 
-            authError.classList.add('hidden');
-            btnText.innerText = "Авторизація...";
+    function closePurchaseModal() {
+      document.getElementById('purchase-modal').classList.add('hidden');
+    }
 
-            try {
-                await setPersistence(auth, browserSessionPersistence);
-                await signInWithEmailAndPassword(auth, email, pass);
-                document.getElementById('passInput').value = '';
-            } catch (err) {
-                console.error(err);
-                authError.classList.remove('hidden');
-                authError.innerText = "Неправильний Email або пароль!";
-            } finally {
-                btnText.innerText = "Увійти в дашборд";
-            }
-        };
+    function populateModalSelect() {
+      const select = document.getElementById('modal-product-select');
+      if (!select) return;
+      select.innerHTML = productsData.map(p => 
+        `<option value="${p.id}" data-name="${p.name}">[${p.id}] ${p.name}</option>`
+      ).join('');
+    }
 
-        window.handleLogout = () => {
-            signOut(auth);
-        };
+    // Отправка формы создания закупки
+    function submitPurchaseForm() {
+      const select = document.getElementById('modal-product-select');
+      const selectedOption = select.options[select.selectedIndex];
+      const productId = select.value;
+      const productName = selectedOption ? selectedOption.getAttribute('data-name') : '';
+      const qty = document.getElementById('modal-qty-input').value;
+      const supplier = document.getElementById('modal-supplier-input').value;
+      const submitBtn = document.getElementById('modal-submit-btn');
 
-        window.loadData = async () => {
-            const refreshIcon = document.getElementById('refreshIcon');
-            if (refreshIcon) refreshIcon.classList.add('fa-spin');
+      if (!qty || qty <= 0) {
+        alert("Будь ласка, вкажіть кількість!");
+        return;
+      }
 
-            await fetchLiveUsdRate();
+      submitBtn.disabled = true;
+      submitBtn.innerText = "Збереження...";
 
-            const oldScript = document.getElementById('jsonp-script');
-            if (oldScript) oldScript.remove();
+      const payload = {
+        id: productId,
+        productName: productName,
+        orderedQty: qty,
+        supplier: supplier
+      };
 
-            window.handleDataResponse = (data) => {
-                if (refreshIcon) refreshIcon.classList.remove('fa-spin');
-                
-                if (data && data.error) {
-                    console.error("Помилка Apps Script:", data.error);
-                    document.getElementById('productsContainer').innerHTML = `
-                        <div class="p-6 text-center text-red-400">
-                            <i class="fa-solid fa-circle-exclamation text-2xl mb-2"></i>
-                            <p>Помилка аркуша: ${data.error}</p>
-                        </div>`;
-                    return;
-                }
+      fetch(API_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      })
+      .then(() => {
+        alert("Заявку на закупівлю успішно створено!");
+        closePurchaseModal();
+        submitBtn.disabled = false;
+        submitBtn.innerText = "Зберегти";
+        setTimeout(fetchData, 1000);
+      })
+      .catch(err => {
+        console.error(err);
+        alert("Помилка збереження!");
+        submitBtn.disabled = false;
+        submitBtn.innerText = "Зберегти";
+      });
+    }
 
-                allProducts = data.products || [];
-                allShipments = data.shipments || [];
-
-                updateKPIs();
-                renderProducts();
-                resetTimer();
-                updateLastUpdatedTime();
-            };
-
-            const script = document.createElement('script');
-            script.id = 'jsonp-script';
-            script.src = `${API_URL}?callback=handleDataResponse&t=${Date.now()}`;
-            script.onerror = () => {
-                if (refreshIcon) refreshIcon.classList.remove('fa-spin');
-                document.getElementById('productsContainer').innerHTML = `
-                    <div class="p-6 text-center text-red-400">
-                        <i class="fa-solid fa-circle-exclamation text-2xl mb-2"></i>
-                        <p>Помилка завантаження даних. Перевірте доступи Google Apps Script.</p>
-                    </div>`;
-            };
-
-            document.body.appendChild(script);
-        };
-
-        function resetTimer() {
-            countdown = 60;
-            document.getElementById('timerText').innerText = `${countdown}s`;
-        }
-
-        function updateLastUpdatedTime() {
-            const now = new Date();
-            const timeStr = now.toLocaleTimeString('uk-UA', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-            document.getElementById('lastUpdatedText').innerText = `Оновлено о ${timeStr}`;
-        }
-
-        window.manualRefresh = () => {
-            window.loadData();
-        };
-
-        setInterval(() => {
-            if (isAuthenticated) {
-                countdown--;
-                if (countdown <= 0) {
-                    window.loadData();
-                } else {
-                    document.getElementById('timerText').innerText = `${countdown}s`;
-                }
-            }
-        }, 1000);
-
-        window.copyToClipboard = (text) => {
-            if (!text || text === "—") return;
-            navigator.clipboard.writeText(text).then(() => {
-                showToast(`Скопійовано: "${text}"`);
-            });
-        };
-
-        function showToast(msg) {
-            const toast = document.getElementById('toast');
-            document.getElementById('toastMsg').innerText = msg;
-            toast.classList.remove('translate-y-20', 'opacity-0');
-            toast.classList.add('translate-y-0', 'opacity-100');
-            setTimeout(() => {
-                toast.classList.remove('translate-y-0', 'opacity-100');
-                toast.classList.add('translate-y-20', 'opacity-0');
-            }, 2500);
-        }
-
-        function updateKPIs() {
-            let calcTotalQty = 0;
-            let calcTotalSumUah = 0;
-
-            allProducts.forEach(p => {
-                const q = Number(p.qty) || 0;
-                const sum = Number(p.totalSum) || (p.price ? q * Number(p.price) : 0);
-                calcTotalQty += q;
-                calcTotalSumUah += sum;
-            });
-
-            document.getElementById('kpiTotalQty').innerText = calcTotalQty.toLocaleString('uk-UA');
-            document.getElementById('kpiTotalSumUah').innerText = `${calcTotalSumUah.toLocaleString('uk-UA')} ₴`;
-
-            const displayRate = liveUsdRate ? liveUsdRate.toFixed(2) : '41.50';
-            document.getElementById('usdRateBadge').innerText = `Курс: ${displayRate}`;
-
-            const totalUsd = Math.round(calcTotalSumUah / liveUsdRate);
-            document.getElementById('kpiTotalSumUsd').innerText = `$${totalUsd.toLocaleString('en-US')}`;
-        }
-
-        window.setFilter = (filterType) => {
-            currentFilter = filterType;
-            
-            document.querySelectorAll('.filter-btn').forEach(btn => {
-                btn.className = 'filter-btn filter-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400 whitespace-nowrap';
-            });
-
-            const activeBtn = document.getElementById(`btn-${filterType}`);
-            if (activeBtn) {
-                activeBtn.className = 'filter-btn filter-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent bg-brand text-white shadow-lg shadow-brand/20 whitespace-nowrap';
-            }
-
-            renderProducts();
-        };
-
-        window.setPeriod = (period) => {
-            currentPeriod = period;
-            
-            document.querySelectorAll('.period-btn').forEach(btn => {
-                btn.className = 'period-btn period-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400';
-            });
-
-            const activeBtn = document.getElementById(`period-${period}`);
-            if (activeBtn) {
-                activeBtn.className = 'period-btn period-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent bg-brand text-white shadow-lg shadow-brand/20';
-            }
-
-            const customInputs = document.getElementById('customDateInputs');
-            if (period === 'custom') {
-                customInputs.classList.remove('hidden');
-                customInputs.classList.add('flex');
-            } else {
-                customInputs.classList.remove('flex');
-                customInputs.classList.add('hidden');
-            }
-
-            renderProducts();
-        };
-
-        window.toggleSort = (field) => {
-            if (sortField !== field) {
-                sortField = field;
-                sortOrder = 'desc';
-            } else {
-                if (sortOrder === 'desc') {
-                    sortOrder = 'asc';
-                } else if (sortOrder === 'asc') {
-                    sortOrder = 'default';
-                    sortField = null;
-                } else {
-                    sortOrder = 'desc';
-                }
-            }
-
-            updateSortHeaderUI();
-            renderProducts();
-        };
-
-        function updateSortHeaderUI() {
-            const iconQty = document.getElementById('sortIconQty');
-            const iconDyn = document.getElementById('sortIconDyn');
-            const textQty = document.getElementById('headerQtyText');
-            const textDyn = document.getElementById('headerDynText');
-
-            iconQty.className = 'fa-solid fa-sort text-gray-600 group-hover:text-brand transition text-[10px]';
-            textQty.className = '';
-
-            iconDyn.className = 'fa-solid fa-sort text-gray-600 group-hover:text-brand transition text-[10px]';
-            textDyn.className = '';
-
-            if (sortField === 'qty') {
-                textQty.className = 'text-brand font-bold';
-                if (sortOrder === 'desc') {
-                    iconQty.className = 'fa-solid fa-arrow-down-9-1 text-brand text-xs';
-                } else if (sortOrder === 'asc') {
-                    iconQty.className = 'fa-solid fa-arrow-up-1-9 text-brand text-xs';
-                }
-            } else if (sortField === 'shipments') {
-                textDyn.className = 'text-brand font-bold';
-                if (sortOrder === 'desc') {
-                    iconDyn.className = 'fa-solid fa-arrow-down-9-1 text-brand text-xs';
-                } else if (sortOrder === 'asc') {
-                    iconDyn.className = 'fa-solid fa-arrow-up-1-9 text-brand text-xs';
-                }
-            }
-        }
-
-        window.handleSearchInput = () => {
-            const val = document.getElementById('searchInput').value;
-            const clearBtn = document.getElementById('clearSearchBtn');
-            if (val.trim()) {
-                clearBtn.classList.remove('hidden');
-            } else {
-                clearBtn.classList.add('hidden');
-            }
-            renderProducts();
-        };
-
-        window.clearSearch = () => {
-            document.getElementById('searchInput').value = '';
-            document.getElementById('clearSearchBtn').classList.add('hidden');
-            renderProducts();
-        };
-
-        // ВЫЧИСЛЕНИЕ ОТПРАВОК ИЗ ЛИСТА "ВІДПРАВКИ" ПО ДАТАМ
-        function getShipmentsCount(productId) {
-            if (!allShipments || allShipments.length === 0) return 0;
-
-            const now = new Date();
-            let startBoundary = new Date();
-            let endBoundary = new Date();
-
-            if (currentPeriod === '1d') {
-                startBoundary.setHours(now.getHours() - 24);
-            } else if (currentPeriod === '7d') {
-                startBoundary.setDate(now.getDate() - 7);
-            } else if (currentPeriod === '30d') {
-                startBoundary.setDate(now.getDate() - 30);
-            } else if (currentPeriod === 'custom') {
-                const sVal = document.getElementById('startDate').value;
-                const eVal = document.getElementById('endDate').value;
-                if (sVal) startBoundary = new Date(sVal + "T00:00:00");
-                else startBoundary = new Date(0); // с начала времен
-                if (eVal) endBoundary = new Date(eVal + "T23:59:59");
-            }
-
-            let totalShipments = 0;
-            const strId = String(productId);
-
-            allShipments.forEach(s => {
-                if (String(s.id) === strId) {
-                    const sDate = new Date(s.date);
-                    if (sDate >= startBoundary && sDate <= endBoundary) {
-                        totalShipments += Number(s.qty) || 0;
-                    }
-                }
-            });
-
-            return totalShipments;
-        }
-
-        window.renderProducts = () => {
-            const container = document.getElementById('productsContainer');
-            const searchVal = document.getElementById('searchInput').value.toLowerCase().trim();
-
-            let filtered = allProducts.filter(p => {
-                const qty = Number(p.qty) || 0;
-                
-                if (currentFilter === 'empty' && qty !== 0) return false;
-                if (currentFilter === 'warning' && (qty < 1 || qty > 19)) return false;
-                if (currentFilter === 'good' && qty < 20) return false;
-
-                if (searchVal) {
-                    const matchId = String(p.id || '').toLowerCase().includes(searchVal);
-                    const matchName = String(p.name || '').toLowerCase().includes(searchVal);
-                    return matchId || matchName;
-                }
-
-                return true;
-            });
-
-            if (sortField) {
-                filtered.sort((a, b) => {
-                    let valA = 0;
-                    let valB = 0;
-
-                    if (sortField === 'qty') {
-                        valA = Number(a.qty) || 0;
-                        valB = Number(b.qty) || 0;
-                    } else if (sortField === 'shipments') {
-                        valA = getShipmentsCount(a.id);
-                        valB = getShipmentsCount(b.id);
-                    }
-
-                    return sortOrder === 'asc' ? valA - valB : valB - valA;
-                });
-            }
-
-            if (filtered.length === 0) {
-                container.innerHTML = `
-                    <div class="p-8 text-center text-gray-500">
-                        <i class="fa-solid fa-folder-open text-3xl mb-2 text-gray-600"></i>
-                        <p>Товарів не знайдено</p>
-                    </div>`;
-                return;
-            }
-
-            let html = '';
-            filtered.forEach(p => {
-                const qty = Number(p.qty) || 0;
-                const totalSum = Number(p.totalSum) || (p.price ? qty * Number(p.price) : 0);
-                const shippedQty = getShipmentsCount(p.id);
-
-                let qtyBadgeClass = 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
-                if (qty === 0) {
-                    qtyBadgeClass = 'bg-red-500/10 text-red-400 border-red-500/20';
-                } else if (qty < 20) {
-                    qtyBadgeClass = 'bg-amber-500/10 text-amber-400 border-amber-500/20';
-                }
-
-                let dynHtml = '<span class="text-gray-500">—</span>';
-                if (shippedQty > 0) {
-                    dynHtml = `<span class="text-emerald-400 font-bold bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-500/20 text-xs">
-                        +${shippedQty} відпр.
-                    </span>`;
-                }
-
-                html += `
-                    <div class="grid grid-cols-12 p-4 items-center hover:bg-gray-800/40 transition text-sm">
-                        <div class="col-span-1 md:col-span-1 font-mono text-xs text-gray-500 cursor-pointer hover:text-brand" onclick="copyToClipboard('${p.id}')" title="Скопіювати ID">
-                            #${p.id || '—'}
-                        </div>
-                        <div class="col-span-4 md:col-span-4 font-semibold text-gray-200 truncate pr-2 cursor-pointer hover:text-brand" onclick="copyToClipboard('${p.name}')" title="Скопіювати назву">
-                            ${p.name || 'Без назви'}
-                        </div>
-                        <div class="col-span-2 md:col-span-2 text-center">
-                            <span class="inline-block px-2.5 py-0.5 rounded-lg border text-xs font-extrabold ${qtyBadgeClass}">
-                                ${qty} шт
-                            </span>
-                        </div>
-                        <div class="col-span-2 md:col-span-2 text-center">
-                            ${dynHtml}
-                        </div>
-                        <div class="col-span-3 md:col-span-3 text-right font-bold text-gray-200">
-                            ${totalSum.toLocaleString('uk-UA')} ₴
-                        </div>
-                    </div>
-                `;
-            });
-
-            container.innerHTML = html;
-        };
-    </script>
+    // Автоматическая загрузка данных при старте
+    fetchData();
+    setInterval(fetchData, 60000);
+  </script>
 </body>
 </html>
