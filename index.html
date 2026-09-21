@@ -152,7 +152,6 @@
                     <button onclick="handleLogout()" class="text-gray-400 hover:text-red-400 text-xs">Вихід</button>
                 </div>
 
-                <!-- Обновленный заголовок: Облік товарів BULL -->
                 <h2 class="text-2xl font-bold">Облік товарів <span class="text-brand">BULL</span></h2>
             </div>
             
@@ -170,8 +169,8 @@
             </div>
         </div>
 
-        <!-- KPI Карточки -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5 mb-6">
+        <!-- KPI Карточки (Оновлено до 4 колонок з об'єднаною карткою) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 mb-6">
             <div onclick="setFilter('empty')" class="cyber-card cyber-card-red border border-cardBorder rounded-xl p-3.5 flex flex-col justify-between cursor-pointer select-none group" title="Натисніть, щоб показати товари, яких немає в наявності">
                 <div class="flex items-center justify-between">
                     <span class="text-[11px] font-bold text-gray-400 tracking-wider uppercase group-hover:text-red-400 transition">ЧЕРВОНА ЗОНА</span>
@@ -213,31 +212,24 @@
                 <p class="text-[11px] text-gray-500 truncate">Загальна к-сть штук</p>
             </div>
 
+            <!-- Об'єднана картка Залишку (ГРН та USD) -->
             <div class="cyber-card border border-cardBorder rounded-xl p-3.5 flex flex-col justify-between">
                 <div class="flex items-center justify-between">
-                    <span class="text-[11px] font-bold text-gray-400 tracking-wider uppercase">ЗАЛИШОК (ГРН)</span>
-                    <div class="w-7 h-7 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 text-xs">
-                        <i class="fa-solid fa-hryvnia-sign"></i>
+                    <span class="text-[11px] font-bold text-gray-400 tracking-wider uppercase">ЗАЛИШОК СКУПКИ</span>
+                    <div class="flex items-center gap-1.5">
+                        <span class="text-[10px] text-gray-400 bg-gray-800/80 px-1.5 py-0.5 rounded border border-gray-700" id="usdRateBadge">Курс: --</span>
+                        <div class="w-7 h-7 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 text-xs">
+                            <i class="fa-solid fa-wallet"></i>
+                        </div>
                     </div>
                 </div>
-                <div class="my-1.5">
+                <div class="my-1">
                     <div class="text-2xl font-black text-gradient-emerald tracking-tight" id="kpiTotalSumUah">0 ₴</div>
                 </div>
-                <p class="text-[11px] text-gray-500 truncate">Загальна вартість складених товарів</p>
-            </div>
-
-            <div class="cyber-card border border-cardBorder rounded-xl p-3.5 flex flex-col justify-between">
-                <div class="flex items-center justify-between">
-                    <span class="text-[11px] font-bold text-gray-400 tracking-wider uppercase">ЗАЛИШОК ($)</span>
-                    <div class="w-7 h-7 rounded-lg bg-brand/10 border border-brand/20 flex items-center justify-center text-brand text-xs">
-                        <i class="fa-solid fa-dollar-sign"></i>
-                    </div>
+                <div class="flex items-center justify-between pt-1 border-t border-cardBorder/40">
+                    <span class="text-[11px] text-gray-400">Оцінка в валюті:</span>
+                    <span class="text-sm font-black text-gradient-orange" id="kpiTotalSumUsd">$0</span>
                 </div>
-                <div class="my-1.5 flex items-baseline justify-between">
-                    <div class="text-2xl font-black text-gradient-orange tracking-tight" id="kpiTotalSumUsd">$0</div>
-                    <span class="text-[10px] text-gray-400 bg-gray-800/80 px-1.5 py-0.5 rounded border border-gray-700" id="usdRateBadge">Курс: 45</span>
-                </div>
-                <p class="text-[11px] text-gray-500 truncate">Оцінка в валюті</p>
             </div>
         </div>
 
