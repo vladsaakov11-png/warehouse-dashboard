@@ -173,46 +173,6 @@
             </div>
         </div>
 
-        <!-- Визуальная шкала здоровья склада -->
-        <div class="cyber-card border border-cardBorder rounded-xl p-4 mb-6">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
-                <div class="flex items-center gap-2">
-                    <div class="w-8 h-8 rounded-lg bg-brand/10 border border-brand/20 flex items-center justify-center text-brand text-sm">
-                        <i class="fa-solid fa-heart-pulse"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-sm font-bold text-white uppercase tracking-wider">Здоров'я Складу</h3>
-                        <p class="text-xs text-gray-400">Частка позицій у критичній та ризиковій зонах</p>
-                    </div>
-                </div>
-                <div class="text-right">
-                    <span id="healthPercentText" class="text-xl font-black text-gradient-orange">0%</span>
-                    <span class="text-xs text-gray-400 block font-medium" id="healthCountText">(0 з 0 позицій)</span>
-                </div>
-            </div>
-
-            <div class="w-full h-3 bg-gray-900 rounded-full overflow-hidden flex p-0.5 border border-cardBorder">
-                <div id="healthRedBar" class="h-full bg-red-500 rounded-l-full transition-all duration-500" style="width: 0%" title="Червона зона"></div>
-                <div id="healthAmberBar" class="h-full bg-amber-500 transition-all duration-500" style="width: 0%" title="Жовта зона"></div>
-                <div id="healthGreenBar" class="h-full bg-emerald-500 rounded-r-full transition-all duration-500" style="width: 100%" title="В наявності"></div>
-            </div>
-
-            <div class="flex items-center justify-between text-[11px] font-medium text-gray-400 mt-2 px-1">
-                <div class="flex items-center gap-1.5 cursor-pointer hover:text-white transition" onclick="setFilter('empty')">
-                    <span class="w-2 h-2 rounded-full bg-red-500"></span>
-                    <span>Немає: <strong id="healthRedLabel" class="text-white">0</strong></span>
-                </div>
-                <div class="flex items-center gap-1.5 cursor-pointer hover:text-white transition" onclick="setFilter('warning')">
-                    <span class="w-2 h-2 rounded-full bg-amber-500"></span>
-                    <span>Малий залишок: <strong id="healthAmberLabel" class="text-white">0</strong></span>
-                </div>
-                <div class="flex items-center gap-1.5 cursor-pointer hover:text-white transition" onclick="setFilter('good')">
-                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                    <span>Норма: <strong id="healthGreenLabel" class="text-white">0</strong></span>
-                </div>
-            </div>
-        </div>
-
         <!-- KPI Карточки (Кликабельные) -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5 mb-6">
             <div onclick="setFilter('empty')" class="cyber-card cyber-card-red border border-cardBorder rounded-xl p-3.5 flex flex-col justify-between cursor-pointer select-none group" title="Натисніть, щоб показати товари, яких немає в наявності">
@@ -546,25 +506,6 @@
                 calcTotalQty += q;
                 calcTotalSumUah += sum;
             });
-
-            const totalSkuCount = allProducts.length;
-            const totalCriticalSku = critical + warning;
-            const criticalPercent = totalSkuCount > 0 ? ((totalCriticalSku / totalSkuCount) * 100).toFixed(1) : 0;
-
-            document.getElementById('healthPercentText').innerText = `${criticalPercent}%`;
-            document.getElementById('healthCountText').innerText = `(${totalCriticalSku} з ${totalSkuCount} позицій у ризику)`;
-
-            const redPercent = totalSkuCount > 0 ? (critical / totalSkuCount) * 100 : 0;
-            const amberPercent = totalSkuCount > 0 ? (warning / totalSkuCount) * 100 : 0;
-            const greenPercent = totalSkuCount > 0 ? (good / totalSkuCount) * 100 : 100;
-
-            document.getElementById('healthRedBar').style.width = `${redPercent}%`;
-            document.getElementById('healthAmberBar').style.width = `${amberPercent}%`;
-            document.getElementById('healthGreenBar').style.width = `${greenPercent}%`;
-
-            document.getElementById('healthRedLabel').innerText = critical;
-            document.getElementById('healthAmberLabel').innerText = warning;
-            document.getElementById('healthGreenLabel').innerText = good;
 
             document.getElementById('kpiCritical').innerText = critical;
             document.getElementById('kpiWarning').innerText = warning;
