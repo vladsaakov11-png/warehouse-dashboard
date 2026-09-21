@@ -126,49 +126,12 @@
                     </div>
                 </div>
 
-                <div id="authError" class="text-xs text-red-400 hidden font-medium text-left p-2.5 bg-red-500/10 rounded-lg border border-red-500/20">Помилка входу: перевірте дані</div>
+                <div id="authError" class="text-xs text-red-400 hidden font-medium">Помилка входу: перевірте дані</div>
 
                 <button type="submit" id="btnLogin" class="w-full bg-brand hover:bg-[#E06B00] text-white font-bold py-3 rounded-xl shadow-lg shadow-brand/20 transition flex items-center justify-center gap-2">
                     <span id="btnText">Увійти в дашборд</span>
-                    <i class="fa-solid fa-arrow-right text-xs" id="btnIcon"></i>
+                    <i class="fa-solid fa-arrow-right text-xs"></i>
                 </button>
-            </form>
-        </div>
-    </div>
-
-    <!-- МОДАЛЬНЕ ВІКНО ЗАКУПІВЛІ -->
-    <div id="actionModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
-        <div class="bg-cardBg border border-cardBorder rounded-2xl p-6 max-w-md w-full shadow-2xl relative">
-            <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white transition">
-                <i class="fa-solid fa-xmark text-lg"></i>
-            </button>
-            <h3 id="modalTitle" class="text-lg font-bold text-white mb-1">Оформити закупівлю</h3>
-            <p id="modalSubtitle" class="text-xs text-gray-400 mb-4">Товар: <span id="modalProductName" class="text-brand font-semibold">--</span></p>
-
-            <form onsubmit="submitPurchaseForm(event)" class="space-y-4">
-                <input type="hidden" id="modalProductId">
-
-                <div>
-                    <label class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block mb-1">Кількість (шт)</label>
-                    <input type="number" id="modalQtyInput" required min="1" placeholder="100" class="w-full bg-gray-900 border border-cardBorder rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brand transition">
-                </div>
-
-                <div>
-                    <label class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block mb-1">Ціна закупівлі за шт (₴)</label>
-                    <input type="number" id="modalPriceInput" step="0.01" min="0" placeholder="150.00" class="w-full bg-gray-900 border border-cardBorder rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brand transition">
-                </div>
-
-                <div>
-                    <label class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block mb-1">Примітка / Постачальник</label>
-                    <input type="text" id="modalNoteInput" placeholder="Постачальник / Номер накладної" class="w-full bg-gray-900 border border-cardBorder rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brand transition">
-                </div>
-
-                <div class="flex items-center gap-3 pt-2">
-                    <button type="button" onclick="closeModal()" class="w-1/2 bg-gray-800 hover:bg-gray-700 text-gray-300 font-bold py-2.5 rounded-xl transition">Скасувати</button>
-                    <button type="submit" id="btnSubmitModal" class="w-1/2 bg-brand hover:bg-[#E06B00] text-white font-bold py-2.5 rounded-xl shadow-lg shadow-brand/20 transition flex items-center justify-center gap-2">
-                        <span>Зберегти</span>
-                    </button>
-                </div>
             </form>
         </div>
     </div>
@@ -176,7 +139,7 @@
     <!-- Toast Notification -->
     <div id="toast" class="fixed bottom-5 right-5 z-50 bg-emerald-600 text-white px-4 py-2.5 rounded-xl shadow-2xl flex items-center gap-2 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
         <i class="fa-solid fa-circle-check"></i>
-        <span id="toastMsg" class="text-sm font-medium">Успішно збережено!</span>
+        <span id="toastMsg" class="text-sm font-medium">Текст скопійовано!</span>
     </div>
 
     <!-- Сайдбар -->
@@ -229,7 +192,7 @@
                 </div>
 
                 <div class="flex items-center gap-3">
-                    <h2 class="text-2xl font-extrabold tracking-tight text-white">Облік товарів та закупівель</h2>
+                    <h2 class="text-2xl font-extrabold tracking-tight text-white">Облік товарів</h2>
                     <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-brandOrange/20 to-brandOrange/5 border border-brandOrange/50 shadow-[0_0_12px_rgba(255,122,0,0.25)]">
                         <span class="w-1.5 h-1.5 rounded-full bg-brandOrange animate-pulse"></span>
                         <span class="text-xs font-black tracking-wider text-brandOrange uppercase">BULL</span>
@@ -252,7 +215,7 @@
         </div>
 
         <!-- KPI Карточки -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
             <div class="cyber-card cyber-card-brand border border-cardBorder rounded-xl p-4 flex flex-col justify-between cursor-pointer">
                 <div class="flex items-center justify-between">
                     <span class="text-[11px] font-bold text-gray-400 tracking-wider uppercase">ОДИНИЦЬ ТОВАРУ</span>
@@ -264,19 +227,6 @@
                     <div class="text-3xl font-black text-gradient-white tracking-tight" id="kpiTotalQty">0</div>
                 </div>
                 <p class="text-[11px] text-gray-500 truncate">Загальна к-сть штук на складі</p>
-            </div>
-
-            <div class="cyber-card cyber-card-brand border border-cardBorder rounded-xl p-4 flex flex-col justify-between cursor-pointer">
-                <div class="flex items-center justify-between">
-                    <span class="text-[11px] font-bold text-gray-400 tracking-wider uppercase">ЗАГАЛЬНА ЗАКУПІВЛЯ (ПЕРІОД)</span>
-                    <div class="w-8 h-8 rounded-lg bg-brandOrange/10 border border-brandOrange/20 flex items-center justify-center text-brandOrange text-sm">
-                        <i class="fa-solid fa-cart-flatbed"></i>
-                    </div>
-                </div>
-                <div class="my-2">
-                    <div class="text-3xl font-black text-gradient-orange tracking-tight" id="kpiPurchasesSum">0 ₴</div>
-                </div>
-                <p class="text-[11px] text-gray-500 truncate" id="kpiPurchasesQtyText">Закуплено 0 шт за період</p>
             </div>
 
             <div class="cyber-card cyber-card-brand border border-cardBorder rounded-xl p-4 flex flex-col justify-between cursor-pointer">
@@ -303,7 +253,7 @@
         <div class="cyber-card border border-cardBorder rounded-xl p-3.5 mb-6 flex flex-col md:flex-row md:items-center justify-between gap-3">
             <div class="flex items-center gap-2">
                 <i class="fa-solid fa-truck-fast text-brand"></i>
-                <span class="text-xs font-bold uppercase tracking-wider text-gray-300">Аналіз закупівлі та відправок:</span>
+                <span class="text-xs font-bold uppercase tracking-wider text-gray-300">Аналіз відправок за період:</span>
             </div>
 
             <div class="flex flex-wrap items-center gap-2">
@@ -314,7 +264,7 @@
                     <button onclick="setPeriod('custom')" id="period-custom" class="period-btn period-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400">Свій період</button>
                 </div>
 
-                <div id="customDateInputs" class="hidden flex items-center gap-2">
+                <div id="customDateInputs" class="hidden items-center gap-2">
                     <input type="date" id="startDate" onchange="renderProducts()" class="bg-gray-900 border border-cardBorder rounded-lg px-2.5 py-1 text-xs text-white focus:outline-none focus:border-brand">
                     <span class="text-xs text-gray-500">—</span>
                     <input type="date" id="endDate" onchange="renderProducts()" class="bg-gray-900 border border-cardBorder rounded-lg px-2.5 py-1 text-xs text-white focus:outline-none focus:border-brand">
@@ -344,33 +294,27 @@
 
         <!-- Таблица товаров -->
         <div class="bg-cardBg border border-cardBorder rounded-2xl overflow-hidden shadow-xl">
-            <div class="grid grid-cols-12 bg-gray-900/80 p-4 border-b border-cardBorder text-[11px] font-bold text-gray-400 tracking-wider uppercase select-none">
-                <div class="col-span-1">ID</div>
-                <div class="col-span-3">НАЗВА ТОВАРУ</div>
-                <div class="col-span-2 text-center">ЦІНА ЗАКУП. (₴)</div>
+            <div class="grid grid-cols-12 bg-gray-900/80 p-4 border-b border-cardBorder text-xs font-bold text-gray-400 tracking-wider uppercase select-none">
+                <div class="col-span-1 md:col-span-1">ID</div>
+                <div class="col-span-4 md:col-span-4">НАЗВА ТОВАРУ</div>
                 
-                <div onclick="toggleSort('qty')" class="col-span-1 text-center cursor-pointer hover:text-white transition flex items-center justify-center gap-1 group">
-                    <span>ЗАЛИШОК</span>
+                <div onclick="toggleSort('qty')" class="col-span-2 md:col-span-2 text-center cursor-pointer hover:text-white transition flex items-center justify-center gap-1.5 group" title="Натисніть для сортування">
+                    <span id="headerQtyText">ЗАЛИШОК</span>
                     <i id="sortIconQty" class="fa-solid fa-sort text-gray-600 group-hover:text-brand transition text-[10px]"></i>
                 </div>
 
-                <div onclick="toggleSort('shipments')" class="col-span-1 text-center cursor-pointer hover:text-white transition flex items-center justify-center gap-1 group">
-                    <span>ВІДПРАВКИ</span>
-                    <i id="sortIconShipments" class="fa-solid fa-sort text-gray-600 group-hover:text-brand transition text-[10px]"></i>
+                <div onclick="toggleSort('shipments')" class="col-span-2 md:col-span-2 text-center cursor-pointer hover:text-white transition flex items-center justify-center gap-1.5 group" title="Натисніть для сортування">
+                    <span id="headerDynText">ВІДПРАВКИ ЗА ПЕРІОД</span>
+                    <i id="sortIconDyn" class="fa-solid fa-sort text-gray-600 group-hover:text-brand transition text-[10px]"></i>
                 </div>
 
-                <div onclick="toggleSort('purchases')" class="col-span-2 text-center cursor-pointer hover:text-white transition flex items-center justify-center gap-1 group">
-                    <span>ЗАКУПКА (ПЕРІОД)</span>
-                    <i id="sortIconPurchases" class="fa-solid fa-sort text-gray-600 group-hover:text-brand transition text-[10px]"></i>
-                </div>
-
-                <div class="col-span-2 text-right">ІСНУЮЧИЙ ЗАЛИШОК (ГРН) / ДІЇ</div>
+                <div class="col-span-3 md:col-span-3 text-right">ЗАЛИШОК (ГРН)</div>
             </div>
 
             <div id="productsContainer" class="divide-y divide-cardBorder/60">
                 <div class="text-center py-12 text-gray-500">
                     <i class="fa-solid fa-spinner fa-spin text-2xl mb-2 text-brand"></i>
-                    <p>Завантаження даних складу, закупівель та відправок...</p>
+                    <p>Завантаження даних складу та відправок...</p>
                 </div>
             </div>
         </div>
@@ -398,7 +342,6 @@
         
         let allProducts = [];
         let allShipments = [];
-        let allPurchases = [];
         let currentFilter = 'all';
         let sortField = null;
         let sortOrder = 'default';
@@ -415,7 +358,7 @@
                     liveUsdRate = data.rates.UAH;
                 }
             } catch (err) {
-                console.warn("Не вдалося завантажити курс USD:", err);
+                console.warn("Не вдалося завантажити живий курс USD:", err);
             }
         }
 
@@ -425,7 +368,7 @@
                 document.getElementById('authOverlay').classList.add('hidden');
                 document.getElementById('mainDashboard').classList.remove('hidden');
                 await fetchLiveUsdRate();
-                window.loadData();
+                loadData();
             } else {
                 isAuthenticated = false;
                 document.getElementById('authOverlay').classList.remove('hidden');
@@ -452,31 +395,21 @@
             const email = document.getElementById('emailInput').value;
             const pass = document.getElementById('passInput').value;
             const btnText = document.getElementById('btnText');
-            const btnIcon = document.getElementById('btnIcon');
             const authError = document.getElementById('authError');
 
             authError.classList.add('hidden');
             btnText.innerText = "Авторизація...";
-            if (btnIcon) btnIcon.className = "fa-solid fa-spinner fa-spin text-xs";
 
             try {
                 await setPersistence(auth, browserSessionPersistence);
                 await signInWithEmailAndPassword(auth, email, pass);
                 document.getElementById('passInput').value = '';
             } catch (err) {
-                console.error("Помилка входу Firebase:", err);
+                console.error(err);
                 authError.classList.remove('hidden');
-                
-                if (err.code === 'auth/invalid-credential' || err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password') {
-                    authError.innerText = "Невірна пошта або пароль!";
-                } else if (err.code === 'auth/too-many-requests') {
-                    authError.innerText = "Забагато спроб входу. Зачекайте хвилинку.";
-                } else {
-                    authError.innerText = "Помилка входу: " + (err.message || "Спробуйте ще раз");
-                }
+                authError.innerText = "Неправильний Email або пароль!";
             } finally {
                 btnText.innerText = "Увійти в дашборд";
-                if (btnIcon) btnIcon.className = "fa-solid fa-arrow-right text-xs";
             }
         };
 
@@ -508,10 +441,9 @@
 
                 allProducts = data.products || [];
                 allShipments = data.shipments || [];
-                allPurchases = data.purchases || [];
 
                 updateKPIs();
-                window.renderProducts();
+                renderProducts();
                 resetTimer();
                 updateLastUpdatedTime();
             };
@@ -557,259 +489,277 @@
             }
         }, 1000);
 
-        window.setPeriod = (p) => {
-            currentPeriod = p;
-            document.querySelectorAll('.period-btn').forEach(btn => {
-                btn.classList.remove('bg-brand', 'text-white', 'shadow-lg');
-                btn.classList.add('text-gray-400');
+        window.copyToClipboard = (text) => {
+            if (!text || text === "—") return;
+            navigator.clipboard.writeText(text).then(() => {
+                showToast(`Скопійовано: "${text}"`);
             });
-
-            const activeBtn = document.getElementById(`period-${p}`);
-            if (activeBtn) {
-                activeBtn.classList.add('bg-brand', 'text-white', 'shadow-lg');
-                activeBtn.classList.remove('text-gray-400');
-            }
-
-            const customInputs = document.getElementById('customDateInputs');
-            if (p === 'custom') {
-                customInputs.classList.remove('hidden');
-            } else {
-                customInputs.classList.add('hidden');
-            }
-
-            updateKPIs();
-            window.renderProducts();
-        };
-
-        function isDateInPeriod(dateStr) {
-            if (!dateStr) return false;
-            const date = new Date(dateStr);
-            if (isNaN(date.getTime())) return false;
-
-            const now = new Date();
-            if (currentPeriod === '1d') {
-                return (now - date) <= (24 * 60 * 60 * 1000);
-            } else if (currentPeriod === '7d') {
-                return (now - date) <= (7 * 24 * 60 * 60 * 1000);
-            } else if (currentPeriod === '30d') {
-                return (now - date) <= (30 * 24 * 60 * 60 * 1000);
-            } else if (currentPeriod === 'custom') {
-                const sVal = document.getElementById('startDate').value;
-                const eVal = document.getElementById('endDate').value;
-                if (!sVal && !eVal) return true;
-                const start = sVal ? new Date(sVal) : new Date(0);
-                const end = eVal ? new Date(eVal + 'T23:59:59') : new Date();
-                return date >= start && date <= end;
-            }
-            return true;
-        }
-
-        function updateKPIs() {
-            let totalQty = 0;
-            let totalSumUah = 0;
-
-            allProducts.forEach(p => {
-                totalQty += Number(p.qty) || 0;
-                totalSumUah += Number(p.totalSum) || ((Number(p.qty) || 0) * (Number(p.price) || 0));
-            });
-
-            let periodPurchaseQty = 0;
-            let periodPurchaseSum = 0;
-
-            allPurchases.forEach(p => {
-                if (isDateInPeriod(p.orderDate)) {
-                    periodPurchaseQty += Number(p.qty) || 0;
-                    periodPurchaseSum += (Number(p.qty) || 0) * (Number(p.price) || 0);
-                }
-            });
-
-            document.getElementById('kpiTotalQty').innerText = totalQty.toLocaleString('uk-UA');
-            document.getElementById('kpiTotalSumUah').innerText = `${Math.round(totalSumUah).toLocaleString('uk-UA')} ₴`;
-            document.getElementById('kpiPurchasesSum').innerText = `${Math.round(periodPurchaseSum).toLocaleString('uk-UA')} ₴`;
-            document.getElementById('kpiPurchasesQtyText').innerText = `Закуплено ${periodPurchaseQty.toLocaleString('uk-UA')} шт за період`;
-
-            if (liveUsdRate > 0) {
-                const totalUsd = Math.round(totalSumUah / liveUsdRate);
-                document.getElementById('kpiTotalSumUsd').innerText = `$${totalUsd.toLocaleString('en-US')}`;
-                document.getElementById('usdRateBadge').innerText = `Курс: ${liveUsdRate.toFixed(2)} ₴`;
-            }
-        }
-
-        window.toggleSort = (field) => {
-            if (sortField === field) {
-                if (sortOrder === 'default') sortOrder = 'desc';
-                else if (sortOrder === 'desc') sortOrder = 'asc';
-                else sortOrder = 'default';
-            } else {
-                sortField = field;
-                sortOrder = 'desc';
-            }
-            window.renderProducts();
-        };
-
-        function getProductShipmentsCount(id) {
-            return allShipments
-                .filter(s => s.id === id && isDateInPeriod(s.date))
-                .reduce((sum, s) => sum + (Number(s.qty) || 0), 0);
-        }
-
-        function getProductPurchasesCount(id) {
-            return allPurchases
-                .filter(p => (p.productId === id || p.productName === id) && isDateInPeriod(p.orderDate))
-                .reduce((sum, p) => sum + (Number(p.qty) || 0), 0);
-        }
-
-        window.renderProducts = () => {
-            const container = document.getElementById('productsContainer');
-            const searchVal = (document.getElementById('searchInput').value || '').toLowerCase().trim();
-
-            let filtered = allProducts.filter(p => {
-                const matchSearch = p.name.toLowerCase().includes(searchVal) || p.id.toLowerCase().includes(searchVal);
-                if (!matchSearch) return false;
-
-                if (currentFilter === 'empty') return p.qty === 0;
-                if (currentFilter === 'warning') return p.qty >= 1 && p.qty <= 19;
-                if (currentFilter === 'good') return p.qty >= 20;
-                return true;
-            });
-
-            if (sortField && sortOrder !== 'default') {
-                filtered.sort((a, b) => {
-                    let valA = 0, valB = 0;
-                    if (sortField === 'qty') {
-                        valA = a.qty; valB = b.qty;
-                    } else if (sortField === 'shipments') {
-                        valA = getProductShipmentsCount(a.id);
-                        valB = getProductShipmentsCount(b.id);
-                    } else if (sortField === 'purchases') {
-                        valA = getProductPurchasesCount(a.id);
-                        valB = getProductPurchasesCount(b.id);
-                    }
-                    return sortOrder === 'desc' ? valB - valA : valA - valB;
-                });
-            }
-
-            if (filtered.length === 0) {
-                container.innerHTML = `<div class="p-8 text-center text-gray-500">Товари не знайдені</div>`;
-                return;
-            }
-
-            container.innerHTML = filtered.map(p => {
-                const shipQty = getProductShipmentsCount(p.id);
-                const purQty = getProductPurchasesCount(p.id);
-                const totalUah = p.totalSum || (p.qty * p.price);
-
-                let badgeClass = "bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
-                if (p.qty === 0) badgeClass = "bg-red-500/10 text-red-400 border-red-500/20";
-                else if (p.qty < 20) badgeClass = "bg-amber-500/10 text-amber-400 border-amber-500/20";
-
-                return `
-                <div class="grid grid-cols-12 p-4 items-center hover:bg-gray-800/40 transition text-sm border-b border-cardBorder/40">
-                    <div class="col-span-1 font-mono text-xs text-gray-400">${p.id}</div>
-                    <div class="col-span-3 font-semibold text-white">${p.name}</div>
-                    <div class="col-span-2 text-center font-mono text-gray-300">${p.price} ₴</div>
-                    <div class="col-span-1 text-center">
-                        <span class="px-2.5 py-1 rounded-lg border text-xs font-bold ${badgeClass}">${p.qty}</span>
-                    </div>
-                    <div class="col-span-1 text-center font-mono ${shipQty > 0 ? 'text-brand font-bold' : 'text-gray-500'}">${shipQty}</div>
-                    <div class="col-span-2 text-center font-mono ${purQty > 0 ? 'text-emerald-400 font-bold' : 'text-gray-500'}">${purQty} шт</div>
-                    <div class="col-span-2 flex items-center justify-end gap-3">
-                        <span class="font-mono font-bold text-emerald-400">${Math.round(totalUah).toLocaleString('uk-UA')} ₴</span>
-                        <button onclick="openModal('${p.id}', '${p.name.replace(/'/g, "\\'")}')" class="p-1.5 bg-brandOrange/10 hover:bg-brandOrange text-brandOrange hover:text-white rounded-lg transition border border-brandOrange/30" title="Закупити">
-                            <i class="fa-solid fa-plus text-xs"></i>
-                        </button>
-                    </div>
-                </div>`;
-            }).join('');
-        };
-
-        window.setFilter = (filter) => {
-            currentFilter = filter;
-            document.querySelectorAll('.filter-btn').forEach(b => {
-                b.classList.remove('bg-brand', 'text-white', 'shadow-lg');
-                b.classList.add('text-gray-400');
-            });
-            const activeBtn = document.getElementById(`btn-${filter}`);
-            if (activeBtn) {
-                activeBtn.classList.add('bg-brand', 'text-white', 'shadow-lg');
-                activeBtn.classList.remove('text-gray-400');
-            }
-            window.renderProducts();
-        };
-
-        window.handleSearchInput = () => {
-            const val = document.getElementById('searchInput').value;
-            document.getElementById('clearSearchBtn').classList.toggle('hidden', !val);
-            window.renderProducts();
-        };
-
-        window.clearSearch = () => {
-            document.getElementById('searchInput').value = '';
-            document.getElementById('clearSearchBtn').classList.add('hidden');
-            window.renderProducts();
-        };
-
-        window.openModal = (id, name) => {
-            document.getElementById('modalProductId').value = id;
-            document.getElementById('modalProductName').innerText = name;
-            document.getElementById('modalQtyInput').value = '';
-            document.getElementById('modalPriceInput').value = '';
-            document.getElementById('modalNoteInput').value = '';
-            document.getElementById('actionModal').classList.remove('hidden');
-        };
-
-        window.closeModal = () => {
-            document.getElementById('actionModal').classList.add('hidden');
-        };
-
-        window.submitPurchaseForm = (e) => {
-            e.preventDefault();
-            const btn = document.getElementById('btnSubmitModal');
-            btn.disabled = true;
-            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-xs"></i> <span>Збереження...</span>`;
-
-            const productId = document.getElementById('modalProductId').value;
-            const productName = document.getElementById('modalProductName').innerText;
-            const qty = document.getElementById('modalQtyInput').value;
-            const price = document.getElementById('modalPriceInput').value;
-            const note = document.getElementById('modalNoteInput').value;
-
-            const callbackName = 'handlePurchaseResponse_' + Date.now();
-            
-            window[callbackName] = (res) => {
-                btn.disabled = false;
-                btn.innerHTML = `<span>Зберегти</span>`;
-                window.closeModal();
-                delete window[callbackName];
-                
-                if (res && res.success) {
-                    showToast("Закупівлю успішно додано!");
-                    window.loadData();
-                } else {
-                    alert("Помилка при збереженні закупівлі");
-                }
-            };
-
-            const script = document.createElement('script');
-            script.src = `${API_URL}?action=purchase`
-                + `&productId=${encodeURIComponent(productId)}`
-                + `&productName=${encodeURIComponent(productName)}`
-                + `&qty=${encodeURIComponent(qty)}`
-                + `&price=${encodeURIComponent(price)}`
-                + `&supplier=${encodeURIComponent(note)}`
-                + `&callback=${callbackName}`;
-            
-            document.body.appendChild(script);
         };
 
         function showToast(msg) {
             const toast = document.getElementById('toast');
             document.getElementById('toastMsg').innerText = msg;
             toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
             setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
                 toast.classList.add('translate-y-20', 'opacity-0');
-            }, 3000);
+            }, 2500);
         }
+
+        function updateKPIs() {
+            let calcTotalQty = 0;
+            let calcTotalSumUah = 0;
+
+            allProducts.forEach(p => {
+                const q = Number(p.qty) || 0;
+                const sum = Number(p.totalSum) || (p.price ? q * Number(p.price) : 0);
+                calcTotalQty += q;
+                calcTotalSumUah += sum;
+            });
+
+            document.getElementById('kpiTotalQty').innerText = calcTotalQty.toLocaleString('uk-UA');
+            document.getElementById('kpiTotalSumUah').innerText = `${calcTotalSumUah.toLocaleString('uk-UA')} ₴`;
+
+            const displayRate = liveUsdRate ? liveUsdRate.toFixed(2) : '41.50';
+            document.getElementById('usdRateBadge').innerText = `Курс: ${displayRate}`;
+
+            const totalUsd = Math.round(calcTotalSumUah / liveUsdRate);
+            document.getElementById('kpiTotalSumUsd').innerText = `$${totalUsd.toLocaleString('en-US')}`;
+        }
+
+        window.setFilter = (filterType) => {
+            currentFilter = filterType;
+            
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.className = 'filter-btn filter-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400 whitespace-nowrap';
+            });
+
+            const activeBtn = document.getElementById(`btn-${filterType}`);
+            if (activeBtn) {
+                activeBtn.className = 'filter-btn filter-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent bg-brand text-white shadow-lg shadow-brand/20 whitespace-nowrap';
+            }
+
+            renderProducts();
+        };
+
+        window.setPeriod = (period) => {
+            currentPeriod = period;
+            
+            document.querySelectorAll('.period-btn').forEach(btn => {
+                btn.className = 'period-btn period-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400';
+            });
+
+            const activeBtn = document.getElementById(`period-${period}`);
+            if (activeBtn) {
+                activeBtn.className = 'period-btn period-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent bg-brand text-white shadow-lg shadow-brand/20';
+            }
+
+            const customInputs = document.getElementById('customDateInputs');
+            if (period === 'custom') {
+                customInputs.classList.remove('hidden');
+                customInputs.classList.add('flex');
+            } else {
+                customInputs.classList.remove('flex');
+                customInputs.classList.add('hidden');
+            }
+
+            renderProducts();
+        };
+
+        window.toggleSort = (field) => {
+            if (sortField !== field) {
+                sortField = field;
+                sortOrder = 'desc';
+            } else {
+                if (sortOrder === 'desc') {
+                    sortOrder = 'asc';
+                } else if (sortOrder === 'asc') {
+                    sortOrder = 'default';
+                    sortField = null;
+                } else {
+                    sortOrder = 'desc';
+                }
+            }
+
+            updateSortHeaderUI();
+            renderProducts();
+        };
+
+        function updateSortHeaderUI() {
+            const iconQty = document.getElementById('sortIconQty');
+            const iconDyn = document.getElementById('sortIconDyn');
+            const textQty = document.getElementById('headerQtyText');
+            const textDyn = document.getElementById('headerDynText');
+
+            iconQty.className = 'fa-solid fa-sort text-gray-600 group-hover:text-brand transition text-[10px]';
+            textQty.className = '';
+
+            iconDyn.className = 'fa-solid fa-sort text-gray-600 group-hover:text-brand transition text-[10px]';
+            textDyn.className = '';
+
+            if (sortField === 'qty') {
+                textQty.className = 'text-brand font-bold';
+                if (sortOrder === 'desc') {
+                    iconQty.className = 'fa-solid fa-arrow-down-9-1 text-brand text-xs';
+                } else if (sortOrder === 'asc') {
+                    iconQty.className = 'fa-solid fa-arrow-up-1-9 text-brand text-xs';
+                }
+            } else if (sortField === 'shipments') {
+                textDyn.className = 'text-brand font-bold';
+                if (sortOrder === 'desc') {
+                    iconDyn.className = 'fa-solid fa-arrow-down-9-1 text-brand text-xs';
+                } else if (sortOrder === 'asc') {
+                    iconDyn.className = 'fa-solid fa-arrow-up-1-9 text-brand text-xs';
+                }
+            }
+        }
+
+        window.handleSearchInput = () => {
+            const val = document.getElementById('searchInput').value;
+            const clearBtn = document.getElementById('clearSearchBtn');
+            if (val.trim()) {
+                clearBtn.classList.remove('hidden');
+            } else {
+                clearBtn.classList.add('hidden');
+            }
+            renderProducts();
+        };
+
+        window.clearSearch = () => {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('clearSearchBtn').classList.add('hidden');
+            renderProducts();
+        };
+
+        // ВЫЧИСЛЕНИЕ ОТПРАВОК ИЗ ЛИСТА "ВІДПРАВКИ" ПО ДАТАМ
+        function getShipmentsCount(productId) {
+            if (!allShipments || allShipments.length === 0) return 0;
+
+            const now = new Date();
+            let startBoundary = new Date();
+            let endBoundary = new Date();
+
+            if (currentPeriod === '1d') {
+                startBoundary.setHours(now.getHours() - 24);
+            } else if (currentPeriod === '7d') {
+                startBoundary.setDate(now.getDate() - 7);
+            } else if (currentPeriod === '30d') {
+                startBoundary.setDate(now.getDate() - 30);
+            } else if (currentPeriod === 'custom') {
+                const sVal = document.getElementById('startDate').value;
+                const eVal = document.getElementById('endDate').value;
+                if (sVal) startBoundary = new Date(sVal + "T00:00:00");
+                else startBoundary = new Date(0); // с начала времен
+                if (eVal) endBoundary = new Date(eVal + "T23:59:59");
+            }
+
+            let totalShipments = 0;
+            const strId = String(productId);
+
+            allShipments.forEach(s => {
+                if (String(s.id) === strId) {
+                    const sDate = new Date(s.date);
+                    if (sDate >= startBoundary && sDate <= endBoundary) {
+                        totalShipments += Number(s.qty) || 0;
+                    }
+                }
+            });
+
+            return totalShipments;
+        }
+
+        window.renderProducts = () => {
+            const container = document.getElementById('productsContainer');
+            const searchVal = document.getElementById('searchInput').value.toLowerCase().trim();
+
+            let filtered = allProducts.filter(p => {
+                const qty = Number(p.qty) || 0;
+                
+                if (currentFilter === 'empty' && qty !== 0) return false;
+                if (currentFilter === 'warning' && (qty < 1 || qty > 19)) return false;
+                if (currentFilter === 'good' && qty < 20) return false;
+
+                if (searchVal) {
+                    const matchId = String(p.id || '').toLowerCase().includes(searchVal);
+                    const matchName = String(p.name || '').toLowerCase().includes(searchVal);
+                    return matchId || matchName;
+                }
+
+                return true;
+            });
+
+            if (sortField) {
+                filtered.sort((a, b) => {
+                    let valA = 0;
+                    let valB = 0;
+
+                    if (sortField === 'qty') {
+                        valA = Number(a.qty) || 0;
+                        valB = Number(b.qty) || 0;
+                    } else if (sortField === 'shipments') {
+                        valA = getShipmentsCount(a.id);
+                        valB = getShipmentsCount(b.id);
+                    }
+
+                    return sortOrder === 'asc' ? valA - valB : valB - valA;
+                });
+            }
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="p-8 text-center text-gray-500">
+                        <i class="fa-solid fa-folder-open text-3xl mb-2 text-gray-600"></i>
+                        <p>Товарів не знайдено</p>
+                    </div>`;
+                return;
+            }
+
+            let html = '';
+            filtered.forEach(p => {
+                const qty = Number(p.qty) || 0;
+                const totalSum = Number(p.totalSum) || (p.price ? qty * Number(p.price) : 0);
+                const shippedQty = getShipmentsCount(p.id);
+
+                let qtyBadgeClass = 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
+                if (qty === 0) {
+                    qtyBadgeClass = 'bg-red-500/10 text-red-400 border-red-500/20';
+                } else if (qty < 20) {
+                    qtyBadgeClass = 'bg-amber-500/10 text-amber-400 border-amber-500/20';
+                }
+
+                let dynHtml = '<span class="text-gray-500">—</span>';
+                if (shippedQty > 0) {
+                    dynHtml = `<span class="text-emerald-400 font-bold bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-500/20 text-xs">
+                        +${shippedQty} відпр.
+                    </span>`;
+                }
+
+                html += `
+                    <div class="grid grid-cols-12 p-4 items-center hover:bg-gray-800/40 transition text-sm">
+                        <div class="col-span-1 md:col-span-1 font-mono text-xs text-gray-500 cursor-pointer hover:text-brand" onclick="copyToClipboard('${p.id}')" title="Скопіювати ID">
+                            #${p.id || '—'}
+                        </div>
+                        <div class="col-span-4 md:col-span-4 font-semibold text-gray-200 truncate pr-2 cursor-pointer hover:text-brand" onclick="copyToClipboard('${p.name}')" title="Скопіювати назву">
+                            ${p.name || 'Без назви'}
+                        </div>
+                        <div class="col-span-2 md:col-span-2 text-center">
+                            <span class="inline-block px-2.5 py-0.5 rounded-lg border text-xs font-extrabold ${qtyBadgeClass}">
+                                ${qty} шт
+                            </span>
+                        </div>
+                        <div class="col-span-2 md:col-span-2 text-center">
+                            ${dynHtml}
+                        </div>
+                        <div class="col-span-3 md:col-span-3 text-right font-bold text-gray-200">
+                            ${totalSum.toLocaleString('uk-UA')} ₴
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        };
     </script>
 </body>
 </html>
