@@ -1,48 +1,57 @@
 <!DOCTYPE html>
-<html lang="uk">
+<html lang="uk" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Панель складського обліку</title>
+    <title>Панель управління складом</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script>
         tailwind.config = {
+            darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
+                        darkBg: '#0b0f19',
+                        cardBg: '#111827',
+                        cardBorder: '#1f2937',
                         brand: '#6366f1',
-                        brandHover: '#4f46e5',
-                        darkBg: '#0f172a',
-                        cardBg: '#1e293b',
-                        cardBorder: '#334155'
+                        brandHover: '#4f46e5'
                     }
                 }
             }
         }
     </script>
     <style>
-        body { background-color: #0f172a; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; }
+        body { background-color: #0b0f19; color: #f3f4f6; font-family: system-ui, -apple-system, sans-serif; }
+        .period-btn-hover:hover { background-color: rgba(255, 255, 255, 0.05); }
+        .filter-btn-hover:hover { border-color: #374151; }
         .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: #1e293b; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; border-radius: 3px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #64748b; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #111827; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #374151; border-radius: 3px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #4b5563; }
     </style>
 </head>
-<body class="bg-darkBg text-slate-100 min-h-screen flex flex-col">
+<body class="bg-darkBg text-gray-100 min-h-screen flex flex-col font-sans">
 
     <!-- Header -->
-    <header class="border-b border-cardBorder bg-cardBg/50 backdrop-blur sticky top-0 z-30">
-        <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+    <header class="border-b border-cardBorder bg-cardBg/80 backdrop-blur sticky top-0 z-30 px-6 py-4">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
             <div class="flex items-center gap-3">
-                <i class="fa-solid fa-boxes-stacked text-brand text-2xl"></i>
-                <h1 class="text-xl font-bold tracking-wide">Складський Облік</h1>
+                <div class="p-2 bg-brand/10 text-brand rounded-xl">
+                    <i class="fa-solid fa-boxes-stacked text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold text-white leading-tight">Складський Облік</h1>
+                    <p class="text-xs text-gray-400">Аналітика залишків та закупівель</p>
+                </div>
             </div>
+
             <div class="flex items-center gap-4">
-                <span id="usdRateBadge" class="text-xs bg-slate-800 border border-slate-700 px-3 py-1.5 rounded-full font-mono text-slate-300">
+                <span id="usdRateBadge" class="text-xs font-mono bg-gray-800/80 border border-gray-700/60 text-gray-300 px-3 py-1.5 rounded-lg shadow-sm">
                     Курс USD: -- ₴
                 </span>
-                <button onclick="window.loadData()" class="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg border border-slate-700 transition">
+                <button onclick="window.loadData()" class="p-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg border border-gray-700/60 transition shadow-sm" title="Оновити дані">
                     <i id="refreshIcon" class="fa-solid fa-rotate text-sm"></i>
                 </button>
             </div>
@@ -50,97 +59,97 @@
     </header>
 
     <!-- Main Content -->
-    <main class="max-w-7xl mx-auto px-4 py-6 flex-1 w-full flex flex-col gap-6">
+    <main class="max-w-7xl mx-auto px-6 py-6 flex-1 w-full flex flex-col gap-6">
 
         <!-- KPI Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div class="bg-cardBg border border-cardBorder rounded-xl p-4 flex items-center justify-between">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+            <div class="bg-cardBg border border-cardBorder rounded-2xl p-5 flex items-center justify-between shadow-lg">
                 <div>
-                    <p class="text-xs text-slate-400 font-medium uppercase tracking-wider">Загальна кількість</p>
+                    <p class="text-xs font-medium text-gray-400 uppercase tracking-wider">Загальна кількість</p>
                     <h3 id="kpiTotalQty" class="text-2xl font-bold text-white mt-1">0</h3>
                 </div>
-                <div class="p-3 bg-brand/10 text-brand rounded-lg">
+                <div class="p-3.5 bg-brand/10 text-brand rounded-xl">
                     <i class="fa-solid fa-cubes text-xl"></i>
                 </div>
             </div>
 
-            <div class="bg-cardBg border border-cardBorder rounded-xl p-4 flex items-center justify-between">
+            <div class="bg-cardBg border border-cardBorder rounded-2xl p-5 flex items-center justify-between shadow-lg">
                 <div>
-                    <p class="text-xs text-slate-400 font-medium uppercase tracking-wider">Вартість складських залишків</p>
+                    <p class="text-xs font-medium text-gray-400 uppercase tracking-wider">Вартість залишків</p>
                     <h3 id="kpiTotalSumUah" class="text-2xl font-bold text-emerald-400 mt-1">0 ₴</h3>
-                    <p id="kpiTotalSumUsd" class="text-xs font-mono text-slate-400 mt-0.5">$0</p>
+                    <p id="kpiTotalSumUsd" class="text-xs font-mono text-gray-400 mt-0.5">$0</p>
                 </div>
-                <div class="p-3 bg-emerald-500/10 text-emerald-400 rounded-lg">
+                <div class="p-3.5 bg-emerald-500/10 text-emerald-400 rounded-xl">
                     <i class="fa-solid fa-wallet text-xl"></i>
                 </div>
             </div>
 
-            <div class="bg-cardBg border border-cardBorder rounded-xl p-4 flex items-center justify-between">
+            <div class="bg-cardBg border border-cardBorder rounded-2xl p-5 flex items-center justify-between shadow-lg">
                 <div>
-                    <p class="text-xs text-slate-400 font-medium uppercase tracking-wider">Закупівлі за період</p>
+                    <p class="text-xs font-medium text-gray-400 uppercase tracking-wider">Закупівлі за період</p>
                     <h3 id="kpiPurchasesSum" class="text-2xl font-bold text-indigo-400 mt-1">0 ₴</h3>
-                    <p id="kpiPurchasesQtyText" class="text-xs text-slate-400 mt-0.5">Закуплено 0 шт за період</p>
+                    <p id="kpiPurchasesQtyText" class="text-xs text-gray-400 mt-0.5">Закуплено 0 шт за період</p>
                 </div>
-                <div class="p-3 bg-indigo-500/10 text-indigo-400 rounded-lg">
+                <div class="p-3.5 bg-indigo-500/10 text-indigo-400 rounded-xl">
                     <i class="fa-solid fa-truck-ramp-box text-xl"></i>
                 </div>
             </div>
         </div>
 
         <!-- Controls Block -->
-        <div class="bg-cardBg border border-cardBorder rounded-xl p-4 flex flex-col md:flex-row gap-4 justify-between items-stretch md:items-center">
+        <div class="bg-cardBg border border-cardBorder rounded-2xl p-4 flex flex-col md:flex-row gap-4 justify-between items-stretch md:items-center shadow-lg">
             
             <!-- Search -->
             <div class="relative flex-1 max-w-md">
-                <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm"></i>
+                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 text-sm"></i>
                 <input type="text" id="searchInput" oninput="window.handleSearchInput()" placeholder="Пошук за назвою або ID..." 
-                    class="w-full bg-slate-900 border border-slate-700 rounded-lg pl-9 pr-8 py-2 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-brand">
-                <button id="clearSearchBtn" onclick="window.clearSearch()" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300">
+                    class="w-full bg-gray-900/80 border border-gray-700/60 rounded-xl pl-10 pr-9 py-2 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-brand transition">
+                <button id="clearSearchBtn" onclick="window.clearSearch()" class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300">
                     <i class="fa-solid fa-xmark text-sm"></i>
                 </button>
             </div>
 
             <!-- Filters -->
             <div class="flex flex-wrap items-center gap-2 overflow-x-auto pb-1 md:pb-0">
-                <button id="btn-all" onclick="window.setFilter('all')" class="px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent bg-brand text-white shadow-lg shadow-brand/20 whitespace-nowrap">Усі</button>
-                <button id="btn-empty" onclick="window.setFilter('empty')" class="px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent text-slate-400 hover:text-white whitespace-nowrap">Немає в наявності</button>
-                <button id="btn-warning" onclick="window.setFilter('warning')" class="px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent text-slate-400 hover:text-white whitespace-nowrap">Закінчуються (&lt;20)</button>
-                <button id="btn-good" onclick="window.setFilter('good')" class="px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent text-slate-400 hover:text-white whitespace-nowrap">В достатній кількості</button>
+                <button id="btn-all" onclick="window.setFilter('all')" class="filter-btn filter-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent bg-brand text-white shadow-lg shadow-brand/20 whitespace-nowrap">Усі</button>
+                <button id="btn-empty" onclick="window.setFilter('empty')" class="filter-btn filter-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400 whitespace-nowrap">Немає в наявності</button>
+                <button id="btn-warning" onclick="window.setFilter('warning')" class="filter-btn filter-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400 whitespace-nowrap">Закінчуються (&lt;20)</button>
+                <button id="btn-good" onclick="window.setFilter('good')" class="filter-btn filter-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400 whitespace-nowrap">В достатній кількості</button>
             </div>
 
             <!-- Period Selector -->
-            <div class="flex items-center gap-2 border-t md:border-t-0 md:border-l border-slate-700 pt-3 md:pt-0 md:pl-4">
-                <div class="flex items-center gap-1 bg-slate-900 p-1 rounded-lg border border-slate-700 text-xs">
-                    <button id="period-1d" onclick="window.setPeriod('1d')" class="px-2.5 py-1 rounded text-slate-400 font-medium">1Д</button>
-                    <button id="period-7d" onclick="window.setPeriod('7d')" class="px-2.5 py-1 rounded text-slate-400 font-medium">7Д</button>
-                    <button id="period-30d" onclick="window.setPeriod('30d')" class="px-2.5 py-1 rounded text-slate-400 font-medium">30Д</button>
-                    <button id="period-custom" onclick="window.setPeriod('custom')" class="px-2.5 py-1 rounded text-slate-400 font-medium">Період</button>
+            <div class="flex items-center gap-2 border-t md:border-t-0 md:border-l border-gray-800 pt-3 md:pt-0 md:pl-4">
+                <div class="flex items-center gap-1 bg-gray-900/80 p-1 rounded-xl border border-gray-700/60 text-xs">
+                    <button id="period-1d" onclick="window.setPeriod('1d')" class="period-btn period-btn-hover px-3 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400">1Д</button>
+                    <button id="period-7d" onclick="window.setPeriod('7d')" class="period-btn period-btn-hover px-3 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400">7Д</button>
+                    <button id="period-30d" onclick="window.setPeriod('30d')" class="period-btn period-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent bg-brand text-white shadow-lg shadow-brand/20">30Д</button>
+                    <button id="period-custom" onclick="window.setPeriod('custom')" class="period-btn period-btn-hover px-3 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400">Період</button>
                 </div>
             </div>
         </div>
 
         <!-- Custom Date Inputs -->
-        <div id="customDateInputs" class="hidden flex-wrap items-center gap-3 bg-cardBg border border-cardBorder rounded-xl p-3 text-xs">
-            <span class="text-slate-400">Виберіть діапазон:</span>
-            <input type="date" id="startDate" onchange="window.renderProducts()" class="bg-slate-900 border border-slate-700 rounded px-2.5 py-1 text-slate-200">
-            <span class="text-slate-500">—</span>
-            <input type="date" id="endDate" onchange="window.renderProducts()" class="bg-slate-900 border border-slate-700 rounded px-2.5 py-1 text-slate-200">
+        <div id="customDateInputs" class="hidden flex-wrap items-center gap-3 bg-cardBg border border-cardBorder rounded-2xl p-4 text-xs shadow-lg">
+            <span class="text-gray-400">Виберіть діапазон:</span>
+            <input type="date" id="startDate" onchange="window.renderProducts()" class="bg-gray-900/80 border border-gray-700/60 rounded-xl px-3 py-1.5 text-gray-200">
+            <span class="text-gray-500">—</span>
+            <input type="date" id="endDate" onchange="window.renderProducts()" class="bg-gray-900/80 border border-gray-700/60 rounded-xl px-3 py-1.5 text-gray-200">
         </div>
 
         <!-- Table / Products List -->
-        <div class="bg-cardBg border border-cardBorder rounded-xl overflow-hidden flex-1 flex flex-col">
-            <div class="grid grid-cols-12 p-3.5 bg-slate-800/60 border-b border-cardBorder text-xs font-semibold text-slate-400 uppercase tracking-wider">
+        <div class="bg-cardBg border border-cardBorder rounded-2xl overflow-hidden flex-1 flex flex-col shadow-lg">
+            <div class="grid grid-cols-12 p-4 bg-gray-900/50 border-b border-cardBorder text-xs font-semibold text-gray-400 uppercase tracking-wider">
                 <div class="col-span-1">ID</div>
                 <div class="col-span-3">Назва товару</div>
                 <div class="col-span-2 text-center">Ціна за од.</div>
                 <div class="col-span-1 text-center cursor-pointer select-none" onclick="window.toggleSort('qty')">
-                    Залишок <i id="sortIconQty" class="fa-solid fa-sort text-slate-600 text-[10px]"></i>
+                    Залишок <i id="sortIconQty" class="fa-solid fa-sort text-gray-600 text-[10px]"></i>
                 </div>
                 <div class="col-span-1 text-center cursor-pointer select-none" onclick="window.toggleSort('shipments')">
-                    Відправлено <i id="sortIconDyn" class="fa-solid fa-sort text-slate-600 text-[10px]"></i>
+                    Відправлено <i id="sortIconDyn" class="fa-solid fa-sort text-gray-600 text-[10px]"></i>
                 </div>
                 <div class="col-span-2 text-center cursor-pointer select-none" onclick="window.toggleSort('purchases')">
-                    Закупівлі <i id="sortIconPurchases" class="fa-solid fa-sort text-slate-600 text-[10px]"></i>
+                    Закупівлі <i id="sortIconPurchases" class="fa-solid fa-sort text-gray-600 text-[10px]"></i>
                 </div>
                 <div class="col-span-2 text-right">Загальна сума</div>
             </div>
@@ -152,9 +161,9 @@
     </main>
 
     <!-- Modal Form -->
-    <div id="actionModal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div id="actionModal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
         <div class="bg-cardBg border border-cardBorder rounded-2xl max-w-md w-full p-6 shadow-2xl relative">
-            <button onclick="window.closeModal()" class="absolute right-4 top-4 text-slate-400 hover:text-white">
+            <button onclick="window.closeModal()" class="absolute right-4 top-4 text-gray-400 hover:text-white">
                 <i class="fa-solid fa-xmark text-lg"></i>
             </button>
             <h2 id="modalTitle" class="text-lg font-bold text-white mb-1">Оформити операцію</h2>
@@ -165,26 +174,26 @@
                 <input type="hidden" id="modalActionType">
 
                 <div>
-                    <label class="block text-xs font-medium text-slate-400 mb-1">Кількість (шт)*</label>
+                    <label class="block text-xs font-medium text-gray-400 mb-1">Кількість (шт)*</label>
                     <input type="number" id="modalQtyInput" required min="1" placeholder="Введіть кількість" 
-                        class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand">
+                        class="w-full bg-gray-900 border border-gray-700/60 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-brand">
                 </div>
 
                 <div id="priceFieldContainer">
-                    <label class="block text-xs font-medium text-slate-400 mb-1">Ціна за одиницю (₴)</label>
+                    <label class="block text-xs font-medium text-gray-400 mb-1">Ціна за одиницю (₴)</label>
                     <input type="number" step="0.01" id="modalPriceInput" placeholder="Опціонально" 
-                        class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand">
+                        class="w-full bg-gray-900 border border-gray-700/60 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-brand">
                 </div>
 
                 <div>
-                    <label class="block text-xs font-medium text-slate-400 mb-1">Примітка</label>
+                    <label class="block text-xs font-medium text-gray-400 mb-1">Примітка</label>
                     <textarea id="modalNoteInput" rows="2" placeholder="Додаткова інформація..." 
-                        class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand"></textarea>
+                        class="w-full bg-gray-900 border border-gray-700/60 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-brand"></textarea>
                 </div>
 
                 <div class="flex items-center justify-end gap-3 pt-2">
-                    <button type="button" onclick="window.closeModal()" class="px-4 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-white transition">Скасувати</button>
-                    <button type="submit" id="btnSubmitModal" class="px-4 py-2 bg-brand hover:bg-brandHover text-white rounded-lg text-sm font-medium shadow-lg shadow-brand/20 transition flex items-center gap-2">
+                    <button type="button" onclick="window.closeModal()" class="px-4 py-2 rounded-xl text-sm font-medium text-gray-400 hover:text-white transition">Скасувати</button>
+                    <button type="submit" id="btnSubmitModal" class="px-5 py-2 bg-brand hover:bg-brandHover text-white rounded-xl text-sm font-medium shadow-lg shadow-brand/20 transition flex items-center gap-2">
                         <span>Зберегти</span>
                     </button>
                 </div>
@@ -193,13 +202,13 @@
     </div>
 
     <!-- Toast Notification -->
-    <div id="toastNotification" class="fixed bottom-6 right-6 bg-emerald-500 text-slate-950 font-semibold text-sm px-4 py-3 rounded-xl shadow-2xl flex items-center gap-2 transform translate-y-20 opacity-0 transition-all duration-300 z-50">
+    <div id="toastNotification" class="fixed bottom-6 right-6 bg-emerald-500 text-gray-950 font-semibold text-sm px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-2 transform translate-y-20 opacity-0 transition-all duration-300 z-50">
         <i class="fa-solid fa-circle-check text-lg"></i>
         <span id="toastMessage">Операцію успішно виконано!</span>
     </div>
 
     <script>
-        const API_URL = "https://script.google.com/macros/s/ВАШ_SCRIPT_ID/exec"; // ВКАЖІТЬ ВАШ URL ТУТ
+        const API_URL = "https://script.google.com/macros/s/ВАШ_SCRIPT_ID/exec"; // ВКАЖІТЬ ВАШ URL
 
         let allProducts = [];
         let allShipments = [];
@@ -325,7 +334,7 @@
                 if (p === period) {
                     btn.className = "period-btn period-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent bg-brand text-white shadow-lg shadow-brand/20";
                 } else {
-                    btn.className = "period-btn period-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent text-slate-400";
+                    btn.className = "period-btn period-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400";
                 }
             });
 
@@ -348,7 +357,7 @@
                 if (f === filter) {
                     btn.className = "filter-btn filter-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent bg-brand text-white shadow-lg shadow-brand/20 whitespace-nowrap";
                 } else {
-                    btn.className = "filter-btn filter-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent text-slate-400 whitespace-nowrap";
+                    btn.className = "filter-btn filter-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400 whitespace-nowrap";
                 }
             });
 
@@ -382,9 +391,9 @@
                 sortOrder = 'desc';
             }
 
-            document.getElementById('sortIconQty').className = "fa-solid fa-sort text-slate-600 text-[10px]";
-            document.getElementById('sortIconDyn').className = "fa-solid fa-sort text-slate-600 text-[10px]";
-            document.getElementById('sortIconPurchases').className = "fa-solid fa-sort text-slate-600 text-[10px]";
+            document.getElementById('sortIconQty').className = "fa-solid fa-sort text-gray-600 text-[10px]";
+            document.getElementById('sortIconDyn').className = "fa-solid fa-sort text-gray-600 text-[10px]";
+            document.getElementById('sortIconPurchases').className = "fa-solid fa-sort text-gray-600 text-[10px]";
 
             if (sortOrder !== 'default') {
                 const iconClass = sortOrder === 'desc' ? "fa-solid fa-sort-down text-brand text-[10px]" : "fa-solid fa-sort-up text-brand text-[10px]";
@@ -482,8 +491,8 @@
 
             if (computedProducts.length === 0) {
                 container.innerHTML = `
-                    <div class="p-8 text-center text-slate-500">
-                        <i class="fa-solid fa-box-open text-3xl mb-2 text-slate-600"></i>
+                    <div class="p-8 text-center text-gray-500">
+                        <i class="fa-solid fa-box-open text-3xl mb-2 text-gray-600"></i>
                         <p>Товарів не знайдено за заданими критеріями</p>
                     </div>`;
                 return;
@@ -499,14 +508,14 @@
                 else if (qty < 20) badgeClass = "bg-amber-500/10 text-amber-400 border-amber-500/20";
 
                 return `
-                    <div class="grid grid-cols-12 p-4 items-center hover:bg-slate-800/40 transition border-b border-cardBorder/40 text-sm">
-                        <div class="col-span-1 font-mono text-xs text-slate-400 flex items-center gap-1.5">
+                    <div class="grid grid-cols-12 p-4 items-center hover:bg-gray-800/40 transition border-b border-cardBorder/40 text-sm">
+                        <div class="col-span-1 font-mono text-xs text-gray-400 flex items-center gap-1.5">
                             <span onclick="copyToClipboard('${p.id}')" class="cursor-pointer hover:text-brand transition" title="Натисніть щоб скопіювати">${p.id}</span>
                         </div>
                         <div class="col-span-3 font-semibold text-white pr-2 flex items-center gap-2">
                             <span onclick="copyToClipboard('${p.name}')" class="cursor-pointer hover:text-brand transition" title="${p.name}">${p.name}</span>
                         </div>
-                        <div class="col-span-2 text-center text-slate-300 font-mono">
+                        <div class="col-span-2 text-center text-gray-300 font-mono">
                             ${price > 0 ? price.toFixed(2) + ' ₴' : '—'}
                         </div>
                         <div class="col-span-1 text-center">
@@ -514,15 +523,15 @@
                                 ${qty} шт
                             </span>
                         </div>
-                        <div class="col-span-1 text-center font-mono font-medium ${p.periodShipments > 0 ? 'text-brand' : 'text-slate-500'}">
+                        <div class="col-span-1 text-center font-mono font-medium ${p.periodShipments > 0 ? 'text-brand' : 'text-gray-500'}">
                             ${p.periodShipments > 0 ? '-' + p.periodShipments + ' шт' : '0'}
                         </div>
                         <div class="col-span-2 text-center font-mono">
                             <div class="text-xs text-emerald-400 font-semibold">+${p.periodPurchasesQty} шт</div>
-                            <div class="text-[11px] text-slate-400">${Math.round(p.periodPurchasesSum).toLocaleString('uk-UA')} ₴</div>
+                            <div class="text-[11px] text-gray-400">${Math.round(p.periodPurchasesSum).toLocaleString('uk-UA')} ₴</div>
                         </div>
                         <div class="col-span-2 text-right flex items-center justify-end gap-3">
-                            <span class="font-mono font-bold text-slate-200">${Math.round(totalValue).toLocaleString('uk-UA')} ₴</span>
+                            <span class="font-mono font-bold text-gray-200">${Math.round(totalValue).toLocaleString('uk-UA')} ₴</span>
                             <div class="flex items-center gap-1">
                                 <button onclick="openModal('${p.id}', '${encodeURIComponent(p.name)}', 'purchase')" title="Оформити закупівлю" class="p-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-lg transition text-xs">
                                     <i class="fa-solid fa-plus"></i>
