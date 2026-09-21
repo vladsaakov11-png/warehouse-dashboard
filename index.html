@@ -50,9 +50,6 @@
             box-shadow: 0 8px 25px -5px rgba(255, 122, 0, 0.3); 
             transform: translateY(-2px); 
         }
-        .cyber-card-brand::before { 
-            background: linear-gradient(90deg, transparent, rgba(255, 122, 0, 0.6), transparent); 
-        }
 
         .period-btn-hover, .filter-btn-hover {
             transition: all 0.25s ease;
@@ -64,7 +61,6 @@
             transform: translateY(-1px);
         }
 
-        /* Ефекти та анімація для плашки сайдбару */
         .nav-card-active {
             background: linear-gradient(135deg, rgba(255, 122, 0, 0.12) 0%, rgba(14, 19, 32, 0.95) 100%);
             border: 1px solid rgba(255, 122, 0, 0.35);
@@ -80,45 +76,12 @@
             transform: translateY(-2px);
         }
 
-        .nav-card-active::after {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -150%;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(
-                60deg,
-                transparent 30%,
-                rgba(255, 122, 0, 0.2) 50%,
-                transparent 70%
-            );
-            transition: all 0.6s ease;
-            pointer-events: none;
-        }
-
-        .nav-card-active:hover::after {
-            left: 100%;
-        }
-
         @keyframes boxFloat {
             0%, 100% { transform: translateY(0); }
             50% { transform: translateY(-3px); }
         }
 
-        .box-top {
-            animation: boxFloat 2.5s ease-in-out infinite;
-            transform-origin: center;
-        }
-
-        .nav-card-active:hover .box-top {
-            fill: #FF9E43;
-            filter: drop-shadow(0 0 4px rgba(255, 122, 0, 0.8));
-        }
-
-        .nav-card-active:hover .box-side {
-            fill: #FF7A00;
-        }
+        .box-top { animation: boxFloat 2.5s ease-in-out infinite; transform-origin: center; }
 
         .text-gradient-orange { background: linear-gradient(135deg, #FF9E43 0%, #FF7A00 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .text-gradient-white { background: linear-gradient(135deg, #FFFFFF 0%, #9CA3AF 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
@@ -179,7 +142,7 @@
         <span id="toastMsg" class="text-sm font-medium">Текст скопійовано!</span>
     </div>
 
-    <!-- Компактна бічна панель -->
+    <!-- Сайдбар -->
     <aside class="w-32 bg-cardBg border-r border-cardBorder p-3 flex flex-col justify-between hidden md:flex shrink-0">
         <div>
             <div class="mb-5 flex flex-col items-center border-b border-cardBorder/60 pb-3 text-center">
@@ -190,16 +153,12 @@
                 <span class="text-[8px] font-bold tracking-[0.15em] text-brand uppercase -mt-0.5">FULFILLMENT</span>
             </div>
 
-            <!-- АНІМОВАНА ПЛАШКА "ОБЛІК" -->
             <nav class="space-y-2">
                 <a href="#" class="nav-card-active flex flex-col items-center justify-center text-center p-3 rounded-2xl group transition">
                     <div class="mb-2 relative">
                         <svg class="w-8 h-8 text-brand transition-transform duration-300 group-hover:scale-110" viewBox="0 0 24 24" fill="currentColor">
-                            <!-- Верхня коробка (левітує) -->
                             <path class="box-top transition-colors duration-300" d="M12 2L7 5v4l5 3 5-3V5l-5-3zm0 2.2l2.8 1.7-2.8 1.7-2.8-1.7L12 4.2z" fill="#FF7A00"/>
-                            <!-- Ліва нижня коробка -->
                             <path class="box-side transition-colors duration-300" d="M6 12l-5 3v4l5 3 5-3v-4l-5-3zm0 2.2l2.8 1.7-2.8 1.7-2.8-1.7L6 14.2z" fill="#E06B00"/>
-                            <!-- Права нижня коробка -->
                             <path class="box-side transition-colors duration-300" d="M18 12l-5 3v4l5 3 5-3v-4l-5-3zm0 2.2l2.8 1.7-2.8 1.7-2.8-1.7L18 14.2z" fill="#E06B00"/>
                         </svg>
                     </div>
@@ -267,7 +226,7 @@
                 <div class="my-2">
                     <div class="text-3xl font-black text-gradient-white tracking-tight" id="kpiTotalQty">0</div>
                 </div>
-                <p class="text-[11px] text-gray-500 truncate">Загальна к-сть штук</p>
+                <p class="text-[11px] text-gray-500 truncate">Загальна к-сть штук на складі</p>
             </div>
 
             <div class="cyber-card cyber-card-brand border border-cardBorder rounded-xl p-4 flex flex-col justify-between cursor-pointer">
@@ -293,8 +252,8 @@
         <!-- Блок выбора периода -->
         <div class="cyber-card border border-cardBorder rounded-xl p-3.5 mb-6 flex flex-col md:flex-row md:items-center justify-between gap-3">
             <div class="flex items-center gap-2">
-                <i class="fa-solid fa-chart-line text-brand"></i>
-                <span class="text-xs font-bold uppercase tracking-wider text-gray-300">Аналіз динаміки руху товарів:</span>
+                <i class="fa-solid fa-truck-fast text-brand"></i>
+                <span class="text-xs font-bold uppercase tracking-wider text-gray-300">Аналіз відправок за період:</span>
             </div>
 
             <div class="flex flex-wrap items-center gap-2">
@@ -340,12 +299,12 @@
                 <div class="col-span-4 md:col-span-4">НАЗВА ТОВАРУ</div>
                 
                 <div onclick="toggleSort('qty')" class="col-span-2 md:col-span-2 text-center cursor-pointer hover:text-white transition flex items-center justify-center gap-1.5 group" title="Натисніть для сортування">
-                    <span id="headerQtyText">К-СТЬ</span>
+                    <span id="headerQtyText">ЗАЛИШОК</span>
                     <i id="sortIconQty" class="fa-solid fa-sort text-gray-600 group-hover:text-brand transition text-[10px]"></i>
                 </div>
 
-                <div onclick="toggleSort('dyn')" class="col-span-2 md:col-span-2 text-center cursor-pointer hover:text-white transition flex items-center justify-center gap-1.5 group" title="Натисніть для сортування">
-                    <span id="headerDynText">ЗМІНА / ДИНАМІКА</span>
+                <div onclick="toggleSort('shipments')" class="col-span-2 md:col-span-2 text-center cursor-pointer hover:text-white transition flex items-center justify-center gap-1.5 group" title="Натисніть для сортування">
+                    <span id="headerDynText">ВІДПРАВКИ ЗА ПЕРІОД</span>
                     <i id="sortIconDyn" class="fa-solid fa-sort text-gray-600 group-hover:text-brand transition text-[10px]"></i>
                 </div>
 
@@ -355,7 +314,7 @@
             <div id="productsContainer" class="divide-y divide-cardBorder/60">
                 <div class="text-center py-12 text-gray-500">
                     <i class="fa-solid fa-spinner fa-spin text-2xl mb-2 text-brand"></i>
-                    <p>Завантаження даних з аркуша «СКЛАД»...</p>
+                    <p>Завантаження даних складу та відправок...</p>
                 </div>
             </div>
         </div>
@@ -382,8 +341,7 @@
         const API_URL = "https://script.google.com/macros/s/AKfycbxHxTydxr0bCSPtjuuwq72QA6eUVgsmApc4Jjwy3qsJA5E8RBM90F2qspizWg6I7_nu/exec";
         
         let allProducts = [];
-        let summaryData = {};
-        let historyData = {};
+        let allShipments = [];
         let currentFilter = 'all';
         let sortField = null;
         let sortOrder = 'default';
@@ -400,7 +358,7 @@
                     liveUsdRate = data.rates.UAH;
                 }
             } catch (err) {
-                console.warn("Не вдалося завантажити живий курс USD, використовуємо резервний:", err);
+                console.warn("Не вдалося завантажити живий курс USD:", err);
             }
         }
 
@@ -481,13 +439,8 @@
                     return;
                 }
 
-                if (data.products) {
-                    allProducts = data.products;
-                    summaryData = data.summary || {};
-                    historyData = data.history || {};
-                } else {
-                    allProducts = Array.isArray(data) ? data : [];
-                }
+                allProducts = data.products || [];
+                allShipments = data.shipments || [];
 
                 updateKPIs();
                 renderProducts();
@@ -561,20 +514,17 @@
             allProducts.forEach(p => {
                 const q = Number(p.qty) || 0;
                 const sum = Number(p.totalSum) || (p.price ? q * Number(p.price) : 0);
-
                 calcTotalQty += q;
                 calcTotalSumUah += sum;
             });
 
-            document.getElementById('kpiTotalQty').innerText = summaryData.totalQty !== undefined ? summaryData.totalQty : calcTotalQty;
-            
-            const totalUah = summaryData.totalSumUah !== undefined ? summaryData.totalSumUah : calcTotalSumUah;
-            document.getElementById('kpiTotalSumUah').innerText = `${totalUah.toLocaleString('uk-UA')} ₴`;
+            document.getElementById('kpiTotalQty').innerText = calcTotalQty.toLocaleString('uk-UA');
+            document.getElementById('kpiTotalSumUah').innerText = `${calcTotalSumUah.toLocaleString('uk-UA')} ₴`;
 
             const displayRate = liveUsdRate ? liveUsdRate.toFixed(2) : '41.50';
             document.getElementById('usdRateBadge').innerText = `Курс: ${displayRate}`;
 
-            const totalUsd = Math.round(totalUah / liveUsdRate);
+            const totalUsd = Math.round(calcTotalSumUah / liveUsdRate);
             document.getElementById('kpiTotalSumUsd').innerText = `$${totalUsd.toLocaleString('en-US')}`;
         }
 
@@ -655,7 +605,7 @@
                 } else if (sortOrder === 'asc') {
                     iconQty.className = 'fa-solid fa-arrow-up-1-9 text-brand text-xs';
                 }
-            } else if (sortField === 'dyn') {
+            } else if (sortField === 'shipments') {
                 textDyn.className = 'text-brand font-bold';
                 if (sortOrder === 'desc') {
                     iconDyn.className = 'fa-solid fa-arrow-down-9-1 text-brand text-xs';
@@ -682,34 +632,41 @@
             renderProducts();
         };
 
-        function getDynamicChange(productId) {
-            if (!historyData || !historyData[productId]) return 0;
+        // ВЫЧИСЛЕНИЕ ОТПРАВОК ИЗ ЛИСТА "ВІДПРАВКИ" ПО ДАТАМ
+        function getShipmentsCount(productId) {
+            if (!allShipments || allShipments.length === 0) return 0;
 
-            const prodHistory = historyData[productId];
-            if (!Array.isArray(prodHistory) || prodHistory.length === 0) return 0;
+            const now = new Date();
+            let startBoundary = new Date();
+            let endBoundary = new Date();
 
-            let targetDate = new Date();
-            
             if (currentPeriod === '1d') {
-                targetDate.setDate(targetDate.getDate() - 1);
+                startBoundary.setHours(now.getHours() - 24);
             } else if (currentPeriod === '7d') {
-                targetDate.setDate(targetDate.getDate() - 7);
+                startBoundary.setDate(now.getDate() - 7);
             } else if (currentPeriod === '30d') {
-                targetDate.setDate(targetDate.getDate() - 30);
+                startBoundary.setDate(now.getDate() - 30);
             } else if (currentPeriod === 'custom') {
-                const startVal = document.getElementById('startDate').value;
-                if (startVal) targetDate = new Date(startVal);
+                const sVal = document.getElementById('startDate').value;
+                const eVal = document.getElementById('endDate').value;
+                if (sVal) startBoundary = new Date(sVal + "T00:00:00");
+                else startBoundary = new Date(0); // с начала времен
+                if (eVal) endBoundary = new Date(eVal + "T23:59:59");
             }
 
-            const targetStr = targetDate.toISOString().split('T')[0];
-            const historicalEntry = prodHistory.find(h => h.date <= targetStr);
-            
-            if (!historicalEntry) return 0;
+            let totalShipments = 0;
+            const strId = String(productId);
 
-            const currentProd = allProducts.find(p => String(p.id) === String(productId));
-            const currentQty = currentProd ? Number(currentProd.qty) : 0;
-            
-            return currentQty - Number(historicalEntry.qty);
+            allShipments.forEach(s => {
+                if (String(s.id) === strId) {
+                    const sDate = new Date(s.date);
+                    if (sDate >= startBoundary && sDate <= endBoundary) {
+                        totalShipments += Number(s.qty) || 0;
+                    }
+                }
+            });
+
+            return totalShipments;
         }
 
         window.renderProducts = () => {
@@ -740,9 +697,9 @@
                     if (sortField === 'qty') {
                         valA = Number(a.qty) || 0;
                         valB = Number(b.qty) || 0;
-                    } else if (sortField === 'dyn') {
-                        valA = getDynamicChange(a.id);
-                        valB = getDynamicChange(b.id);
+                    } else if (sortField === 'shipments') {
+                        valA = getShipmentsCount(a.id);
+                        valB = getShipmentsCount(b.id);
                     }
 
                     return sortOrder === 'asc' ? valA - valB : valB - valA;
@@ -762,7 +719,7 @@
             filtered.forEach(p => {
                 const qty = Number(p.qty) || 0;
                 const totalSum = Number(p.totalSum) || (p.price ? qty * Number(p.price) : 0);
-                const dynChange = getDynamicChange(p.id);
+                const shippedQty = getShipmentsCount(p.id);
 
                 let qtyBadgeClass = 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
                 if (qty === 0) {
@@ -772,10 +729,10 @@
                 }
 
                 let dynHtml = '<span class="text-gray-500">—</span>';
-                if (dynChange > 0) {
-                    dynHtml = `<span class="text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20 text-xs">+${dynChange}</span>`;
-                } else if (dynChange < 0) {
-                    dynHtml = `<span class="text-red-400 font-bold bg-red-500/10 px-2 py-0.5 rounded border border-red-500/20 text-xs">${dynChange}</span>`;
+                if (shippedQty > 0) {
+                    dynHtml = `<span class="text-emerald-400 font-bold bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-500/20 text-xs">
+                        +${shippedQty} відпр.
+                    </span>`;
                 }
 
                 html += `
