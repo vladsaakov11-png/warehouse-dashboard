@@ -21,13 +21,58 @@
       }
     }
   </script>
+
+  <!-- FIREBASE SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+
+  <script>
+    // 1. ВСТАВЬТЕ ВАШИ НАСТРОЙКИ FIREBASE ТУТ
+    const firebaseConfig = {
+      apiKey: "ВАШ_FIREBASE_API_KEY",
+      authDomain: "ВАШ_PROJECT.firebaseapp.com",
+      projectId: "ВАШ_PROJECT_ID",
+      storageBucket: "ВАШ_PROJECT.appspot.com",
+      messagingSenderId: "ВАШ_SENDER_ID",
+      appId: "ВАШ_APP_ID"
+    };
+
+    // 2. ВСТАВЬТЕ ССЫЛКУ НА GOOGLE APPS SCRIPT ТУТ
+    const API_URL = "https://script.google.com/macros/s/ВАШ_SCRIPTS_ID/exec";
+
+    // Инициализация Firebase
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+  </script>
 </head>
 <body class="bg-darkBg text-gray-200 font-sans antialiased min-h-screen flex">
 
-  <!-- ССЫЛКА НА ВАШ GOOGLE APPS SCRIPT -->
-  <script>
-    const API_URL = "https://script.google.com/macros/s/ВАШ_SCRIPTS_ID/exec";
-  </script>
+  <!-- МОДАЛЬНОЕ ОКНО АВТОРИЗАЦИИ (FIREBASE) -->
+  <div id="auth-modal" class="fixed inset-0 bg-black/90 backdrop-blur-md flex items-center justify-center z-50 p-4">
+    <div class="bg-cardBg border border-cardBorder p-8 rounded-2xl w-full max-w-sm space-y-5 shadow-2xl">
+      <div class="text-center">
+        <span class="text-brandOrange font-black text-2xl tracking-wider">POINT<span class="text-white">.</span></span>
+        <h2 class="text-white font-bold text-lg mt-2">Авторизація в системі</h2>
+        <p class="text-xs text-gray-400 mt-1">Введіть данные для входу в дашборд</p>
+      </div>
+
+      <div id="auth-error" class="hidden text-xs text-red-400 bg-red-500/10 border border-red-500/20 p-3 rounded-xl text-center"></div>
+
+      <div class="space-y-3">
+        <div>
+          <label class="block text-xs font-bold text-gray-400 mb-1">Email</label>
+          <input type="email" id="auth-email" placeholder="admin@point.com" class="w-full bg-darkBg border border-cardBorder rounded-xl p-3 text-xs text-white focus:outline-none focus:border-brandOrange">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-gray-400 mb-1">Пароль</label>
+          <input type="password" id="auth-password" placeholder="••••••••" class="w-full bg-darkBg border border-cardBorder rounded-xl p-3 text-xs text-white focus:outline-none focus:border-brandOrange">
+        </div>
+      </div>
+
+      <button id="auth-btn" onclick="loginWithFirebase()" class="w-full py-3 bg-brandOrange hover:bg-brandOrangeHover text-black font-black text-xs uppercase tracking-wider rounded-xl transition">Увійти</button>
+    </div>
+  </div>
 
   <!-- БОКОВОЕ МЕНЮ (SIDEBAR) -->
   <aside class="w-24 bg-cardBg border-r border-cardBorder flex flex-col justify-between py-6 items-center shrink-0">
@@ -40,13 +85,11 @@
 
       <!-- Кнопки навигации -->
       <nav class="space-y-3 w-full px-2">
-        <!-- Кнопка ОБЛІК -->
         <button id="btn-tab-stock" onclick="switchTab('stock')" class="w-full flex flex-col items-center p-3 rounded-xl bg-orange-500/10 text-brandOrange border border-brandOrange/30 font-semibold transition">
           <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
           <span class="text-[10px] uppercase font-bold tracking-wider">Облік</span>
         </button>
 
-        <!-- Кнопка ЗАКУПІВЛІ -->
         <button id="btn-tab-purchases" onclick="switchTab('purchases')" class="w-full flex flex-col items-center p-3 rounded-xl text-gray-400 hover:text-white hover:bg-gray-800/50 transition">
           <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z"/></svg>
           <span class="text-[10px] uppercase font-bold tracking-wider">Закупівлі</span>
@@ -54,9 +97,10 @@
       </nav>
     </div>
 
-    <!-- Выйти -->
-    <div class="text-center">
-      <span class="text-[10px] text-gray-500">© 2026</span>
+    <!-- Выход -->
+    <div class="text-center space-y-2">
+      <button onclick="logoutWithFirebase()" class="text-[10px] text-gray-500 hover:text-red-400 font-bold uppercase transition">Вийти</button>
+      <div class="text-[9px] text-gray-600">© 2026</div>
     </div>
   </aside>
 
@@ -81,7 +125,7 @@
       </div>
     </header>
 
-    <!-- 1. ВКЛАДКА: ОБЛІК СКТАДУ -->
+    <!-- 1. ВКЛАДКА: ОБЛІК СКЛАДУ -->
     <section id="tab-content-stock" class="p-6 space-y-6">
       
       <!-- МЕТРИКИ -->
@@ -131,7 +175,7 @@
             </tr>
           </thead>
           <tbody id="stock-table-body">
-            <tr><td colspan="5" class="text-center p-8 text-gray-500">Завантаження данных...</td></tr>
+            <tr><td colspan="5" class="text-center p-8 text-gray-500">Завантаження даних...</td></tr>
           </tbody>
         </table>
       </div>
@@ -164,7 +208,7 @@
             </tr>
           </thead>
           <tbody id="purchases-table-body">
-            <tr><td colspan="7" class="text-center p-8 text-gray-500">Немає записів</td></tr>
+            <tr><td colspan="7" class="text-center p-8 text-gray-500">Закупівель поки немає</td></tr>
           </tbody>
         </table>
       </div>
@@ -184,7 +228,6 @@
         <div>
           <label class="block text-xs font-bold text-gray-400 mb-1">Оберіть товар</label>
           <select id="modal-product-select" class="w-full bg-darkBg border border-cardBorder rounded-xl p-3 text-xs text-white focus:outline-none focus:border-brandOrange">
-            <!-- Подгрузится из JS -->
           </select>
         </div>
 
@@ -212,8 +255,50 @@
     let purchasesData = [];
     let currentPeriod = '24h';
 
+    // СЛЕДИМ ЗА АВТОРИЗАЦИЕЙ FIREBASE
+    firebase.auth().onAuthStateChanged((user) => {
+      const authModal = document.getElementById('auth-modal');
+      if (user) {
+        authModal.classList.add('hidden');
+        fetchData();
+      } else {
+        authModal.classList.remove('hidden');
+      }
+    });
+
+    function loginWithFirebase() {
+      const email = document.getElementById('auth-email').value;
+      const password = document.getElementById('auth-password').value;
+      const errorDiv = document.getElementById('auth-error');
+      const btn = document.getElementById('auth-btn');
+
+      if (!email || !password) {
+        errorDiv.innerText = "Заповніть всі поля!";
+        errorDiv.classList.remove('hidden');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerText = "Вхід...";
+      errorDiv.classList.add('hidden');
+
+      firebase.auth().signInWithEmailAndPassword(email, password)
+        .catch((error) => {
+          btn.disabled = false;
+          btn.innerText = "Увійти";
+          errorDiv.innerText = "Помилка входу: " + error.message;
+          errorDiv.classList.remove('hidden');
+        });
+    }
+
+    function logoutWithFirebase() {
+      firebase.auth().signOut();
+    }
+
     // Получение данных по JSONP
     function fetchData() {
+      if (!firebase.auth().currentUser) return;
+      
       const script = document.createElement('script');
       script.src = `${API_URL}?callback=handleApiResponse&_=${new Date().getTime()}`;
       document.body.appendChild(script);
@@ -225,7 +310,6 @@
       productsData = data.products || [];
       purchasesData = data.purchases || [];
 
-      // Заполнение шапки метрик
       let totalQty = 0;
       let totalSum = 0;
       productsData.forEach(p => {
@@ -299,7 +383,7 @@
       }).join('');
     }
 
-    // Управление фильтром периодов
+    // Переключение периодов
     function setPeriod(period) {
       currentPeriod = period;
       ['24h', '7d', '30d'].forEach(p => {
@@ -353,7 +437,7 @@
       ).join('');
     }
 
-    // Отправка формы создания закупки
+    // Отправка закупки
     function submitPurchaseForm() {
       const select = document.getElementById('modal-product-select');
       const selectedOption = select.options[select.selectedIndex];
@@ -399,8 +483,7 @@
       });
     }
 
-    // Автоматическая загрузка данных при старте
-    fetchData();
+    // Таймер автообновления
     setInterval(fetchData, 60000);
   </script>
 </body>
