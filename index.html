@@ -127,7 +127,6 @@
         </div>
 
         <div class="text-xs text-gray-500 text-center flex flex-col gap-2">
-            <div id="userEmail" class="text-[11px] text-gray-400 truncate font-mono"></div>
             <button onclick="handleLogout()" class="text-gray-400 hover:text-red-400 transition text-xs flex items-center justify-center gap-1">
                 <i class="fa-solid fa-right-from-bracket"></i> Вийти з акаунту
             </button>
@@ -212,7 +211,6 @@
 
         <!-- KPI Карточки (Кликабельные) -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5 mb-6">
-            <!-- Кликабельная Карточка Червоной Зоны -->
             <div onclick="setFilter('empty')" class="cyber-card cyber-card-red border border-cardBorder rounded-xl p-3.5 flex flex-col justify-between cursor-pointer select-none group" title="Натисніть, щоб показати товари, яких немає в наявності">
                 <div class="flex items-center justify-between">
                     <span class="text-[11px] font-bold text-gray-400 tracking-wider uppercase group-hover:text-red-400 transition">ЧЕРВОНА ЗОНА</span>
@@ -227,8 +225,7 @@
                 <p class="text-[11px] text-gray-500 truncate group-hover:text-gray-300 transition">Позицій немає в наявності &rarr;</p>
             </div>
 
-            <!-- Кликабельная Карточка Жолтой Зоны -->
-            <div onclick="setFilter('warning')" class="cyber-card cyber-card-amber border border-cardBorder rounded-xl p-3.5 flex flex-col justify-between cursor-pointer select-none group" title="Натисніть, щоб показати товары с малым остатком">
+            <div onclick="setFilter('warning')" class="cyber-card cyber-card-amber border border-cardBorder rounded-xl p-3.5 flex flex-col justify-between cursor-pointer select-none group" title="Натисніть, щоб показати товари з малим залишком">
                 <div class="flex items-center justify-between">
                     <span class="text-[11px] font-bold text-gray-400 tracking-wider uppercase group-hover:text-amber-400 transition">ЖОВТА ЗОНА</span>
                     <div class="w-7 h-7 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 text-xs group-hover:scale-110 transition">
@@ -361,7 +358,6 @@
                 isAuthenticated = true;
                 document.getElementById('authOverlay').classList.add('hidden');
                 document.getElementById('mainDashboard').classList.remove('hidden');
-                document.getElementById('userEmail').innerText = user.email;
                 loadData();
             } else {
                 isAuthenticated = false;
@@ -512,7 +508,6 @@
             const totalCriticalSku = critical + warning;
             const criticalPercent = totalSkuCount > 0 ? ((totalCriticalSku / totalSkuCount) * 100).toFixed(1) : 0;
 
-            // Обновляем визуальную шкалу здоровья склада
             document.getElementById('healthPercentText').innerText = `${criticalPercent}%`;
             document.getElementById('healthCountText').innerText = `(${totalCriticalSku} з ${totalSkuCount} позицій у ризику)`;
 
@@ -528,7 +523,6 @@
             document.getElementById('healthAmberLabel').innerText = warning;
             document.getElementById('healthGreenLabel').innerText = good;
 
-            // KPI
             const finalQty = summaryData.totalQty || calcTotalQty;
             const finalSumUah = summaryData.totalSumUah || calcTotalSumUah;
             const finalSumUsd = summaryData.totalSumUsd || (summaryData.usdRate ? (finalSumUah / summaryData.usdRate) : 0);
