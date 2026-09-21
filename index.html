@@ -45,10 +45,10 @@
             background: linear-gradient(90deg, transparent, rgba(255, 122, 0, 0.3), transparent);
         }
 
-        .cyber-card-red:hover { border-color: rgba(239, 68, 68, 0.4); box-shadow: 0 8px 25px -5px rgba(239, 68, 68, 0.2); }
+        .cyber-card-red:hover { border-color: rgba(239, 68, 68, 0.6); box-shadow: 0 8px 25px -5px rgba(239, 68, 68, 0.3); transform: translateY(-2px); }
         .cyber-card-red::before { background: linear-gradient(90deg, transparent, rgba(239, 68, 68, 0.4), transparent); }
 
-        .cyber-card-amber:hover { border-color: rgba(245, 158, 11, 0.4); box-shadow: 0 8px 25px -5px rgba(245, 158, 11, 0.2); }
+        .cyber-card-amber:hover { border-color: rgba(245, 158, 11, 0.6); box-shadow: 0 8px 25px -5px rgba(245, 158, 11, 0.3); transform: translateY(-2px); }
         .cyber-card-amber::before { background: linear-gradient(90deg, transparent, rgba(245, 158, 11, 0.4), transparent); }
 
         .text-gradient-orange { background: linear-gradient(135deg, #FF9E43 0%, #FF7A00 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
@@ -169,7 +169,7 @@
             </div>
         </div>
 
-        <!-- NEW: Визуальная шкала здоровья склада -->
+        <!-- Визуальная шкала здоровья склада -->
         <div class="cyber-card border border-cardBorder rounded-xl p-4 mb-6">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
                 <div class="flex items-center gap-2">
@@ -195,27 +195,28 @@
             </div>
 
             <div class="flex items-center justify-between text-[11px] font-medium text-gray-400 mt-2 px-1">
-                <div class="flex items-center gap-1.5">
+                <div class="flex items-center gap-1.5 cursor-pointer hover:text-white transition" onclick="setFilter('empty')">
                     <span class="w-2 h-2 rounded-full bg-red-500"></span>
                     <span>Немає: <strong id="healthRedLabel" class="text-white">0</strong></span>
                 </div>
-                <div class="flex items-center gap-1.5">
+                <div class="flex items-center gap-1.5 cursor-pointer hover:text-white transition" onclick="setFilter('warning')">
                     <span class="w-2 h-2 rounded-full bg-amber-500"></span>
                     <span>Малий залишок: <strong id="healthAmberLabel" class="text-white">0</strong></span>
                 </div>
-                <div class="flex items-center gap-1.5">
+                <div class="flex items-center gap-1.5 cursor-pointer hover:text-white transition" onclick="setFilter('good')">
                     <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
                     <span>Норма: <strong id="healthGreenLabel" class="text-white">0</strong></span>
                 </div>
             </div>
         </div>
 
-        <!-- KPI Карточки -->
+        <!-- KPI Карточки (Кликабельные) -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5 mb-6">
-            <div class="cyber-card cyber-card-red border border-cardBorder rounded-xl p-3.5 flex flex-col justify-between">
+            <!-- Кликабельная Карточка Червоной Зоны -->
+            <div onclick="setFilter('empty')" class="cyber-card cyber-card-red border border-cardBorder rounded-xl p-3.5 flex flex-col justify-between cursor-pointer select-none group" title="Натисніть, щоб показати товари, яких немає в наявності">
                 <div class="flex items-center justify-between">
-                    <span class="text-[11px] font-bold text-gray-400 tracking-wider uppercase">ЧЕРВОНА ЗОНА</span>
-                    <div class="w-7 h-7 rounded-lg bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-400 text-xs">
+                    <span class="text-[11px] font-bold text-gray-400 tracking-wider uppercase group-hover:text-red-400 transition">ЧЕРВОНА ЗОНА</span>
+                    <div class="w-7 h-7 rounded-lg bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-400 text-xs group-hover:scale-110 transition">
                         <i class="fa-solid fa-fire-flame-curved"></i>
                     </div>
                 </div>
@@ -223,13 +224,14 @@
                     <div class="text-2xl font-black text-gradient-red tracking-tight" id="kpiCritical">0</div>
                     <span class="text-[10px] text-red-400 font-medium bg-red-950/60 px-1.5 py-0.5 rounded border border-red-800/40">0 од</span>
                 </div>
-                <p class="text-[11px] text-gray-500 truncate">Позицій немає в наявності</p>
+                <p class="text-[11px] text-gray-500 truncate group-hover:text-gray-300 transition">Позицій немає в наявності &rarr;</p>
             </div>
 
-            <div class="cyber-card cyber-card-amber border border-cardBorder rounded-xl p-3.5 flex flex-col justify-between">
+            <!-- Кликабельная Карточка Жолтой Зоны -->
+            <div onclick="setFilter('warning')" class="cyber-card cyber-card-amber border border-cardBorder rounded-xl p-3.5 flex flex-col justify-between cursor-pointer select-none group" title="Натисніть, щоб показати товары с малым остатком">
                 <div class="flex items-center justify-between">
-                    <span class="text-[11px] font-bold text-gray-400 tracking-wider uppercase">ЖОВТА ЗОНА</span>
-                    <div class="w-7 h-7 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 text-xs">
+                    <span class="text-[11px] font-bold text-gray-400 tracking-wider uppercase group-hover:text-amber-400 transition">ЖОВТА ЗОНА</span>
+                    <div class="w-7 h-7 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 text-xs group-hover:scale-110 transition">
                         <i class="fa-solid fa-triangle-exclamation"></i>
                     </div>
                 </div>
@@ -237,7 +239,7 @@
                     <div class="text-2xl font-black text-gradient-amber tracking-tight" id="kpiWarning">0</div>
                     <span class="text-[10px] text-amber-400 font-medium bg-amber-950/60 px-1.5 py-0.5 rounded border border-amber-800/40">1–19 од</span>
                 </div>
-                <p class="text-[11px] text-gray-500 truncate">Малий залишок</p>
+                <p class="text-[11px] text-gray-500 truncate group-hover:text-gray-300 transition">Малий залишок &rarr;</p>
             </div>
 
             <div class="cyber-card border border-cardBorder rounded-xl p-3.5 flex flex-col justify-between">
