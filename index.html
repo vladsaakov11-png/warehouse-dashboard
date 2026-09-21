@@ -276,11 +276,6 @@
                     <button onclick="setFilter('warning')" id="btn-warning" class="filter-btn px-3.5 py-1.5 rounded-lg text-xs font-medium text-gray-400 hover:text-white transition whitespace-nowrap">Малий залишок (1–19)</button>
                     <button onclick="setFilter('good')" id="btn-good" class="filter-btn px-3.5 py-1.5 rounded-lg text-xs font-medium text-gray-400 hover:text-white transition whitespace-nowrap">У наявності (&ge;20)</button>
                 </div>
-
-                <button onclick="toggleSort()" id="btn-sort" class="flex items-center gap-2 bg-cardBg hover:bg-gray-800 border border-cardBorder text-gray-300 px-3.5 py-2 rounded-xl text-xs font-medium transition">
-                    <i class="fa-solid fa-arrow-down-wide-short text-brand" id="sortIcon"></i>
-                    <span id="sortText">За таблицею</span>
-                </button>
             </div>
 
             <!-- Поле поиска -->
@@ -295,11 +290,22 @@
 
         <!-- Таблица товаров -->
         <div class="bg-cardBg border border-cardBorder rounded-2xl overflow-hidden shadow-xl">
-            <div class="grid grid-cols-12 bg-gray-900/80 p-4 border-b border-cardBorder text-xs font-bold text-gray-400 tracking-wider uppercase">
+            <div class="grid grid-cols-12 bg-gray-900/80 p-4 border-b border-cardBorder text-xs font-bold text-gray-400 tracking-wider uppercase select-none">
                 <div class="col-span-1 md:col-span-1">ID</div>
                 <div class="col-span-4 md:col-span-4">НАЗВА ТОВАРУ</div>
-                <div class="col-span-2 md:col-span-2 text-center">К-СТЬ</div>
-                <div class="col-span-2 md:col-span-2 text-center">ЗМІНА / ДИНАМІКА</div>
+                
+                <!-- Кликабельный заголовок К-СТЬ -->
+                <div onclick="toggleSort('qty')" class="col-span-2 md:col-span-2 text-center cursor-pointer hover:text-white transition flex items-center justify-center gap-1.5 group" title="Натисніть для сортування">
+                    <span id="headerQtyText">К-СТЬ</span>
+                    <i id="sortIconQty" class="fa-solid fa-sort text-gray-600 group-hover:text-brand transition text-[10px]"></i>
+                </div>
+
+                <!-- Кликабельный заголовок ЗМІНА / ДИНАМІКА -->
+                <div onclick="toggleSort('dyn')" class="col-span-2 md:col-span-2 text-center cursor-pointer hover:text-white transition flex items-center justify-center gap-1.5 group" title="Натисніть для сортування">
+                    <span id="headerDynText">ЗМІНА / ДИНАМІКА</span>
+                    <i id="sortIconDyn" class="fa-solid fa-sort text-gray-600 group-hover:text-brand transition text-[10px]"></i>
+                </div>
+
                 <div class="col-span-3 md:col-span-3 text-right">ЗАЛИШОК (ГРН)</div>
             </div>
 
@@ -336,7 +342,8 @@
         let summaryData = {};
         let historyData = {};
         let currentFilter = 'all';
-        let sortMode = 'default';
+        let sortField = null; // 'qty' | 'dyn' | null
+        let sortOrder = 'default'; // 'desc' | 'asc' | 'default'
         let currentPeriod = '1d';
         let countdown = 60;
         let isAuthenticated = false;
@@ -560,22 +567,56 @@
             renderProducts();
         };
 
-        window.toggleSort = () => {
-            if (sortMode === 'default') {
-                sortMode = 'qty-asc';
-                document.getElementById('sortText').innerText = 'За к-стю (зростання)';
-                document.getElementById('sortIcon').className = 'fa-solid fa-arrow-up-1-9 text-brand';
-            } else if (sortMode === 'qty-asc') {
-                sortMode = 'qty-desc';
-                document.getElementById('sortText').innerText = 'За к-стю (спадання)';
-                document.getElementById('sortIcon').className = 'fa-solid fa-arrow-down-9-1 text-brand';
+        // Логика сортировки по клику на заголовки колонок
+        window.toggleSort = (field) => {
+            if (sortField !== field) {
+                sortField = field;
+                sortOrder = 'desc'; // Первое нажатие — от большего к меньшему
             } else {
-                sortMode = 'default';
-                document.getElementById('sortText').innerText = 'За таблицею';
-                document.getElementById('sortIcon').className = 'fa-solid fa-arrow-down-wide-short text-brand';
+                if (sortOrder === 'desc') {
+                    sortOrder = 'asc'; // Второе нажатие — от меньшего к большему
+                } else if (sortOrder === 'asc') {
+                    sortOrder = 'default'; // Третье нажатие — сброс по умолчанию
+                    sortField = null;
+                } else {
+                    sortOrder = 'desc';
+                }
             }
+
+            updateSortHeaderUI();
             renderProducts();
         };
+
+        function updateSortHeaderUI() {
+            const iconQty = document.getElementById('sortIconQty');
+            const iconDyn = document.getElementById('sortIconDyn');
+            const textQty = document.getElementById('headerQtyText');
+            const textDyn = document.getElementById('headerDynText');
+
+            // Сброс иконки К-СТЬ
+            iconQty.className = 'fa-solid fa-sort text-gray-600 group-hover:text-brand transition text-[10px]';
+            textQty.className = '';
+
+            // Сброс иконки ЗМІНА / ДИНАМІКА
+            iconDyn.className = 'fa-solid fa-sort text-gray-600 group-hover:text-brand transition text-[10px]';
+            textDyn.className = '';
+
+            if (sortField === 'qty') {
+                textQty.className = 'text-brand font-bold';
+                if (sortOrder === 'desc') {
+                    iconQty.className = 'fa-solid fa-arrow-down-9-1 text-brand text-xs';
+                } else if (sortOrder === 'asc') {
+                    iconQty.className = 'fa-solid fa-arrow-up-1-9 text-brand text-xs';
+                }
+            } else if (sortField === 'dyn') {
+                textDyn.className = 'text-brand font-bold';
+                if (sortOrder === 'desc') {
+                    iconDyn.className = 'fa-solid fa-arrow-down-9-1 text-brand text-xs';
+                } else if (sortOrder === 'asc') {
+                    iconDyn.className = 'fa-solid fa-arrow-up-1-9 text-brand text-xs';
+                }
+            }
+        }
 
         window.handleSearchInput = () => {
             const query = document.getElementById('searchInput').value.trim();
@@ -645,10 +686,19 @@
                 return true;
             });
 
-            if (sortMode === 'qty-asc') {
-                filtered.sort((a, b) => (Number(a.qty) || 0) - (Number(b.qty) || 0));
-            } else if (sortMode === 'qty-desc') {
-                filtered.sort((a, b) => (Number(b.qty) || 0) - (Number(a.qty) || 0));
+            // Сортировка по полю и порядку
+            if (sortField === 'qty') {
+                if (sortOrder === 'desc') {
+                    filtered.sort((a, b) => (Number(b.qty) || 0) - (Number(a.qty) || 0));
+                } else if (sortOrder === 'asc') {
+                    filtered.sort((a, b) => (Number(a.qty) || 0) - (Number(b.qty) || 0));
+                }
+            } else if (sortField === 'dyn') {
+                if (sortOrder === 'desc') {
+                    filtered.sort((a, b) => calculateDynamics(b).change - calculateDynamics(a).change);
+                } else if (sortOrder === 'asc') {
+                    filtered.sort((a, b) => calculateDynamics(a).change - calculateDynamics(b).change);
+                }
             }
 
             const container = document.getElementById('productsContainer');
