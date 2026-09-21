@@ -152,11 +152,8 @@
                     <button onclick="handleLogout()" class="text-gray-400 hover:text-red-400 text-xs">Вихід</button>
                 </div>
 
-                <div class="flex items-center gap-3">
-                    <h2 class="text-2xl font-bold">Облік Товарів Складу</h2>
-                    <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-brand/20 text-brand border border-brand/30">Основний Склад</span>
-                </div>
-                <p class="text-sm text-gray-400 mt-0.5">Моніторинг залишків, закупівлі та вартості запасу</p>
+                <!-- Обновленный заголовок: Облік товарів BULL -->
+                <h2 class="text-2xl font-bold">Облік товарів <span class="text-brand">BULL</span></h2>
             </div>
             
             <div class="flex items-center gap-3 self-end md:self-auto">
@@ -173,7 +170,7 @@
             </div>
         </div>
 
-        <!-- KPI Карточки (Кликабельные) -->
+        <!-- KPI Карточки -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5 mb-6">
             <div onclick="setFilter('empty')" class="cyber-card cyber-card-red border border-cardBorder rounded-xl p-3.5 flex flex-col justify-between cursor-pointer select-none group" title="Натисніть, щоб показати товари, яких немає в наявності">
                 <div class="flex items-center justify-between">
@@ -244,7 +241,7 @@
             </div>
         </div>
 
-        <!-- Блок выбора периода для Анализа Динамики -->
+        <!-- Блок выбора периода -->
         <div class="cyber-card border border-cardBorder rounded-xl p-3.5 mb-6 flex flex-col md:flex-row md:items-center justify-between gap-3">
             <div class="flex items-center gap-2">
                 <i class="fa-solid fa-chart-line text-brand"></i>
@@ -278,7 +275,6 @@
                 </div>
             </div>
 
-            <!-- Поле поиска -->
             <div class="relative w-full md:w-80">
                 <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm pointer-events-none"></i>
                 <input type="text" id="searchInput" oninput="handleSearchInput()" placeholder="Пошук за назвою або ID..." class="w-full bg-cardBg border border-cardBorder rounded-xl pl-10 pr-9 py-2 text-sm text-gray-200 focus:outline-none focus:border-brand transition">
@@ -294,13 +290,11 @@
                 <div class="col-span-1 md:col-span-1">ID</div>
                 <div class="col-span-4 md:col-span-4">НАЗВА ТОВАРУ</div>
                 
-                <!-- Кликабельный заголовок К-СТЬ -->
                 <div onclick="toggleSort('qty')" class="col-span-2 md:col-span-2 text-center cursor-pointer hover:text-white transition flex items-center justify-center gap-1.5 group" title="Натисніть для сортування">
                     <span id="headerQtyText">К-СТЬ</span>
                     <i id="sortIconQty" class="fa-solid fa-sort text-gray-600 group-hover:text-brand transition text-[10px]"></i>
                 </div>
 
-                <!-- Кликабельный заголовок ЗМІНА / ДИНАМІКА -->
                 <div onclick="toggleSort('dyn')" class="col-span-2 md:col-span-2 text-center cursor-pointer hover:text-white transition flex items-center justify-center gap-1.5 group" title="Натисніть для сортування">
                     <span id="headerDynText">ЗМІНА / ДИНАМІКА</span>
                     <i id="sortIconDyn" class="fa-solid fa-sort text-gray-600 group-hover:text-brand transition text-[10px]"></i>
@@ -342,8 +336,8 @@
         let summaryData = {};
         let historyData = {};
         let currentFilter = 'all';
-        let sortField = null; // 'qty' | 'dyn' | null
-        let sortOrder = 'default'; // 'desc' | 'asc' | 'default'
+        let sortField = null;
+        let sortOrder = 'default';
         let currentPeriod = '1d';
         let countdown = 60;
         let isAuthenticated = false;
@@ -567,16 +561,15 @@
             renderProducts();
         };
 
-        // Логика сортировки по клику на заголовки колонок
         window.toggleSort = (field) => {
             if (sortField !== field) {
                 sortField = field;
-                sortOrder = 'desc'; // Первое нажатие — от большего к меньшему
+                sortOrder = 'desc';
             } else {
                 if (sortOrder === 'desc') {
-                    sortOrder = 'asc'; // Второе нажатие — от меньшего к большему
+                    sortOrder = 'asc';
                 } else if (sortOrder === 'asc') {
-                    sortOrder = 'default'; // Третье нажатие — сброс по умолчанию
+                    sortOrder = 'default';
                     sortField = null;
                 } else {
                     sortOrder = 'desc';
@@ -593,11 +586,9 @@
             const textQty = document.getElementById('headerQtyText');
             const textDyn = document.getElementById('headerDynText');
 
-            // Сброс иконки К-СТЬ
             iconQty.className = 'fa-solid fa-sort text-gray-600 group-hover:text-brand transition text-[10px]';
             textQty.className = '';
 
-            // Сброс иконки ЗМІНА / ДИНАМІКА
             iconDyn.className = 'fa-solid fa-sort text-gray-600 group-hover:text-brand transition text-[10px]';
             textDyn.className = '';
 
@@ -686,7 +677,6 @@
                 return true;
             });
 
-            // Сортировка по полю и порядку
             if (sortField === 'qty') {
                 if (sortOrder === 'desc') {
                     filtered.sort((a, b) => (Number(b.qty) || 0) - (Number(a.qty) || 0));
