@@ -64,6 +64,62 @@
             transform: translateY(-1px);
         }
 
+        /* Ефекти та анімація для плашки сайдбару */
+        .nav-card-active {
+            background: linear-gradient(135deg, rgba(255, 122, 0, 0.12) 0%, rgba(14, 19, 32, 0.95) 100%);
+            border: 1px solid rgba(255, 122, 0, 0.35);
+            box-shadow: 0 0 15px rgba(255, 122, 0, 0.12), inset 0 0 10px rgba(255, 122, 0, 0.05);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .nav-card-active:hover {
+            border-color: rgba(255, 122, 0, 0.8);
+            box-shadow: 0 0 25px rgba(255, 122, 0, 0.35), inset 0 0 15px rgba(255, 122, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .nav-card-active::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -150%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                60deg,
+                transparent 30%,
+                rgba(255, 122, 0, 0.2) 50%,
+                transparent 70%
+            );
+            transition: all 0.6s ease;
+            pointer-events: none;
+        }
+
+        .nav-card-active:hover::after {
+            left: 100%;
+        }
+
+        @keyframes boxFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-3px); }
+        }
+
+        .box-top {
+            animation: boxFloat 2.5s ease-in-out infinite;
+            transform-origin: center;
+        }
+
+        .nav-card-active:hover .box-top {
+            fill: #FF9E43;
+            filter: drop-shadow(0 0 4px rgba(255, 122, 0, 0.8));
+        }
+
+        .nav-card-active:hover .box-side {
+            fill: #FF7A00;
+        }
+
         .text-gradient-orange { background: linear-gradient(135deg, #FF9E43 0%, #FF7A00 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .text-gradient-white { background: linear-gradient(135deg, #FFFFFF 0%, #9CA3AF 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .text-gradient-emerald { background: linear-gradient(135deg, #A7F3D0 0%, #10B981 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
@@ -134,10 +190,22 @@
                 <span class="text-[8px] font-bold tracking-[0.15em] text-brand uppercase -mt-0.5">FULFILLMENT</span>
             </div>
 
+            <!-- АНІМОВАНА ПЛАШКА "ОБЛІК СКЛАДУ" -->
             <nav class="space-y-2">
-                <a href="#" class="flex flex-col items-center justify-center text-center p-2 rounded-xl bg-brand/10 text-brand font-bold border border-brand/20 gap-1.5 hover:bg-brand/20 transition">
-                    <i class="fa-solid fa-boxes-stacked text-base"></i>
-                    <span class="text-[10px] leading-tight uppercase">Облік складу</span>
+                <a href="#" class="nav-card-active flex flex-col items-center justify-center text-center p-3 rounded-2xl group transition">
+                    <div class="mb-2 relative">
+                        <svg class="w-8 h-8 text-brand transition-transform duration-300 group-hover:scale-110" viewBox="0 0 24 24" fill="currentColor">
+                            <!-- Верхня коробка (левітує) -->
+                            <path class="box-top transition-colors duration-300" d="M12 2L7 5v4l5 3 5-3V5l-5-3zm0 2.2l2.8 1.7-2.8 1.7-2.8-1.7L12 4.2z" fill="#FF7A00"/>
+                            <!-- Ліва нижня коробка -->
+                            <path class="box-side transition-colors duration-300" d="M6 12l-5 3v4l5 3 5-3v-4l-5-3zm0 2.2l2.8 1.7-2.8 1.7-2.8-1.7L6 14.2z" fill="#E06B00"/>
+                            <!-- Права нижня коробка -->
+                            <path class="box-side transition-colors duration-300" d="M18 12l-5 3v4l5 3 5-3v-4l-5-3zm0 2.2l2.8 1.7-2.8 1.7-2.8-1.7L18 14.2z" fill="#E06B00"/>
+                        </svg>
+                    </div>
+                    <span class="text-[10px] font-black tracking-wider text-brand uppercase group-hover:text-white transition-colors duration-300">
+                        Облік складу
+                    </span>
                 </a>
             </nav>
         </div>
@@ -617,7 +685,7 @@
         function getDynamicChange(productId) {
             if (!historyData || !historyData[productId]) return 0;
 
-            const prodHistory = historyData[productId]; // Очікується масив об'єктів { date: 'YYYY-MM-DD', qty: N }
+            const prodHistory = historyData[productId];
             if (!Array.isArray(prodHistory) || prodHistory.length === 0) return 0;
 
             let targetDate = new Date();
@@ -651,12 +719,10 @@
             let filtered = allProducts.filter(p => {
                 const qty = Number(p.qty) || 0;
                 
-                // Фільтр за категорією наявності
                 if (currentFilter === 'empty' && qty !== 0) return false;
                 if (currentFilter === 'warning' && (qty < 1 || qty > 19)) return false;
                 if (currentFilter === 'good' && qty < 20) return false;
 
-                // Фільтр за пошуковим запитом
                 if (searchVal) {
                     const matchId = String(p.id || '').toLowerCase().includes(searchVal);
                     const matchName = String(p.name || '').toLowerCase().includes(searchVal);
@@ -666,7 +732,6 @@
                 return true;
             });
 
-            // Сортування
             if (sortField) {
                 filtered.sort((a, b) => {
                     let valA = 0;
@@ -699,7 +764,6 @@
                 const totalSum = Number(p.totalSum) || (p.price ? qty * Number(p.price) : 0);
                 const dynChange = getDynamicChange(p.id);
 
-                // Дизайн статусу кількості
                 let qtyBadgeClass = 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
                 if (qty === 0) {
                     qtyBadgeClass = 'bg-red-500/10 text-red-400 border-red-500/20';
@@ -707,7 +771,6 @@
                     qtyBadgeClass = 'bg-amber-500/10 text-amber-400 border-amber-500/20';
                 }
 
-                // Дизайн динаміки
                 let dynHtml = '<span class="text-gray-500">—</span>';
                 if (dynChange > 0) {
                     dynHtml = `<span class="text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20 text-xs">+${dynChange}</span>`;
