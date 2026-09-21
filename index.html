@@ -45,15 +45,39 @@
             background: linear-gradient(90deg, transparent, rgba(255, 122, 0, 0.3), transparent);
         }
 
-        .cyber-card-red:hover { border-color: rgba(239, 68, 68, 0.6); box-shadow: 0 8px 25px -5px rgba(239, 68, 68, 0.3); transform: translateY(-2px); }
-        .cyber-card-red::before { background: linear-gradient(90deg, transparent, rgba(239, 68, 68, 0.4), transparent); }
+        /* Неоновая подсветка для основных карточек */
+        .cyber-card-brand:hover { 
+            border-color: rgba(255, 122, 0, 0.6); 
+            box-shadow: 0 8px 25px -5px rgba(255, 122, 0, 0.3); 
+            transform: translateY(-2px); 
+        }
+        .cyber-card-brand::before { 
+            background: linear-gradient(90deg, transparent, rgba(255, 122, 0, 0.6), transparent); 
+        }
 
-        .cyber-card-amber:hover { border-color: rgba(245, 158, 11, 0.6); box-shadow: 0 8px 25px -5px rgba(245, 158, 11, 0.3); transform: translateY(-2px); }
-        .cyber-card-amber::before { background: linear-gradient(90deg, transparent, rgba(245, 158, 11, 0.4), transparent); }
+        /* Неоновая подсветка для кнопок периодов */
+        .period-btn-hover {
+            transition: all 0.25s ease;
+        }
+        .period-btn-hover:hover {
+            border-color: rgba(255, 122, 0, 0.6) !important;
+            box-shadow: 0 0 12px rgba(255, 122, 0, 0.4);
+            color: #ffffff !important;
+            transform: translateY(-1px);
+        }
+
+        /* Неоновая подсветка для кнопок фильтров */
+        .filter-btn-hover {
+            transition: all 0.25s ease;
+        }
+        .filter-btn-hover:hover {
+            border-color: rgba(255, 122, 0, 0.6) !important;
+            box-shadow: 0 0 14px rgba(255, 122, 0, 0.4);
+            color: #ffffff !important;
+            transform: translateY(-1px);
+        }
 
         .text-gradient-orange { background: linear-gradient(135deg, #FF9E43 0%, #FF7A00 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .text-gradient-red { background: linear-gradient(135deg, #FCA5A5 0%, #EF4444 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .text-gradient-amber { background: linear-gradient(135deg, #FDE68A 0%, #F59E0B 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .text-gradient-white { background: linear-gradient(135deg, #FFFFFF 0%, #9CA3AF 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .text-gradient-emerald { background: linear-gradient(135deg, #A7F3D0 0%, #10B981 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 
@@ -169,71 +193,42 @@
             </div>
         </div>
 
-        <!-- KPI Карточки -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 mb-6">
-            <div onclick="setFilter('empty')" class="cyber-card cyber-card-red border border-cardBorder rounded-xl p-3.5 flex flex-col justify-between cursor-pointer select-none group" title="Натисніть, щоб показати товари, яких немає в наявності">
-                <div class="flex items-center justify-between">
-                    <span class="text-[11px] font-bold text-gray-400 tracking-wider uppercase group-hover:text-red-400 transition">ЧЕРВОНА ЗОНА</span>
-                    <div class="w-7 h-7 rounded-lg bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-400 text-xs group-hover:scale-110 transition">
-                        <i class="fa-solid fa-fire-flame-curved"></i>
-                    </div>
-                </div>
-                <div class="my-1.5 flex items-baseline gap-2">
-                    <div class="text-2xl font-black text-gradient-red tracking-tight" id="kpiCritical">0</div>
-                    <span class="text-[10px] text-red-400 font-medium bg-red-950/60 px-1.5 py-0.5 rounded border border-red-800/40">0 од</span>
-                </div>
-                <p class="text-[11px] text-gray-500 truncate group-hover:text-gray-300 transition">Позицій немає в наявності &rarr;</p>
-            </div>
-
-            <div onclick="setFilter('warning')" class="cyber-card cyber-card-amber border border-cardBorder rounded-xl p-3.5 flex flex-col justify-between cursor-pointer select-none group" title="Натисніть, щоб показати товари з малим залишком">
-                <div class="flex items-center justify-between">
-                    <span class="text-[11px] font-bold text-gray-400 tracking-wider uppercase group-hover:text-amber-400 transition">ЖОВТА ЗОНА</span>
-                    <div class="w-7 h-7 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 text-xs group-hover:scale-110 transition">
-                        <i class="fa-solid fa-triangle-exclamation"></i>
-                    </div>
-                </div>
-                <div class="my-1.5 flex items-baseline gap-2">
-                    <div class="text-2xl font-black text-gradient-amber tracking-tight" id="kpiWarning">0</div>
-                    <span class="text-[10px] text-amber-400 font-medium bg-amber-950/60 px-1.5 py-0.5 rounded border border-amber-800/40">1–19 од</span>
-                </div>
-                <p class="text-[11px] text-gray-500 truncate group-hover:text-gray-300 transition">Малий залишок &rarr;</p>
-            </div>
-
-            <div class="cyber-card border border-cardBorder rounded-xl p-3.5 flex flex-col justify-between">
+        <!-- KPI Карточки (оставлены 2 основные карточки с подсветкой при наведении) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+            <div class="cyber-card cyber-card-brand border border-cardBorder rounded-xl p-4 flex flex-col justify-between cursor-pointer">
                 <div class="flex items-center justify-between">
                     <span class="text-[11px] font-bold text-gray-400 tracking-wider uppercase">ОДИНИЦЬ ТОВАРУ</span>
-                    <div class="w-7 h-7 rounded-lg bg-gray-800 border border-gray-700 flex items-center justify-center text-gray-300 text-xs">
+                    <div class="w-8 h-8 rounded-lg bg-gray-800 border border-gray-700 flex items-center justify-center text-gray-300 text-sm">
                         <i class="fa-solid fa-box-archive"></i>
                     </div>
                 </div>
-                <div class="my-1.5">
-                    <div class="text-2xl font-black text-gradient-white tracking-tight" id="kpiTotalQty">0</div>
+                <div class="my-2">
+                    <div class="text-3xl font-black text-gradient-white tracking-tight" id="kpiTotalQty">0</div>
                 </div>
                 <p class="text-[11px] text-gray-500 truncate">Загальна к-сть штук</p>
             </div>
 
-            <!-- Объединенная карточка Остатка с динамическим курсом USD -->
-            <div class="cyber-card border border-cardBorder rounded-xl p-3.5 flex flex-col justify-between">
+            <div class="cyber-card cyber-card-brand border border-cardBorder rounded-xl p-4 flex flex-col justify-between cursor-pointer">
                 <div class="flex items-center justify-between">
                     <span class="text-[11px] font-bold text-gray-400 tracking-wider uppercase">ЗАЛИШОК СКУПКИ</span>
-                    <div class="flex items-center gap-1.5">
-                        <span class="text-[10px] text-brand font-medium bg-brand/10 px-1.5 py-0.5 rounded border border-brand/20" id="usdRateBadge">Курс: Live...</span>
-                        <div class="w-7 h-7 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 text-xs">
+                    <div class="flex items-center gap-2">
+                        <span class="text-[10px] text-brand font-medium bg-brand/10 px-2 py-0.5 rounded border border-brand/20" id="usdRateBadge">Курс: Live...</span>
+                        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 text-sm">
                             <i class="fa-solid fa-wallet"></i>
                         </div>
                     </div>
                 </div>
-                <div class="my-1">
-                    <div class="text-2xl font-black text-gradient-emerald tracking-tight" id="kpiTotalSumUah">0 ₴</div>
+                <div class="my-1.5">
+                    <div class="text-3xl font-black text-gradient-emerald tracking-tight" id="kpiTotalSumUah">0 ₴</div>
                 </div>
-                <div class="flex items-center justify-between pt-1 border-t border-cardBorder/40">
+                <div class="flex items-center justify-between pt-2 border-t border-cardBorder/40">
                     <span class="text-[11px] text-gray-400">Оцінка в валюті:</span>
-                    <span class="text-sm font-black text-gradient-orange" id="kpiTotalSumUsd">$0</span>
+                    <span class="text-base font-black text-gradient-orange" id="kpiTotalSumUsd">$0</span>
                 </div>
             </div>
         </div>
 
-        <!-- Блок выбора периода -->
+        <!-- Блок выбора периода с неоновой подсветкой -->
         <div class="cyber-card border border-cardBorder rounded-xl p-3.5 mb-6 flex flex-col md:flex-row md:items-center justify-between gap-3">
             <div class="flex items-center gap-2">
                 <i class="fa-solid fa-chart-line text-brand"></i>
@@ -241,11 +236,11 @@
             </div>
 
             <div class="flex flex-wrap items-center gap-2">
-                <div class="flex items-center gap-1 bg-gray-900 p-1 rounded-xl border border-cardBorder">
-                    <button onclick="setPeriod('1d')" id="period-1d" class="period-btn px-3 py-1 rounded-lg text-xs font-medium transition bg-brand text-white">24г (доба)</button>
-                    <button onclick="setPeriod('7d')" id="period-7d" class="period-btn px-3 py-1 rounded-lg text-xs font-medium transition text-gray-400 hover:text-white">7 днів</button>
-                    <button onclick="setPeriod('30d')" id="period-30d" class="period-btn px-3 py-1 rounded-lg text-xs font-medium transition text-gray-400 hover:text-white">30 днів</button>
-                    <button onclick="setPeriod('custom')" id="period-custom" class="period-btn px-3 py-1 rounded-lg text-xs font-medium transition text-gray-400 hover:text-white">Свій період</button>
+                <div class="flex items-center gap-1.5 bg-gray-900 p-1 rounded-xl border border-cardBorder">
+                    <button onclick="setPeriod('1d')" id="period-1d" class="period-btn period-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent bg-brand text-white shadow-lg shadow-brand/20">24г (доба)</button>
+                    <button onclick="setPeriod('7d')" id="period-7d" class="period-btn period-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400">7 днів</button>
+                    <button onclick="setPeriod('30d')" id="period-30d" class="period-btn period-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400">30 днів</button>
+                    <button onclick="setPeriod('custom')" id="period-custom" class="period-btn period-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400">Свій період</button>
                 </div>
 
                 <div id="customDateInputs" class="hidden items-center gap-2">
@@ -256,14 +251,14 @@
             </div>
         </div>
 
-        <!-- Фильтры и Поиск -->
+        <!-- Фильтры и Поиск с неоновой подсветкой -->
         <div class="flex flex-col md:flex-row items-center justify-between gap-4 mb-6">
             <div class="flex flex-wrap items-center gap-2 w-full md:w-auto">
                 <div class="flex items-center gap-1.5 bg-cardBg p-1.5 rounded-xl border border-cardBorder overflow-x-auto max-w-full">
-                    <button onclick="setFilter('all')" id="btn-all" class="filter-btn px-3.5 py-1.5 rounded-lg text-xs font-medium transition bg-brand text-white shadow-lg shadow-brand/20 whitespace-nowrap">Усі</button>
-                    <button onclick="setFilter('empty')" id="btn-empty" class="filter-btn px-3.5 py-1.5 rounded-lg text-xs font-medium text-gray-400 hover:text-white transition whitespace-nowrap">Немає (0)</button>
-                    <button onclick="setFilter('warning')" id="btn-warning" class="filter-btn px-3.5 py-1.5 rounded-lg text-xs font-medium text-gray-400 hover:text-white transition whitespace-nowrap">Малий залишок (1–19)</button>
-                    <button onclick="setFilter('good')" id="btn-good" class="filter-btn px-3.5 py-1.5 rounded-lg text-xs font-medium text-gray-400 hover:text-white transition whitespace-nowrap">У наявності (&ge;20)</button>
+                    <button onclick="setFilter('all')" id="btn-all" class="filter-btn filter-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent bg-brand text-white shadow-lg shadow-brand/20 whitespace-nowrap">Усі</button>
+                    <button onclick="setFilter('empty')" id="btn-empty" class="filter-btn filter-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400 whitespace-nowrap">Немає (0)</button>
+                    <button onclick="setFilter('warning')" id="btn-warning" class="filter-btn filter-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400 whitespace-nowrap">Малий залишок (1–19)</button>
+                    <button onclick="setFilter('good')" id="btn-good" class="filter-btn filter-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400 whitespace-nowrap">У наявності (&ge;20)</button>
                 </div>
             </div>
 
@@ -333,9 +328,8 @@
         let currentPeriod = '1d';
         let countdown = 60;
         let isAuthenticated = false;
-        let liveUsdRate = 41.5; // fallback курс
+        let liveUsdRate = 41.5;
 
-        // Загрузка реального курса USD/UAH
         async function fetchLiveUsdRate() {
             try {
                 const res = await fetch("https://open.er-api.com/v6/latest/USD");
@@ -499,9 +493,6 @@
         }
 
         function updateKPIs() {
-            let critical = 0;
-            let warning = 0;
-            let good = 0;
             let calcTotalQty = 0;
             let calcTotalSumUah = 0;
 
@@ -509,22 +500,15 @@
                 const q = Number(p.qty) || 0;
                 const sum = Number(p.totalSum) || (p.price ? q * Number(p.price) : 0);
 
-                if (q === 0) critical++;
-                else if (q <= 19) warning++;
-                else good++;
-
                 calcTotalQty += q;
                 calcTotalSumUah += sum;
             });
 
-            document.getElementById('kpiCritical').innerText = critical;
-            document.getElementById('kpiWarning').innerText = warning;
             document.getElementById('kpiTotalQty').innerText = summaryData.totalQty !== undefined ? summaryData.totalQty : calcTotalQty;
             
             const totalUah = summaryData.totalSumUah !== undefined ? summaryData.totalSumUah : calcTotalSumUah;
             document.getElementById('kpiTotalSumUah').innerText = `${totalUah.toLocaleString('uk-UA')} ₴`;
 
-            // Вывод актуального live-курса и пересчет суммы в USD
             const displayRate = liveUsdRate ? liveUsdRate.toFixed(2) : '41.50';
             document.getElementById('usdRateBadge').innerText = `Курс: ${displayRate}`;
 
@@ -536,12 +520,12 @@
             currentFilter = filterType;
             
             document.querySelectorAll('.filter-btn').forEach(btn => {
-                btn.className = 'filter-btn px-3.5 py-1.5 rounded-lg text-xs font-medium text-gray-400 hover:text-white transition whitespace-nowrap';
+                btn.className = 'filter-btn filter-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400 whitespace-nowrap';
             });
 
             const activeBtn = document.getElementById(`btn-${filterType}`);
             if (activeBtn) {
-                activeBtn.className = 'filter-btn px-3.5 py-1.5 rounded-lg text-xs font-medium transition bg-brand text-white shadow-lg shadow-brand/20 whitespace-nowrap';
+                activeBtn.className = 'filter-btn filter-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent bg-brand text-white shadow-lg shadow-brand/20 whitespace-nowrap';
             }
 
             renderProducts();
@@ -551,12 +535,12 @@
             currentPeriod = period;
             
             document.querySelectorAll('.period-btn').forEach(btn => {
-                btn.className = 'period-btn px-3 py-1 rounded-lg text-xs font-medium transition text-gray-400 hover:text-white';
+                btn.className = 'period-btn period-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400';
             });
 
             const activeBtn = document.getElementById(`period-${period}`);
             if (activeBtn) {
-                activeBtn.className = 'period-btn px-3 py-1 rounded-lg text-xs font-medium transition bg-brand text-white';
+                activeBtn.className = 'period-btn period-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent bg-brand text-white shadow-lg shadow-brand/20';
             }
 
             const customInputs = document.getElementById('customDateInputs');
