@@ -169,6 +169,47 @@
             </div>
         </div>
 
+        <!-- NEW: Визуальная шкала здоровья склада -->
+        <div class="cyber-card border border-cardBorder rounded-xl p-4 mb-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-lg bg-brand/10 border border-brand/20 flex items-center justify-center text-brand text-sm">
+                        <i class="fa-solid fa-heart-pulse"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-bold text-white uppercase tracking-wider">Здоров'я Складу</h3>
+                        <p class="text-xs text-gray-400">Частка позицій у критичній та ризиковій зонах</p>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <span id="healthPercentText" class="text-xl font-black text-gradient-orange">0%</span>
+                    <span class="text-xs text-gray-400 block font-medium" id="healthCountText">(0 з 0 позицій)</span>
+                </div>
+            </div>
+
+            <!-- Сегментированный Прогресс-Бар -->
+            <div class="w-full h-3 bg-gray-900 rounded-full overflow-hidden flex p-0.5 border border-cardBorder">
+                <div id="healthRedBar" class="h-full bg-red-500 rounded-l-full transition-all duration-500" style="width: 0%" title="Червона зона"></div>
+                <div id="healthAmberBar" class="h-full bg-amber-500 transition-all duration-500" style="width: 0%" title="Жовта зона"></div>
+                <div id="healthGreenBar" class="h-full bg-emerald-500 rounded-r-full transition-all duration-500" style="width: 100%" title="В наявності"></div>
+            </div>
+
+            <div class="flex items-center justify-between text-[11px] font-medium text-gray-400 mt-2 px-1">
+                <div class="flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-red-500"></span>
+                    <span>Немає: <strong id="healthRedLabel" class="text-white">0</strong></span>
+                </div>
+                <div class="flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                    <span>Малий залишок: <strong id="healthAmberLabel" class="text-white">0</strong></span>
+                </div>
+                <div class="flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                    <span>Норма: <strong id="healthGreenLabel" class="text-white">0</strong></span>
+                </div>
+            </div>
+        </div>
+
         <!-- KPI Карточки -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5 mb-6">
             <div class="cyber-card cyber-card-red border border-cardBorder rounded-xl p-3.5 flex flex-col justify-between">
@@ -303,7 +344,7 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
 
-        // Обновленный URL вашего Google Apps Script
+        // URL Google Apps Script
         const API_URL = "https://script.google.com/macros/s/AKfycbxHxTydxr0bCSPtjuuwq72QA6eUVgsmApc4Jjwy3qsJA5E8RBM90F2qspizWg6I7_nu/exec";
         
         let allProducts = [];
@@ -449,6 +490,7 @@
         function updateKPIs() {
             let critical = 0;
             let warning = 0;
+            let good = 0;
             let calcTotalQty = 0;
             let calcTotalSumUah = 0;
 
@@ -458,11 +500,33 @@
 
                 if (q === 0) critical++;
                 else if (q <= 19) warning++;
+                else good++;
 
                 calcTotalQty += q;
                 calcTotalSumUah += sum;
             });
 
+            const totalSkuCount = allProducts.length;
+            const totalCriticalSku = critical + warning;
+            const criticalPercent = totalSkuCount > 0 ? ((totalCriticalSku / totalSkuCount) * 100).toFixed(1) : 0;
+
+            // Обновляем визуальную шкалу здоровья склада
+            document.getElementById('healthPercentText').innerText = `${criticalPercent}%`;
+            document.getElementById('healthCountText').innerText = `(${totalCriticalSku} з ${totalSkuCount} позицій у ризику)`;
+
+            const redPercent = totalSkuCount > 0 ? (critical / totalSkuCount) * 100 : 0;
+            const amberPercent = totalSkuCount > 0 ? (warning / totalSkuCount) * 100 : 0;
+            const greenPercent = totalSkuCount > 0 ? (good / totalSkuCount) * 100 : 100;
+
+            document.getElementById('healthRedBar').style.width = `${redPercent}%`;
+            document.getElementById('healthAmberBar').style.width = `${amberPercent}%`;
+            document.getElementById('healthGreenBar').style.width = `${greenPercent}%`;
+
+            document.getElementById('healthRedLabel').innerText = critical;
+            document.getElementById('healthAmberLabel').innerText = warning;
+            document.getElementById('healthGreenLabel').innerText = good;
+
+            // KPI
             const finalQty = summaryData.totalQty || calcTotalQty;
             const finalSumUah = summaryData.totalSumUah || calcTotalSumUah;
             const finalSumUsd = summaryData.totalSumUsd || (summaryData.usdRate ? (finalSumUah / summaryData.usdRate) : 0);
@@ -595,14 +659,14 @@
                         </button>
                     </div>
 
-                    <!-- Название товара -->
+                    <!-- Назва товару -->
                     <div class="col-span-5 font-bold text-white text-sm md:text-base">
                         <button onclick="copyToClipboard('${p.name.replace(/'/g, "\\'")}')" title="Клікніть, щоб скопіювати назву" class="hover:text-brand transition text-left">
                             ${p.name}
                         </button>
                     </div>
 
-                    <!-- Остаток и шкала -->
+                    <!-- Залишок і шкала -->
                     <div class="col-span-2 flex flex-col items-center justify-center gap-1">
                         <div>${qtyBadge}</div>
                         <div class="w-full max-w-[100px] h-1.5 bg-gray-800 rounded-full overflow-hidden">
@@ -610,12 +674,12 @@
                         </div>
                     </div>
 
-                    <!-- Закупка -->
+                    <!-- Закупівля -->
                     <div class="col-span-2 text-right font-medium text-gray-300 text-sm">
                         ${price > 0 ? `${price} ₴` : '<span class="text-gray-600">—</span>'}
                     </div>
 
-                    <!-- Стоимость остатка -->
+                    <!-- Вартість залишку -->
                     <div class="col-span-2 text-right font-bold text-emerald-400 text-sm">
                         ${totalSum > 0 ? `${totalSum.toLocaleString('uk-UA')} ₴` : '<span class="text-gray-600">—</span>'}
                     </div>
