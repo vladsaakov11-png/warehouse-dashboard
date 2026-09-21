@@ -169,7 +169,7 @@
             </div>
         </div>
 
-        <!-- KPI Карточки (Оновлено до 4 колонок з об'єднаною карткою) -->
+        <!-- KPI Карточки -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 mb-6">
             <div onclick="setFilter('empty')" class="cyber-card cyber-card-red border border-cardBorder rounded-xl p-3.5 flex flex-col justify-between cursor-pointer select-none group" title="Натисніть, щоб показати товари, яких немає в наявності">
                 <div class="flex items-center justify-between">
@@ -212,12 +212,12 @@
                 <p class="text-[11px] text-gray-500 truncate">Загальна к-сть штук</p>
             </div>
 
-            <!-- Об'єднана картка Залишку (ГРН та USD) -->
+            <!-- Объединенная карточка Остатка с динамическим курсом USD -->
             <div class="cyber-card border border-cardBorder rounded-xl p-3.5 flex flex-col justify-between">
                 <div class="flex items-center justify-between">
                     <span class="text-[11px] font-bold text-gray-400 tracking-wider uppercase">ЗАЛИШОК СКУПКИ</span>
                     <div class="flex items-center gap-1.5">
-                        <span class="text-[10px] text-gray-400 bg-gray-800/80 px-1.5 py-0.5 rounded border border-gray-700" id="usdRateBadge">Курс: --</span>
+                        <span class="text-[10px] text-brand font-medium bg-brand/10 px-1.5 py-0.5 rounded border border-brand/20" id="usdRateBadge">Курс: Live...</span>
                         <div class="w-7 h-7 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 text-xs">
                             <i class="fa-solid fa-wallet"></i>
                         </div>
@@ -333,12 +333,27 @@
         let currentPeriod = '1d';
         let countdown = 60;
         let isAuthenticated = false;
+        let liveUsdRate = 41.5; // fallback курс
 
-        onAuthStateChanged(auth, (user) => {
+        // Загрузка реального курса USD/UAH
+        async function fetchLiveUsdRate() {
+            try {
+                const res = await fetch("https://open.er-api.com/v6/latest/USD");
+                const data = await res.json();
+                if (data && data.rates && data.rates.UAH) {
+                    liveUsdRate = data.rates.UAH;
+                }
+            } catch (err) {
+                console.warn("Не удалось загрузить живой курс USD, используем резервный:", err);
+            }
+        }
+
+        onAuthStateChanged(auth, async (user) => {
             if (user) {
                 isAuthenticated = true;
                 document.getElementById('authOverlay').classList.add('hidden');
                 document.getElementById('mainDashboard').classList.remove('hidden');
+                await fetchLiveUsdRate();
                 loadData();
             } else {
                 isAuthenticated = false;
@@ -388,9 +403,11 @@
             signOut(auth);
         };
 
-        window.loadData = () => {
+        window.loadData = async () => {
             const refreshIcon = document.getElementById('refreshIcon');
             if (refreshIcon) refreshIcon.classList.add('fa-spin');
+
+            await fetchLiveUsdRate();
 
             const oldScript = document.getElementById('jsonp-script');
             if (oldScript) oldScript.remove();
@@ -507,10 +524,11 @@
             const totalUah = summaryData.totalSumUah !== undefined ? summaryData.totalSumUah : calcTotalSumUah;
             document.getElementById('kpiTotalSumUah').innerText = `${totalUah.toLocaleString('uk-UA')} ₴`;
 
-            const usdRate = summaryData.usdRate || 45;
-            document.getElementById('usdRateBadge').innerText = `Курс: ${usdRate}`;
+            // Вывод актуального live-курса и пересчет суммы в USD
+            const displayRate = liveUsdRate ? liveUsdRate.toFixed(2) : '41.50';
+            document.getElementById('usdRateBadge').innerText = `Курс: ${displayRate}`;
 
-            const totalUsd = summaryData.totalSumUsd !== undefined ? summaryData.totalSumUsd : Math.round(totalUah / usdRate);
+            const totalUsd = Math.round(totalUah / liveUsdRate);
             document.getElementById('kpiTotalSumUsd').innerText = `$${totalUsd.toLocaleString('en-US')}`;
         }
 
