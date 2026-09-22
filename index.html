@@ -102,19 +102,58 @@
 </head>
 <body class="min-h-screen flex">
 
+    <!-- FIREBASE AUTH OVERLAY -->
+    <div id="authOverlay" class="fixed inset-0 z-50 bg-[#070a12] flex items-center justify-center p-4">
+        <div class="bg-[#0e1320] border border-[#1a2336] rounded-2xl p-8 max-w-sm w-full text-center shadow-2xl relative overflow-hidden">
+            <div class="flex flex-col items-center mb-6">
+                <div class="flex items-baseline">
+                    <span class="text-3xl font-black tracking-tight text-white uppercase">POINT</span>
+                    <span class="text-3xl font-black text-[#FF7A00] ml-0.5">.</span>
+                </div>
+                <span class="text-[11px] font-bold tracking-[0.25em] text-[#FF7A00] uppercase mt-0.5">FULFILLMENT</span>
+            </div>
+
+            <h3 class="text-lg font-bold mb-1">Авторизація Складу</h3>
+            <p class="text-xs text-gray-400 mb-6">Введіть Email та пароль для доступу до дашборду</p>
+
+            <form onsubmit="handleLogin(event)" class="space-y-4">
+                <div class="text-left">
+                    <label class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block mb-1">Email</label>
+                    <input type="email" id="emailInput" required placeholder="user@point.com" class="w-full bg-gray-900/90 border border-cardBorder rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brand transition">
+                </div>
+                <div class="text-left">
+                    <label class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block mb-1">Пароль</label>
+                    <div class="relative">
+                        <input type="password" id="passInput" required placeholder="••••••••" class="w-full bg-gray-900/90 border border-cardBorder rounded-xl pl-4 pr-10 py-2.5 text-sm text-white focus:outline-none focus:border-brand transition">
+                        <button type="button" onclick="togglePasswordVisibility()" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition">
+                            <i id="passIcon" class="fa-solid fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="authError" class="text-xs text-red-400 hidden font-medium">Помилка входу: перевірте дані</div>
+
+                <button type="submit" id="btnLogin" class="w-full bg-brand hover:bg-[#E06B00] text-white font-bold py-3 rounded-xl shadow-lg shadow-brand/20 transition flex items-center justify-center gap-2">
+                    <span id="btnText">Увійти в дашборд</span>
+                    <i class="fa-solid fa-arrow-right text-xs"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
     <!-- Toast Notification -->
     <div id="toast" class="fixed bottom-5 right-5 z-50 bg-emerald-600 text-white px-4 py-2.5 rounded-xl shadow-2xl flex items-center gap-2 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
         <i class="fa-solid fa-circle-check"></i>
-        <span id="toastMsg" class="text-sm font-medium">Запит успішно надіслано!</span>
+        <span id="toastMsg" class="text-sm font-medium">Текст скопійовано!</span>
     </div>
 
-    <!-- MODAL ORDER FORM (МОДАЛЬНЕ ВІКНО ЗАКУПІВЛІ) -->
+    <!-- MODAL ORDER FORM (МОДАЛЬНЕ ОКНО ЗАКУПІВЛІ) -->
     <div id="orderModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
         <div class="bg-cardBg border border-cardBorder rounded-2xl p-6 max-w-md w-full shadow-2xl relative overflow-hidden">
             <div class="flex items-center justify-between mb-4 pb-3 border-b border-cardBorder">
                 <div class="flex items-center gap-2">
                     <i class="fa-solid fa-cart-plus text-brand text-lg"></i>
-                    <h3 class="text-lg font-bold text-white">Зробити закупівлю</h3>
+                    <h3 class="text-lg font-bold text-white">Оформлення закупівлі</h3>
                 </div>
                 <button onclick="closeOrderModal()" class="text-gray-400 hover:text-white transition">
                     <i class="fa-solid fa-xmark text-lg"></i>
@@ -123,32 +162,34 @@
 
             <form onsubmit="submitPurchaseOrder(event)" class="space-y-4">
                 <div>
-                    <label class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block mb-1">Оберіть товар зі складу *</label>
-                    <select id="modalProductSelect" required onchange="handleModalSelectProduct(this)" class="w-full bg-gray-900 border border-cardBorder rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brand transition">
-                        <option value="">-- Виберіть товар --</option>
-                    </select>
+                    <label class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block mb-1">Товар (ID)</label>
+                    <input type="text" id="modalProductId" readonly class="w-full bg-gray-900 border border-cardBorder rounded-xl px-4 py-2 text-sm text-brand font-bold focus:outline-none cursor-not-allowed">
                 </div>
 
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block mb-1">Кількість (шт) *</label>
-                        <input type="number" id="modalQty" min="1" required placeholder="50" class="w-full bg-gray-900/90 border border-cardBorder rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brand transition">
-                    </div>
-                    <div>
-                        <label class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block mb-1">Постачальник</label>
-                        <input type="text" id="modalSupplier" placeholder="Назва постачальника" class="w-full bg-gray-900/90 border border-cardBorder rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brand transition">
-                    </div>
+                <div>
+                    <label class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block mb-1">Назва товару</label>
+                    <input type="text" id="modalProductName" readonly class="w-full bg-gray-900 border border-cardBorder rounded-xl px-4 py-2 text-sm text-gray-300 focus:outline-none cursor-not-allowed">
+                </div>
+
+                <div>
+                    <label class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block mb-1">Кількість одиниць *</label>
+                    <input type="number" id="modalQty" min="1" required placeholder="Наприклад: 50" class="w-full bg-gray-900/90 border border-cardBorder rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brand transition">
                 </div>
 
                 <div>
                     <label class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block mb-1">Номер ЕН (ТТН)</label>
-                    <input type="text" id="modalTtn" placeholder="20450000000000" class="w-full bg-gray-900/90 border border-cardBorder rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brand transition">
+                    <input type="text" id="modalTtn" placeholder="Необов'язково" class="w-full bg-gray-900/90 border border-cardBorder rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brand transition">
                 </div>
 
-                <div class="flex items-center justify-end gap-3 pt-3 border-t border-cardBorder/60">
+                <div>
+                    <label class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block mb-1">Постачальник</label>
+                    <input type="text" id="modalSupplier" placeholder="Прізвище постачальника" class="w-full bg-gray-900/90 border border-cardBorder rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brand transition">
+                </div>
+
+                <div class="flex items-center justify-end gap-3 pt-3">
                     <button type="button" onclick="closeOrderModal()" class="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-xl text-xs font-semibold transition">Скасувати</button>
-                    <button type="submit" id="btnSubmitPurchase" class="px-5 py-2.5 bg-brand hover:bg-[#E06B00] text-white rounded-xl text-xs font-bold transition flex items-center gap-2 shadow-lg shadow-brand/20">
-                        <span id="btnSubmitText">Оформити замовлення</span>
+                    <button type="submit" id="btnSubmitPurchase" class="px-5 py-2 bg-brand hover:bg-[#E06B00] text-white rounded-xl text-xs font-bold transition flex items-center gap-2 shadow-lg shadow-brand/20">
+                        <span id="btnSubmitText">Створити замовлення</span>
                         <i class="fa-solid fa-paper-plane text-xs"></i>
                     </button>
                 </div>
@@ -195,12 +236,16 @@
         </div>
 
         <div class="text-[10px] text-gray-500 text-center flex flex-col items-center gap-2">
+            <button onclick="handleLogout()" class="text-gray-400 hover:text-red-400 transition text-[11px] flex items-center justify-center gap-1" title="Вийти">
+                <i class="fa-solid fa-right-from-bracket"></i>
+                <span>Вийти</span>
+            </button>
             <span class="text-[9px] text-gray-600">© 2026</span>
         </div>
     </aside>
 
     <!-- Main Content -->
-    <main class="flex-1 p-4 md:p-8 overflow-y-auto" id="mainDashboard">
+    <main class="flex-1 p-4 md:p-8 overflow-y-auto hidden" id="mainDashboard">
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
             <div>
                 <div class="md:hidden flex items-baseline mb-2 justify-between">
@@ -209,6 +254,7 @@
                         <span class="text-2xl font-black text-brand ml-0.5">.</span>
                         <span class="text-[9px] font-bold tracking-[0.2em] text-brand uppercase ml-2">FULFILLMENT</span>
                     </div>
+                    <button onclick="handleLogout()" class="text-gray-400 hover:text-red-400 text-xs">Вихід</button>
                 </div>
 
                 <div class="flex items-center gap-3">
@@ -224,7 +270,7 @@
                 <div class="flex flex-col items-end">
                     <div class="flex items-center gap-2 bg-cardBg px-3.5 py-1.5 rounded-xl border border-cardBorder text-xs text-gray-400">
                         <span class="w-2 h-2 rounded-full bg-emerald-500 live-dot"></span>
-                        <span>Автооновлення: <strong id="timerText" class="text-white">20s</strong></span>
+                        <span>Автооновлення: <strong id="timerText" class="text-white">60s</strong></span>
                     </div>
                     <span id="lastUpdatedText" class="text-[10px] text-gray-500 mt-1 pr-1 font-mono">Оновлено: --:--:--</span>
                 </div>
@@ -255,7 +301,7 @@
                     <div class="flex items-center justify-between">
                         <span class="text-[11px] font-bold text-gray-400 tracking-wider uppercase">ЗАЛИШОК СКУПКИ</span>
                         <div class="flex items-center gap-2">
-                            <span class="text-[10px] text-brand font-medium bg-brand/10 px-2 py-0.5 rounded border border-brand/20" id="usdRateBadge">Курс: 45.00</span>
+                            <span class="text-[10px] text-brand font-medium bg-brand/10 px-2 py-0.5 rounded border border-brand/20" id="usdRateBadge">Курс: Live...</span>
                             <div class="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 text-sm">
                                 <i class="fa-solid fa-wallet"></i>
                             </div>
@@ -267,6 +313,22 @@
                     <div class="flex items-center justify-between pt-2 border-t border-cardBorder/40">
                         <span class="text-[11px] text-gray-400">Оцінка в валюті:</span>
                         <span class="text-base font-black text-gradient-orange" id="kpiTotalSumUsd">$0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Блок выбора периода -->
+            <div class="cyber-card border border-cardBorder rounded-xl p-3.5 mb-6 flex flex-col md:flex-row md:items-center justify-between gap-3">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-truck-fast text-brand"></i>
+                    <span class="text-xs font-bold uppercase tracking-wider text-gray-300">Аналіз відправок за період:</span>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-2">
+                    <div class="flex items-center gap-1.5 bg-gray-900 p-1 rounded-xl border border-cardBorder">
+                        <button onclick="setPeriod('1d')" id="period-1d" class="period-btn period-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent bg-brand text-white shadow-lg shadow-brand/20">24г (доба)</button>
+                        <button onclick="setPeriod('7d')" id="period-7d" class="period-btn period-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400">7 днів</button>
+                        <button onclick="setPeriod('30d')" id="period-30d" class="period-btn period-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400">30 днів</button>
                     </div>
                 </div>
             </div>
@@ -301,152 +363,296 @@
                 <div id="productsContainer" class="divide-y divide-cardBorder/60">
                     <div class="text-center py-12 text-gray-500">
                         <i class="fa-solid fa-spinner fa-spin text-2xl mb-2 text-brand"></i>
-                        <p>Завантаження даних...</p>
+                        <p>Завантаження данных...</p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- VIEW 2: ЗАКУПІВЛЯ (ДВЕ КАРТОЧКИ И КНОПКА ЗАКАЗА) -->
-        <div id="viewPurchases" class="hidden space-y-6">
-            
-            <!-- ВЕРХНЯЯ ПАНЕЛЬ С КНОПКОЙ -->
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-cardBg p-6 rounded-2xl border border-cardBorder">
-                <div>
-                    <h3 class="text-lg font-bold text-white">Управління закупівлями</h3>
-                    <p class="text-xs text-gray-400 mt-1">Оформлюйте нові замовлення постачальникам та відстежуйте стан поставок.</p>
+        <!-- VIEW 2: ЗАКУПІВЛЯ (УПРАВЛЕНИЕ ЗАКАЗАМИ) -->
+        <div id="viewPurchases" class="hidden">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4 mb-6">
+                <p class="text-sm text-gray-400">Виберіть товар зі списку, щоб оформити нову заявку на закупівлю.</p>
+                <div class="relative w-full md:w-80">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm pointer-events-none"></i>
+                    <input type="text" id="searchPurchaseInput" oninput="renderPurchaseProducts()" placeholder="Пошук товару для закупівлі..." class="w-full bg-cardBg border border-cardBorder rounded-xl pl-10 pr-9 py-2 text-sm text-gray-200 focus:outline-none focus:border-brand transition">
                 </div>
-                <button onclick="openOrderModal()" class="flex items-center gap-2 px-6 py-3 rounded-xl bg-brand hover:bg-[#E06B00] text-white font-bold text-xs uppercase tracking-wider transition-all shadow-lg shadow-brand/20">
-                    <i class="fa-solid fa-plus text-sm"></i>
-                    <span>Зробити закупівлю</span>
-                </button>
             </div>
 
-            <!-- ДВЕ БОЛЬШИЕ КАРТОЧКИ -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
-                <!-- КАРТОЧКА 1: ОЧІКУВАНІ ПОСТАВКИ -->
-                <div class="bg-cardBg rounded-2xl border border-cardBorder p-5 flex flex-col h-[520px]">
-                    <div class="flex items-center justify-between pb-4 border-b border-cardBorder mb-4">
-                        <div class="flex items-center gap-2.5">
-                            <div class="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
-                                <i class="fa-solid fa-truck-fast text-xs"></i>
-                            </div>
-                            <h3 class="font-bold text-white text-sm">Очікувані поставки</h3>
-                        </div>
-                        <span id="pendingCountBadge" class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">0 замовлень</span>
-                    </div>
-
-                    <div id="pendingContainer" class="flex-1 overflow-y-auto pr-1 space-y-3">
-                        <!-- Динамический список ожидаемых заказов -->
-                    </div>
+            <!-- Таблица каталога для закупки -->
+            <div class="bg-cardBg border border-cardBorder rounded-2xl overflow-hidden shadow-xl mb-8">
+                <div class="bg-gray-900/90 p-4 border-b border-cardBorder text-xs font-bold text-brand tracking-wider uppercase flex items-center justify-between">
+                    <span><i class="fa-solid fa-boxes-stacked mr-2"></i>Каталог товарів для замовлення</span>
+                </div>
+                <div class="grid grid-cols-12 bg-gray-900/50 p-3 border-b border-cardBorder text-[11px] font-bold text-gray-400 uppercase select-none">
+                    <div class="col-span-2 md:col-span-1">ID</div>
+                    <div class="col-span-5 md:col-span-5">НАЗВА ТОВАРУ</div>
+                    <div class="col-span-2 md:col-span-2 text-center">ПОТОЧНИЙ ЗАЛИШОК</div>
+                    <div class="col-span-3 md:col-span-4 text-right">ДЕЙСТВИЕ</div>
                 </div>
 
-                <!-- КАРТОЧКА 2: ІСТОРІЯ ЗАКУПІВЕЛЬ -->
-                <div class="bg-cardBg rounded-2xl border border-cardBorder p-5 flex flex-col h-[520px]">
-                    <div class="flex items-center justify-between pb-4 border-b border-cardBorder mb-4">
-                        <div class="flex items-center gap-2.5">
-                            <div class="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
-                                <i class="fa-solid fa-clock-rotate-left text-xs"></i>
-                            </div>
-                            <h3 class="font-bold text-white text-sm">Історія закупівель</h3>
-                        </div>
-                        <span id="historyCountBadge" class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-gray-800 text-gray-400 border border-gray-700">0 записів</span>
-                    </div>
+                <div id="purchaseProductsContainer" class="divide-y divide-cardBorder/60 max-h-96 overflow-y-auto">
+                    <!-- Заполняется динамически -->
+                </div>
+            </div>
 
-                    <div id="historyContainer" class="flex-1 overflow-y-auto pr-1 space-y-3">
-                        <!-- Динамический список истории -->
-                    </div>
+            <!-- Таблица уже сделанных закупівлей (История из листа ЗАКУПІВЛІ) -->
+            <div class="bg-cardBg border border-cardBorder rounded-2xl overflow-hidden shadow-xl">
+                <div class="bg-gray-900/90 p-4 border-b border-cardBorder text-xs font-bold text-gray-300 tracking-wider uppercase flex items-center justify-between">
+                    <span><i class="fa-solid fa-clock-rotate-left mr-2 text-brand"></i>Останні оформлені закупівлі</span>
+                    <span id="purchasesCountBadge" class="text-[10px] bg-brand/20 text-brand px-2 py-0.5 rounded-full">0 замовлень</span>
+                </div>
+                <div class="grid grid-cols-12 bg-gray-900/50 p-3 border-b border-cardBorder text-[11px] font-bold text-gray-400 uppercase select-none">
+                    <div class="col-span-2 md:col-span-2">ДАТА</div>
+                    <div class="col-span-2 md:col-span-1">ID</div>
+                    <div class="col-span-3 md:col-span-4">НАЗВА ТОВАРУ</div>
+                    <div class="col-span-2 md:col-span-1 text-center">К-СТЬ</div>
+                    <div class="col-span-3 md:col-span-2 text-center">НОМЕР ЕН (ТТН)</div>
+                    <div class="hidden md:block md:col-span-2 text-right">ПОСТАЧАЛЬНИК</div>
                 </div>
 
+                <div id="purchasesHistoryContainer" class="divide-y divide-cardBorder/60 max-h-96 overflow-y-auto">
+                    <!-- Заполняется динамически -->
+                </div>
             </div>
         </div>
     </main>
 
-    <!-- JS LOGIC -->
-    <script>
-        const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxHxTydxr0bCSPtjuuwq72QA6eUVgsmApc4Jjwy3qsJA5E8RBM90F2qspizWg6I7_nu/exec";
+    <!-- FIREBASE SDKs & LOGIC -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, setPersistence, browserSessionPersistence, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-        let appData = {
-            products: [],
-            shipments: [],
-            purchases: []
+        const firebaseConfig = {
+            apiKey: "AIzaSyBemQDr2DYyNF3Bmac996j_YjjgANJRR5s",
+            authDomain: "warehouse-dashboard-6b23a.firebaseapp.com",
+            projectId: "warehouse-dashboard-6b23a",
+            storageBucket: "warehouse-dashboard-6b23a.firebasestorage.app",
+            messagingSenderId: "275907622369",
+            appId: "1:275907622369:web:2f6980be29bc9e3bcacea0",
+            measurementId: "G-8QJWLGNH5Y"
         };
 
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        const API_URL = "https://script.google.com/macros/s/AKfycbxHxTydxr0bCSPtjuuwq72QA6eUVgsmApc4Jjwy3qsJA5E8RBM90F2qspizWg6I7_nu/exec";
+        
+        let allProducts = [];
+        let allShipments = [];
+        let allPurchases = [];
         let currentFilter = 'all';
+        let currentPeriod = '1d';
+        let countdown = 60;
+        let isAuthenticated = false;
+        let liveUsdRate = 41.5;
         let currentTab = 'stock';
 
-        function showToast(msg) {
-            const toast = document.getElementById('toast');
-            document.getElementById('toastMsg').innerText = msg;
-            toast.classList.remove('translate-y-20', 'opacity-0');
-            setTimeout(() => {
-                toast.classList.add('translate-y-20', 'opacity-0');
-            }, 3000);
+        async function fetchLiveUsdRate() {
+            try {
+                const res = await fetch("https://open.er-api.com/v6/latest/USD");
+                const data = await res.json();
+                if (data && data.rates && data.rates.UAH) {
+                    liveUsdRate = data.rates.UAH;
+                }
+            } catch (err) {
+                console.warn("Не вдалося завантажити живий курс USD:", err);
+            }
         }
 
-        // Загрузка данных через JSONP
-        function fetchData() {
-            const icon = document.getElementById('refreshIcon');
-            if (icon) icon.classList.add('fa-spin');
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                isAuthenticated = true;
+                document.getElementById('authOverlay').classList.add('hidden');
+                document.getElementById('mainDashboard').classList.remove('hidden');
+                await fetchLiveUsdRate();
+                loadData();
+            } else {
+                isAuthenticated = false;
+                document.getElementById('authOverlay').classList.remove('hidden');
+                document.getElementById('mainDashboard').classList.add('hidden');
+            }
+        });
 
-            const script = document.createElement('script');
-            const callbackName = 'handleApiResponse_' + Math.round(Math.random() * 100000);
+        window.togglePasswordVisibility = () => {
+            const passInput = document.getElementById('passInput');
+            const passIcon = document.getElementById('passIcon');
+            if (passInput.type === 'password') {
+                passInput.type = 'text';
+                passIcon.classList.remove('fa-eye');
+                passIcon.classList.add('fa-eye-slash');
+            } else {
+                passInput.type = 'password';
+                passIcon.classList.remove('fa-eye-slash');
+                passIcon.classList.add('fa-eye');
+            }
+        };
 
-            window[callbackName] = function(data) {
-                delete window[callbackName];
-                if (script.parentNode) script.parentNode.removeChild(script);
-                if (icon) icon.classList.remove('fa-spin');
+        window.handleLogin = async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('emailInput').value;
+            const pass = document.getElementById('passInput').value;
+            const btnText = document.getElementById('btnText');
+            const authError = document.getElementById('authError');
 
-                if (data && !data.error) {
-                    appData.products = data.products || [];
-                    appData.shipments = data.shipments || [];
-                    appData.purchases = data.purchases || [];
-                    
-                    renderAll();
-                    updateLastTime();
+            authError.classList.add('hidden');
+            btnText.innerText = "Авторизація...";
+
+            try {
+                await setPersistence(auth, browserSessionPersistence);
+                await signInWithEmailAndPassword(auth, email, pass);
+                document.getElementById('passInput').value = '';
+            } catch (err) {
+                console.error(err);
+                authError.classList.remove('hidden');
+                authError.innerText = "Неправильний Email або пароль!";
+            } finally {
+                btnText.innerText = "Увійти в дашборд";
+            }
+        };
+
+        window.handleLogout = () => {
+            signOut(auth);
+        };
+
+        window.switchTab = (tab) => {
+            currentTab = tab;
+            const navStock = document.getElementById('nav-stock');
+            const navPurchases = document.getElementById('nav-purchases');
+            const viewStock = document.getElementById('viewStock');
+            const viewPurchases = document.getElementById('viewPurchases');
+            const pageTitle = document.getElementById('pageTitle');
+
+            if (tab === 'stock') {
+                navStock.className = "w-full nav-card-active flex flex-col items-center justify-center text-center p-3 rounded-2xl group transition";
+                navPurchases.className = "w-full nav-card-inactive flex flex-col items-center justify-center text-center p-3 rounded-2xl group transition";
+                viewStock.classList.remove('hidden');
+                viewPurchases.classList.add('hidden');
+                pageTitle.innerText = "Облік товарів";
+            } else {
+                navStock.className = "w-full nav-card-inactive flex flex-col items-center justify-center text-center p-3 rounded-2xl group transition";
+                navPurchases.className = "w-full nav-card-active flex flex-col items-center justify-center text-center p-3 rounded-2xl group transition";
+                viewStock.classList.add('hidden');
+                viewPurchases.classList.remove('hidden');
+                pageTitle.innerText = "Закупівля товарів";
+                renderPurchaseProducts();
+                renderPurchasesHistory();
+            }
+        };
+
+        window.loadData = async () => {
+            const refreshIcon = document.getElementById('refreshIcon');
+            if (refreshIcon) refreshIcon.classList.add('fa-spin');
+
+            await fetchLiveUsdRate();
+
+            const oldScript = document.getElementById('jsonp-script');
+            if (oldScript) oldScript.remove();
+
+            window.handleDataResponse = (data) => {
+                if (refreshIcon) refreshIcon.classList.remove('fa-spin');
+                
+                if (data && data.error) {
+                    console.error("Помилка Apps Script:", data.error);
+                    return;
                 }
+
+                allProducts = data.products || [];
+                allShipments = data.shipments || [];
+                allPurchases = data.purchases || [];
+
+                updateKPIs();
+                renderProducts();
+                renderPurchaseProducts();
+                renderPurchasesHistory();
+                resetTimer();
+                updateLastUpdatedTime();
             };
 
-            script.src = APPS_SCRIPT_URL + (APPS_SCRIPT_URL.includes('?') ? '&' : '?') + 'callback=' + callbackName;
+            const script = document.createElement('script');
+            script.id = 'jsonp-script';
+            script.src = `${API_URL}?callback=handleDataResponse&t=${Date.now()}`;
             document.body.appendChild(script);
+        };
+
+        function resetTimer() {
+            countdown = 60;
+            document.getElementById('timerText').innerText = `${countdown}s`;
         }
 
-        function manualRefresh() {
-            fetchData();
+        function updateLastUpdatedTime() {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('uk-UA', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            document.getElementById('lastUpdatedText').innerText = `Оновлено о ${timeStr}`;
         }
 
-        function renderAll() {
-            renderKPI();
-            renderProducts();
-            renderPurchasesCards();
-            populateModalProductSelect();
-        }
+        window.manualRefresh = () => {
+            window.loadData();
+        };
 
-        function renderKPI() {
-            let totalQty = 0;
-            let totalSum = 0;
+        setInterval(() => {
+            if (isAuthenticated) {
+                countdown--;
+                if (countdown <= 0) {
+                    window.loadData();
+                } else {
+                    document.getElementById('timerText').innerText = `${countdown}s`;
+                }
+            }
+        }, 1000);
 
-            appData.products.forEach(p => {
-                totalQty += (p.qty || 0);
-                totalSum += (p.totalSum || 0);
+        function updateKPIs() {
+            let calcTotalQty = 0;
+            let calcTotalSumUah = 0;
+
+            allProducts.forEach(p => {
+                const q = Number(p.qty) || 0;
+                const sum = Number(p.totalSum) || (p.price ? q * Number(p.price) : 0);
+                calcTotalQty += q;
+                calcTotalSumUah += sum;
             });
 
-            document.getElementById('kpiTotalQty').innerText = totalQty.toLocaleString('uk-UA');
-            document.getElementById('kpiTotalSumUah').innerText = totalSum.toLocaleString('uk-UA') + ' ₴';
-            
-            const usdVal = (totalSum / 45.00).toFixed(0);
-            document.getElementById('kpiTotalSumUsd').innerText = '$' + Number(usdVal).toLocaleString('en-US');
+            document.getElementById('kpiTotalQty').innerText = calcTotalQty.toLocaleString('uk-UA');
+            document.getElementById('kpiTotalSumUah').innerText = `${calcTotalSumUah.toLocaleString('uk-UA')} ₴`;
+
+            const displayRate = liveUsdRate ? liveUsdRate.toFixed(2) : '41.50';
+            document.getElementById('usdRateBadge').innerText = `Курс: ${displayRate}`;
+
+            const totalUsd = Math.round(calcTotalSumUah / liveUsdRate);
+            document.getElementById('kpiTotalSumUsd').innerText = `$${totalUsd.toLocaleString('en-US')}`;
         }
 
-        function renderProducts() {
-            const container = document.getElementById('productsContainer');
-            const query = (document.getElementById('searchInput').value || '').toLowerCase();
-            container.innerHTML = '';
+        window.setFilter = (filterType) => {
+            currentFilter = filterType;
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.className = 'filter-btn filter-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400 whitespace-nowrap';
+            });
+            const activeBtn = document.getElementById(`btn-${filterType}`);
+            if (activeBtn) {
+                activeBtn.className = 'filter-btn filter-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent bg-brand text-white shadow-lg shadow-brand/20 whitespace-nowrap';
+            }
+            renderProducts();
+        };
 
-            const filtered = appData.products.filter(p => {
-                const matchesQuery = p.name.toLowerCase().includes(query) || p.id.toLowerCase().includes(query);
-                if (!matchesQuery) return false;
+        window.setPeriod = (period) => {
+            currentPeriod = period;
+            document.querySelectorAll('.period-btn').forEach(btn => {
+                btn.className = 'period-btn period-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400';
+            });
+            const activeBtn = document.getElementById(`period-${period}`);
+            if (activeBtn) {
+                activeBtn.className = 'period-btn period-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent bg-brand text-white shadow-lg shadow-brand/20';
+            }
+            renderProducts();
+        };
+
+        window.renderProducts = () => {
+            const container = document.getElementById('productsContainer');
+            const searchVal = (document.getElementById('searchInput').value || '').toLowerCase().trim();
+
+            let filtered = allProducts.filter(p => {
+                const matchSearch = p.name.toLowerCase().includes(searchVal) || p.id.toLowerCase().includes(searchVal);
+                if (!matchSearch) return false;
 
                 if (currentFilter === 'empty') return p.qty === 0;
                 if (currentFilter === 'warning') return p.qty >= 1 && p.qty <= 19;
@@ -455,190 +661,168 @@
             });
 
             if (filtered.length === 0) {
-                container.innerHTML = `<div class="py-12 text-center text-gray-500 text-xs">Товари не знайдені</div>`;
+                container.innerHTML = `<div class="p-8 text-center text-gray-500">Товарів не знайдено</div>`;
                 return;
             }
 
+            let html = '';
             filtered.forEach(p => {
-                let badgeClass = "bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
-                if (p.qty === 0) badgeClass = "bg-rose-500/10 text-rose-400 border-rose-500/20";
-                else if (p.qty < 20) badgeClass = "bg-amber-500/10 text-amber-400 border-amber-500/20";
+                let badgeClass = 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
+                if (p.qty === 0) badgeClass = 'bg-red-500/10 text-red-400 border-red-500/20';
+                else if (p.qty < 20) badgeClass = 'bg-amber-500/10 text-amber-400 border-amber-500/20';
 
-                const div = document.createElement('div');
-                div.className = "grid grid-cols-12 p-4 items-center text-xs hover:bg-gray-800/40 transition";
-                div.innerHTML = `
-                    <div class="col-span-2 md:col-span-1 font-mono text-gray-400">${p.id}</div>
-                    <div class="col-span-4 md:col-span-4 font-semibold text-white truncate">${p.name}</div>
+                html += `
+                <div class="grid grid-cols-12 p-3.5 items-center hover:bg-gray-800/40 transition text-sm border-b border-cardBorder/40">
+                    <div class="col-span-2 md:col-span-1 font-mono text-xs text-gray-400">#${p.id}</div>
+                    <div class="col-span-4 md:col-span-4 font-semibold text-gray-200 truncate pr-2">${p.name}</div>
                     <div class="col-span-3 md:col-span-2 text-center">
-                        <span class="px-2.5 py-1 rounded-full border text-[11px] font-bold ${badgeClass}">
+                        <span class="inline-block px-2.5 py-0.5 rounded-full text-xs font-bold border ${badgeClass}">
                             ${p.qty} шт
                         </span>
                     </div>
-                    <div class="col-span-3 md:col-span-2 text-center text-gray-400">-</div>
-                    <div class="hidden md:block md:col-span-3 text-right font-medium text-emerald-400">${(p.totalSum || 0).toLocaleString('uk-UA')} ₴</div>
-                `;
-                container.appendChild(div);
+                    <div class="col-span-3 md:col-span-2 text-center text-xs text-gray-400">—</div>
+                    <div class="hidden md:block md:col-span-3 text-right font-bold text-gray-300">${p.totalSum.toLocaleString('uk-UA')} ₴</div>
+                </div>`;
             });
-        }
 
-        function renderPurchasesCards() {
-            const pendingContainer = document.getElementById('pendingContainer');
-            const historyContainer = document.getElementById('historyContainer');
+            container.innerHTML = html;
+        };
 
-            pendingContainer.innerHTML = '';
-            historyContainer.innerHTML = '';
+        // ТАБЛИЦА ТОВАРОВ ВО ВКЛАДКЕ ЗАКУПІВЛЯ
+        window.renderPurchaseProducts = () => {
+            const container = document.getElementById('purchaseProductsContainer');
+            if (!container) return;
 
-            const pending = appData.purchases.filter(p => !p.received);
-            const history = appData.purchases.filter(p => p.received || p.date);
+            const searchVal = (document.getElementById('searchPurchaseInput')?.value || '').toLowerCase().trim();
 
-            document.getElementById('pendingCountBadge').innerText = `${pending.length} замовлень`;
-            document.getElementById('historyCountBadge').innerText = `${history.length} записів`;
+            let filtered = allProducts.filter(p => {
+                return p.name.toLowerCase().includes(searchVal) || p.id.toLowerCase().includes(searchVal);
+            });
 
-            if (pending.length === 0) {
-                pendingContainer.innerHTML = `<div class="text-xs text-gray-500 text-center py-16">Немає очікуваних поставок</div>`;
-            } else {
-                pending.forEach(item => {
-                    pendingContainer.innerHTML += `
-                        <div class="p-4 rounded-xl bg-gray-900/80 border border-cardBorder flex items-center justify-between">
-                            <div>
-                                <span class="text-[10px] font-mono text-brand bg-brand/10 px-2 py-0.5 rounded border border-brand/20">ID: ${item.id}</span>
-                                <h4 class="text-xs font-bold text-white mt-1">${item.name}</h4>
-                                <p class="text-[11px] text-gray-400 mt-0.5">Постачальник: ${item.supplier || 'Не вказано'}</p>
-                                <p class="text-[10px] text-gray-500">ТТН: ${item.ttn || 'Немає'}</p>
-                            </div>
-                            <div class="text-right">
-                                <span class="text-xs font-extrabold text-amber-400">${item.qty} шт</span>
-                                <p class="text-[10px] text-gray-500 mt-1">${item.date || ''}</p>
-                            </div>
-                        </div>
-                    `;
-                });
+            if (filtered.length === 0) {
+                container.innerHTML = `<div class="p-6 text-center text-gray-500">Товарів не знайдено</div>`;
+                return;
             }
 
-            if (history.length === 0) {
-                historyContainer.innerHTML = `<div class="text-xs text-gray-500 text-center py-16">Історія порожня</div>`;
-            } else {
-                history.forEach(item => {
-                    historyContainer.innerHTML += `
-                        <div class="p-3.5 rounded-xl bg-gray-900/40 border border-cardBorder/60 flex items-center justify-between">
-                            <div>
-                                <h4 class="text-xs font-semibold text-gray-200">${item.name}</h4>
-                                <p class="text-[10px] text-gray-500">ТТН: ${item.ttn || '-'} • ${item.supplier || ''}</p>
-                            </div>
-                            <div class="text-right">
-                                <span class="text-xs font-bold text-gray-300">+${item.qty} шт</span>
-                                <p class="text-[10px] text-gray-500">${item.date || ''}</p>
-                            </div>
-                        </div>
-                    `;
-                });
-            }
-        }
-
-        function populateModalProductSelect() {
-            const select = document.getElementById('modalProductSelect');
-            select.innerHTML = '<option value="">-- Виберіть товар --</option>';
-            appData.products.forEach(p => {
-                select.innerHTML += `<option value="${p.id}" data-name="${p.name}">${p.id} - ${p.name} (Остаток: ${p.qty} шт)</option>`;
+            let html = '';
+            filtered.forEach(p => {
+                html += `
+                <div class="grid grid-cols-12 p-3 items-center hover:bg-gray-800/40 transition text-sm">
+                    <div class="col-span-2 md:col-span-1 font-mono text-xs text-gray-400">#${p.id}</div>
+                    <div class="col-span-5 md:col-span-5 font-semibold text-gray-200 truncate pr-2">${p.name}</div>
+                    <div class="col-span-2 md:col-span-2 text-center text-xs text-gray-400 font-bold">${p.qty} шт</div>
+                    <div class="col-span-3 md:col-span-4 text-right">
+                        <button onclick="openOrderModal('${p.id}', '${p.name.replace(/'/g, "\\'")}')" class="bg-brand/10 hover:bg-brand text-brand hover:text-white border border-brand/30 px-3 py-1 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ml-auto">
+                            <i class="fa-solid fa-plus text-[10px]"></i>
+                            <span>Замовити</span>
+                        </button>
+                    </div>
+                </div>`;
             });
-        }
 
-        function setFilter(filter) {
-            currentFilter = filter;
-            ['all', 'empty', 'warning', 'good'].forEach(f => {
-                const btn = document.getElementById(`btn-${f}`);
-                if (f === filter) {
-                    btn.className = "filter-btn filter-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent bg-brand text-white shadow-lg shadow-brand/20 whitespace-nowrap";
-                } else {
-                    btn.className = "filter-btn filter-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400 whitespace-nowrap";
-                }
-            });
-            renderProducts();
-        }
+            container.innerHTML = html;
+        };
 
-        function switchTab(tab) {
-            currentTab = tab;
-            document.getElementById('viewStock').classList.add('hidden');
-            document.getElementById('viewPurchases').classList.add('hidden');
+        // ТАБЛИЦА ИСТОРИИ ЗАКУПОК
+        window.renderPurchasesHistory = () => {
+            const container = document.getElementById('purchasesHistoryContainer');
+            const badge = document.getElementById('purchasesCountBadge');
+            if (!container) return;
 
-            document.getElementById('nav-stock').className = "w-full nav-card-inactive flex flex-col items-center justify-center text-center p-3 rounded-2xl group transition";
-            document.getElementById('nav-purchases').className = "w-full nav-card-inactive flex flex-col items-center justify-center text-center p-3 rounded-2xl group transition";
+            if (badge) badge.innerText = `${allPurchases.length} замовлень`;
 
-            if (tab === 'stock') {
-                document.getElementById('viewStock').classList.remove('hidden');
-                document.getElementById('nav-stock').className = "w-full nav-card-active flex flex-col items-center justify-center text-center p-3 rounded-2xl group transition";
-                document.getElementById('pageTitle').innerText = "Облік товарів";
-            } else {
-                document.getElementById('viewPurchases').classList.remove('hidden');
-                document.getElementById('nav-purchases').className = "w-full nav-card-active flex flex-col items-center justify-center text-center p-3 rounded-2xl group transition";
-                document.getElementById('pageTitle').innerText = "Закупівля товарів";
+            if (allPurchases.length === 0) {
+                container.innerHTML = `<div class="p-6 text-center text-gray-500">Закупівель ще немає</div>`;
+                return;
             }
-        }
 
-        function openOrderModal() {
+            let html = '';
+            // Показываем последние заказы сверху
+            [...allPurchases].reverse().forEach(pur => {
+                html += `
+                <div class="grid grid-cols-12 p-3 items-center hover:bg-gray-800/40 transition text-sm">
+                    <div class="col-span-2 md:col-span-2 text-xs text-gray-400">${pur.date || '—'}</div>
+                    <div class="col-span-2 md:col-span-1 font-mono text-xs text-gray-400">#${pur.id}</div>
+                    <div class="col-span-3 md:col-span-4 font-semibold text-gray-200 truncate pr-2">${pur.name}</div>
+                    <div class="col-span-2 md:col-span-1 text-center font-bold text-brand">${pur.qty} шт</div>
+                    <div class="col-span-3 md:col-span-2 text-center font-mono text-xs text-gray-300">${pur.ttn || '—'}</div>
+                    <div class="hidden md:block md:col-span-2 text-right text-xs text-gray-400 truncate">${pur.supplier || '—'}</div>
+                </div>`;
+            });
+
+            container.innerHTML = html;
+        };
+
+        // МОДАЛЬНОЕ ОКНО
+        window.openOrderModal = (id, name) => {
+            document.getElementById('modalProductId').value = id;
+            document.getElementById('modalProductName').value = name;
+            document.getElementById('modalQty').value = '';
+            document.getElementById('modalTtn').value = '';
+            document.getElementById('modalSupplier').value = '';
             document.getElementById('orderModal').classList.remove('hidden');
-        }
+        };
 
-        function closeOrderModal() {
+        window.closeOrderModal = () => {
             document.getElementById('orderModal').classList.add('hidden');
-        }
+        };
 
-        async function submitPurchaseOrder(e) {
+        window.submitPurchaseOrder = async (e) => {
             e.preventDefault();
 
-            const select = document.getElementById('modalProductSelect');
-            const selectedOpt = select.options[select.selectedIndex];
-            const pId = select.value;
-            const pName = selectedOpt ? selectedOpt.getAttribute('data-name') : "";
+            const id = document.getElementById('modalProductId').value;
+            const qty = document.getElementById('modalQty').value;
+            const ttn = document.getElementById('modalTtn').value;
+            const supplier = document.getElementById('modalSupplier').value;
 
-            const btn = document.getElementById('btnSubmitPurchase');
-            document.getElementById('btnSubmitText').innerText = "Запис...";
-            btn.disabled = true;
+            const btnSubmitText = document.getElementById('btnSubmitText');
+            const btnSubmit = document.getElementById('btnSubmitPurchase');
 
-            const payload = {
-                id: pId,
-                name: pName,
-                qty: Number(document.getElementById('modalQty').value) || 0,
-                supplier: document.getElementById('modalSupplier').value || "",
-                ttn: document.getElementById('modalTtn').value || ""
-            };
+            btnSubmitText.innerText = "Надсилання...";
+            btnSubmit.disabled = true;
 
             try {
-                await fetch(APPS_SCRIPT_URL, {
+                const payload = {
+                    id: id,
+                    qty: qty,
+                    ttn: ttn,
+                    supplier: supplier
+                };
+
+                await fetch(API_URL, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
 
+                showToast("Замовлення успішно створено!");
                 closeOrderModal();
-                showToast("Заявка на закупівлю збережена!");
-                fetchData();
+                
+                // Перезагружаем данные через 1 секунду
+                setTimeout(() => {
+                    loadData();
+                }, 1000);
+
             } catch (err) {
-                alert("Помилка при збереженні: " + err.message);
+                console.error("Помилка відправки:", err);
+                alert("Не вдалося відправити замовлення. Перевірте з'єднання.");
             } finally {
-                btn.disabled = false;
-                document.getElementById('btnSubmitText').innerText = "Оформити замовлення";
+                btnSubmitText.innerText = "Створити замовлення";
+                btnSubmit.disabled = false;
             }
+        };
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMsg').innerText = msg;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
         }
-
-        function updateLastTime() {
-            const now = new Date();
-            document.getElementById('lastUpdatedText').innerText = 'Оновлено: ' + now.toLocaleTimeString('uk-UA');
-        }
-
-        // Таймер автообновления
-        let secondsLeft = 20;
-        setInterval(() => {
-            secondsLeft--;
-            if (secondsLeft <= 0) {
-                secondsLeft = 20;
-                fetchData();
-            }
-            document.getElementById('timerText').innerText = secondsLeft + 's';
-        }, 1000);
-
-        // Старт
-        fetchData();
     </script>
 </body>
 </html>
