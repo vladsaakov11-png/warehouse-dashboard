@@ -51,9 +51,7 @@
             transform: translateY(-2px); 
         }
 
-        .period-btn-hover, .filter-btn-hover {
-            transition: all 0.25s ease;
-        }
+        .period-btn-hover, .filter-btn-hover { transition: all 0.25s ease; }
         .period-btn-hover:hover, .filter-btn-hover:hover {
             border-color: rgba(255, 122, 0, 0.6) !important;
             box-shadow: 0 0 12px rgba(255, 122, 0, 0.4);
@@ -65,38 +63,18 @@
             background: linear-gradient(135deg, rgba(255, 122, 0, 0.12) 0%, rgba(14, 19, 32, 0.95) 100%);
             border: 1px solid rgba(255, 122, 0, 0.35);
             box-shadow: 0 0 15px rgba(255, 122, 0, 0.12), inset 0 0 10px rgba(255, 122, 0, 0.05);
-            position: relative;
-            overflow: hidden;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
+        .nav-card-inactive { background: rgba(14, 19, 32, 0.5); border: 1px solid transparent; }
+        .nav-card-inactive:hover { background: rgba(26, 35, 54, 0.8); border-color: rgba(255, 122, 0, 0.3); }
 
-        .nav-card-inactive {
-            background: rgba(14, 19, 32, 0.5);
-            border: 1px solid transparent;
-            transition: all 0.3s ease;
-        }
-        .nav-card-inactive:hover {
-            background: rgba(26, 35, 54, 0.8);
-            border-color: rgba(255, 122, 0, 0.3);
-            transform: translateY(-1px);
-        }
-
-        @keyframes boxFloat {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-3px); }
-        }
-
+        @keyframes boxFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
         .box-top { animation: boxFloat 2.5s ease-in-out infinite; transform-origin: center; }
 
         .text-gradient-orange { background: linear-gradient(135deg, #FF9E43 0%, #FF7A00 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .text-gradient-white { background: linear-gradient(135deg, #FFFFFF 0%, #9CA3AF 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .text-gradient-emerald { background: linear-gradient(135deg, #A7F3D0 0%, #10B981 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 
-        @keyframes pulse-ring {
-            0% { transform: scale(0.95); opacity: 0.8; }
-            50% { transform: scale(1.1); opacity: 0.4; }
-            100% { transform: scale(0.95); opacity: 0.8; }
-        }
+        @keyframes pulse-ring { 0% { transform: scale(0.95); opacity: 0.8; } 50% { transform: scale(1.1); opacity: 0.4; } 100% { transform: scale(0.95); opacity: 0.8; } }
         .live-dot { animation: pulse-ring 2s infinite ease-in-out; }
     </style>
 </head>
@@ -114,7 +92,7 @@
             </div>
 
             <h3 class="text-lg font-bold mb-1">Авторизація Складу</h3>
-            <p class="text-xs text-gray-400 mb-6">Введіть Email та пароль для доступу до дашборду</p>
+            <p class="text-xs text-gray-400 mb-6">Введіть Email та пароль для доступу</p>
 
             <form onsubmit="handleLogin(event)" class="space-y-4">
                 <div class="text-left">
@@ -144,10 +122,10 @@
     <!-- Toast Notification -->
     <div id="toast" class="fixed bottom-5 right-5 z-50 bg-emerald-600 text-white px-4 py-2.5 rounded-xl shadow-2xl flex items-center gap-2 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
         <i class="fa-solid fa-circle-check"></i>
-        <span id="toastMsg" class="text-sm font-medium">Текст скопійовано!</span>
+        <span id="toastMsg" class="text-sm font-medium">Повідомлення</span>
     </div>
 
-    <!-- MODAL ORDER FORM (МОДАЛЬНЕ ОКНО ЗАКУПІВЛІ) -->
+    <!-- MODAL ORDER FORM -->
     <div id="orderModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
         <div class="bg-cardBg border border-cardBorder rounded-2xl p-6 max-w-md w-full shadow-2xl relative overflow-hidden">
             <div class="flex items-center justify-between mb-4 pb-3 border-b border-cardBorder">
@@ -209,7 +187,6 @@
             </div>
 
             <nav class="space-y-2">
-                <!-- Кнопка ОБЛІК -->
                 <button onclick="switchTab('stock')" id="nav-stock" class="w-full nav-card-active flex flex-col items-center justify-center text-center p-3 rounded-2xl group transition">
                     <div class="mb-2 relative">
                         <svg class="w-8 h-8 text-brand transition-transform duration-300 group-hover:scale-110" viewBox="0 0 24 24" fill="currentColor">
@@ -223,7 +200,6 @@
                     </span>
                 </button>
 
-                <!-- Кнопка ЗАКУПІВЛЯ -->
                 <button onclick="switchTab('purchases')" id="nav-purchases" class="w-full nav-card-inactive flex flex-col items-center justify-center text-center p-3 rounded-2xl group transition">
                     <div class="mb-2 relative">
                         <i class="fa-solid fa-cart-shopping text-2xl text-gray-400 group-hover:text-brand transition-colors duration-300"></i>
@@ -317,18 +293,31 @@
                 </div>
             </div>
 
-            <!-- Блок выбора периода -->
-            <div class="cyber-card border border-cardBorder rounded-xl p-3.5 mb-6 flex flex-col md:flex-row md:items-center justify-between gap-3">
-                <div class="flex items-center gap-2">
-                    <i class="fa-solid fa-truck-fast text-brand"></i>
-                    <span class="text-xs font-bold uppercase tracking-wider text-gray-300">Аналіз відправок за період:</span>
-                </div>
+            <!-- БЛОК АНАЛІЗУ ВІДПРАВОК З КАЛЕНДАРЕМ -->
+            <div class="cyber-card border border-cardBorder rounded-xl p-4 mb-6">
+                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-truck-fast text-brand"></i>
+                        <span class="text-xs font-bold uppercase tracking-wider text-gray-300">Аналіз відправок за період:</span>
+                    </div>
 
-                <div class="flex flex-wrap items-center gap-2">
-                    <div class="flex items-center gap-1.5 bg-gray-900 p-1 rounded-xl border border-cardBorder">
-                        <button onclick="setPeriod('1d')" id="period-1d" class="period-btn period-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent bg-brand text-white shadow-lg shadow-brand/20">24г (доба)</button>
-                        <button onclick="setPeriod('7d')" id="period-7d" class="period-btn period-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400">7 днів</button>
-                        <button onclick="setPeriod('30d')" id="period-30d" class="period-btn period-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400">30 днів</button>
+                    <!-- Панель кнопок і календар -->
+                    <div class="flex flex-wrap items-center gap-3">
+                        <div class="flex items-center gap-1 bg-gray-900 p-1 rounded-xl border border-cardBorder">
+                            <button onclick="setPeriod('1d')" id="period-1d" class="period-btn period-btn-hover px-3 py-1.5 rounded-lg text-xs font-medium border border-transparent bg-brand text-white shadow-lg shadow-brand/20">24г (доба)</button>
+                            <button onclick="setPeriod('7d')" id="period-7d" class="period-btn period-btn-hover px-3 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400">7 днів</button>
+                            <button onclick="setPeriod('30d')" id="period-30d" class="period-btn period-btn-hover px-3 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400">30 днів</button>
+                            <button onclick="setPeriod('all')" id="period-all" class="period-btn period-btn-hover px-3 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400">Весь час</button>
+                        </div>
+
+                        <!-- Выбор дат вручную -->
+                        <div class="flex items-center gap-2 bg-gray-900/80 px-3 py-1 rounded-xl border border-cardBorder text-xs">
+                            <i class="fa-regular fa-calendar text-brand"></i>
+                            <span class="text-gray-400 font-medium">З:</span>
+                            <input type="date" id="startDateInput" onchange="applyCustomDates()" class="bg-cardBg border border-cardBorder text-white text-xs rounded-lg px-2 py-1 focus:outline-none focus:border-brand">
+                            <span class="text-gray-400 font-medium">По:</span>
+                            <input type="date" id="endDateInput" onchange="applyCustomDates()" class="bg-cardBg border border-cardBorder text-white text-xs rounded-lg px-2 py-1 focus:outline-none focus:border-brand">
+                        </div>
                     </div>
                 </div>
             </div>
@@ -363,13 +352,13 @@
                 <div id="productsContainer" class="divide-y divide-cardBorder/60">
                     <div class="text-center py-12 text-gray-500">
                         <i class="fa-solid fa-spinner fa-spin text-2xl mb-2 text-brand"></i>
-                        <p>Завантаження данных...</p>
+                        <p>Завантаження даних...</p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- VIEW 2: ЗАКУПІВЛЯ (УПРАВЛЕНИЕ ЗАКАЗАМИ) -->
+        <!-- VIEW 2: ЗАКУПІВЛЯ -->
         <div id="viewPurchases" class="hidden">
             <div class="flex flex-col md:flex-row items-center justify-between gap-4 mb-6">
                 <p class="text-sm text-gray-400">Виберіть товар зі списку, щоб оформити нову заявку на закупівлю.</p>
@@ -379,7 +368,6 @@
                 </div>
             </div>
 
-            <!-- Таблица каталога для закупки -->
             <div class="bg-cardBg border border-cardBorder rounded-2xl overflow-hidden shadow-xl mb-8">
                 <div class="bg-gray-900/90 p-4 border-b border-cardBorder text-xs font-bold text-brand tracking-wider uppercase flex items-center justify-between">
                     <span><i class="fa-solid fa-boxes-stacked mr-2"></i>Каталог товарів для замовлення</span>
@@ -388,7 +376,7 @@
                     <div class="col-span-2 md:col-span-1">ID</div>
                     <div class="col-span-5 md:col-span-5">НАЗВА ТОВАРУ</div>
                     <div class="col-span-2 md:col-span-2 text-center">ПОТОЧНИЙ ЗАЛИШОК</div>
-                    <div class="col-span-3 md:col-span-4 text-right">ДЕЙСТВИЕ</div>
+                    <div class="col-span-3 md:col-span-4 text-right">ДІЯ</div>
                 </div>
 
                 <div id="purchaseProductsContainer" class="divide-y divide-cardBorder/60 max-h-96 overflow-y-auto">
@@ -396,7 +384,6 @@
                 </div>
             </div>
 
-            <!-- Таблица уже сделанных закупівлей (История из листа ЗАКУПІВЛІ) -->
             <div class="bg-cardBg border border-cardBorder rounded-2xl overflow-hidden shadow-xl">
                 <div class="bg-gray-900/90 p-4 border-b border-cardBorder text-xs font-bold text-gray-300 tracking-wider uppercase flex items-center justify-between">
                     <span><i class="fa-solid fa-clock-rotate-left mr-2 text-brand"></i>Останні оформлені закупівлі</span>
@@ -442,11 +429,14 @@
         let allShipments = [];
         let allPurchases = [];
         let currentFilter = 'all';
-        let currentPeriod = '1d';
+        let currentPeriod = '1d'; // '1d', '7d', '30d', 'all', 'custom'
+        let customStartDate = null;
+        let customEndDate = null;
         let countdown = 60;
         let isAuthenticated = false;
         let liveUsdRate = 41.5;
         let currentTab = 'stock';
+        let timerInterval = null;
 
         async function fetchLiveUsdRate() {
             try {
@@ -454,6 +444,7 @@
                 const data = await res.json();
                 if (data && data.rates && data.rates.UAH) {
                     liveUsdRate = data.rates.UAH;
+                    document.getElementById('usdRateBadge').innerText = `Курс: ${liveUsdRate.toFixed(2)} ₴`;
                 }
             } catch (err) {
                 console.warn("Не вдалося завантажити живий курс USD:", err);
@@ -467,10 +458,12 @@
                 document.getElementById('mainDashboard').classList.remove('hidden');
                 await fetchLiveUsdRate();
                 loadData();
+                startTimer();
             } else {
                 isAuthenticated = false;
                 document.getElementById('authOverlay').classList.remove('hidden');
                 document.getElementById('mainDashboard').classList.add('hidden');
+                if (timerInterval) clearInterval(timerInterval);
             }
         });
 
@@ -529,231 +522,295 @@
                 viewStock.classList.remove('hidden');
                 viewPurchases.classList.add('hidden');
                 pageTitle.innerText = "Облік товарів";
+                renderProducts();
             } else {
                 navStock.className = "w-full nav-card-inactive flex flex-col items-center justify-center text-center p-3 rounded-2xl group transition";
                 navPurchases.className = "w-full nav-card-active flex flex-col items-center justify-center text-center p-3 rounded-2xl group transition";
                 viewStock.classList.add('hidden');
                 viewPurchases.classList.remove('hidden');
-                pageTitle.innerText = "Закупівля товарів";
+                pageTitle.innerText = "Управління закупівлями";
                 renderPurchaseProducts();
                 renderPurchasesHistory();
             }
         };
 
-        window.loadData = async () => {
+        async function loadData() {
             const refreshIcon = document.getElementById('refreshIcon');
             if (refreshIcon) refreshIcon.classList.add('fa-spin');
 
-            await fetchLiveUsdRate();
-
-            const oldScript = document.getElementById('jsonp-script');
-            if (oldScript) oldScript.remove();
-
-            window.handleDataResponse = (data) => {
-                if (refreshIcon) refreshIcon.classList.remove('fa-spin');
-                
-                if (data && data.error) {
-                    console.error("Помилка Apps Script:", data.error);
-                    return;
-                }
+            try {
+                const response = await fetch(API_URL);
+                const data = await response.json();
 
                 allProducts = data.products || [];
                 allShipments = data.shipments || [];
                 allPurchases = data.purchases || [];
 
-                updateKPIs();
-                renderProducts();
-                renderPurchaseProducts();
-                renderPurchasesHistory();
-                resetTimer();
                 updateLastUpdatedTime();
-            };
-
-            const script = document.createElement('script');
-            script.id = 'jsonp-script';
-            script.src = `${API_URL}?callback=handleDataResponse&t=${Date.now()}`;
-            document.body.appendChild(script);
-        };
-
-        function resetTimer() {
-            countdown = 60;
-            document.getElementById('timerText').innerText = `${countdown}s`;
+                updateKPIs();
+                if (currentTab === 'stock') {
+                    renderProducts();
+                } else {
+                    renderPurchaseProducts();
+                    renderPurchasesHistory();
+                }
+            } catch (err) {
+                console.error("Помилка завантаження даних:", err);
+                showToast("Помилка оновлення даних!", "red");
+            } finally {
+                if (refreshIcon) refreshIcon.classList.remove('fa-spin');
+            }
         }
 
-        function updateLastUpdatedTime() {
-            const now = new Date();
-            const timeStr = now.toLocaleTimeString('uk-UA', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-            document.getElementById('lastUpdatedText').innerText = `Оновлено о ${timeStr}`;
+        function startTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+            countdown = 60;
+            timerInterval = setInterval(() => {
+                countdown--;
+                const timerElem = document.getElementById('timerText');
+                if (timerElem) timerElem.innerText = `${countdown}s`;
+                if (countdown <= 0) {
+                    countdown = 60;
+                    loadData();
+                }
+            }, 1000);
         }
 
         window.manualRefresh = () => {
-            window.loadData();
+            countdown = 60;
+            loadData();
         };
 
-        setInterval(() => {
-            if (isAuthenticated) {
-                countdown--;
-                if (countdown <= 0) {
-                    window.loadData();
-                } else {
-                    document.getElementById('timerText').innerText = `${countdown}s`;
-                }
-            }
-        }, 1000);
-
-        function updateKPIs() {
-            let calcTotalQty = 0;
-            let calcTotalSumUah = 0;
-
-            allProducts.forEach(p => {
-                const q = Number(p.qty) || 0;
-                const sum = Number(p.totalSum) || (p.price ? q * Number(p.price) : 0);
-                calcTotalQty += q;
-                calcTotalSumUah += sum;
-            });
-
-            document.getElementById('kpiTotalQty').innerText = calcTotalQty.toLocaleString('uk-UA');
-            document.getElementById('kpiTotalSumUah').innerText = `${calcTotalSumUah.toLocaleString('uk-UA')} ₴`;
-
-            const displayRate = liveUsdRate ? liveUsdRate.toFixed(2) : '41.50';
-            document.getElementById('usdRateBadge').innerText = `Курс: ${displayRate}`;
-
-            const totalUsd = Math.round(calcTotalSumUah / liveUsdRate);
-            document.getElementById('kpiTotalSumUsd').innerText = `$${totalUsd.toLocaleString('en-US')}`;
+        function updateLastUpdatedTime() {
+            const now = new Date();
+            const timeStr = now.toTimeString().split(' ')[0];
+            const elem = document.getElementById('lastUpdatedText');
+            if (elem) elem.innerText = `Оновлено: ${timeStr}`;
         }
 
-        window.setFilter = (filterType) => {
-            currentFilter = filterType;
-            document.querySelectorAll('.filter-btn').forEach(btn => {
-                btn.className = 'filter-btn filter-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400 whitespace-nowrap';
+        function updateKPIs() {
+            let totalQty = 0;
+            let totalSumUah = 0;
+
+            allProducts.forEach(p => {
+                const qty = Number(p.qty) || 0;
+                const price = Number(p.price) || 0;
+                totalQty += qty;
+                totalSumUah += qty * price;
             });
-            const activeBtn = document.getElementById(`btn-${filterType}`);
-            if (activeBtn) {
-                activeBtn.className = 'filter-btn filter-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent bg-brand text-white shadow-lg shadow-brand/20 whitespace-nowrap';
-            }
+
+            const totalSumUsd = liveUsdRate > 0 ? (totalSumUah / liveUsdRate) : 0;
+
+            document.getElementById('kpiTotalQty').innerText = totalQty.toLocaleString('uk-UA');
+            document.getElementById('kpiTotalSumUah').innerText = `${totalSumUah.toLocaleString('uk-UA')} ₴`;
+            document.getElementById('kpiTotalSumUsd').innerText = `$${Math.round(totalSumUsd).toLocaleString('en-US')}`;
+        }
+
+        // ЛОГІКА ВИБОРУ ПЕРІОДІВ
+        window.setPeriod = (period) => {
+            currentPeriod = period;
+            document.getElementById('startDateInput').value = '';
+            document.getElementById('endDateInput').value = '';
+            customStartDate = null;
+            customEndDate = null;
+
+            ['1d', '7d', '30d', 'all'].forEach(p => {
+                const btn = document.getElementById(`period-${p}`);
+                if (p === period) {
+                    btn.className = "period-btn period-btn-hover px-3 py-1.5 rounded-lg text-xs font-medium border border-transparent bg-brand text-white shadow-lg shadow-brand/20";
+                } else {
+                    btn.className = "period-btn period-btn-hover px-3 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400";
+                }
+            });
             renderProducts();
         };
 
-        window.setPeriod = (period) => {
-            currentPeriod = period;
-            document.querySelectorAll('.period-btn').forEach(btn => {
-                btn.className = 'period-btn period-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400';
-            });
-            const activeBtn = document.getElementById(`period-${period}`);
-            if (activeBtn) {
-                activeBtn.className = 'period-btn period-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent bg-brand text-white shadow-lg shadow-brand/20';
+        window.applyCustomDates = () => {
+            const startVal = document.getElementById('startDateInput').value;
+            const endVal = document.getElementById('endDateInput').value;
+
+            if (startVal || endVal) {
+                currentPeriod = 'custom';
+                customStartDate = startVal ? new Date(startVal + 'T00:00:00') : null;
+                customEndDate = endVal ? new Date(endVal + 'T23:59:59') : null;
+
+                ['1d', '7d', '30d', 'all'].forEach(p => {
+                    const btn = document.getElementById(`period-${p}`);
+                    btn.className = "period-btn period-btn-hover px-3 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400";
+                });
+
+                renderProducts();
             }
+        };
+
+        window.setFilter = (filter) => {
+            currentFilter = filter;
+            ['all', 'empty', 'warning', 'good'].forEach(f => {
+                const btn = document.getElementById(`btn-${f}`);
+                if (f === filter) {
+                    btn.className = "filter-btn filter-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent bg-brand text-white shadow-lg shadow-brand/20 whitespace-nowrap";
+                } else {
+                    btn.className = "filter-btn filter-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400 whitespace-nowrap";
+                }
+            });
             renderProducts();
         };
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        // ПІДРАХУНОК ВІДПРАВОК ДЛЯ КОЖНОГО ТОВАРУ
+        function calculateShipmentsCount(productId) {
+            const pId = String(productId).trim();
+            const now = new Date().getTime();
+            const ms1d = 24 * 60 * 60 * 1000;
+
+            let total = 0;
+
+            allShipments.forEach(s => {
+                if (String(s.id).trim() !== pId) return;
+
+                const shipDate = new Date(s.date).getTime();
+                if (isNaN(shipDate)) return;
+
+                if (currentPeriod === '1d') {
+                    if ((now - shipDate) <= ms1d) total += Number(s.qty) || 0;
+                } else if (currentPeriod === '7d') {
+                    if ((now - shipDate) <= (7 * ms1d)) total += Number(s.qty) || 0;
+                } else if (currentPeriod === '30d') {
+                    if ((now - shipDate) <= (30 * ms1d)) total += Number(s.qty) || 0;
+                } else if (currentPeriod === 'all') {
+                    total += Number(s.qty) || 0;
+                } else if (currentPeriod === 'custom') {
+                    let matchStart = true;
+                    let matchEnd = true;
+                    if (customStartDate && shipDate < customStartDate.getTime()) matchStart = false;
+                    if (customEndDate && shipDate > customEndDate.getTime()) matchEnd = false;
+
+                    if (matchStart && matchEnd) total += Number(s.qty) || 0;
+                }
+            });
+
+            return total;
+        }
 
         window.renderProducts = () => {
             const container = document.getElementById('productsContainer');
-            const searchVal = (document.getElementById('searchInput').value || '').toLowerCase().trim();
+            const searchQuery = (document.getElementById('searchInput').value || '').toLowerCase().trim();
 
             let filtered = allProducts.filter(p => {
-                const matchSearch = p.name.toLowerCase().includes(searchVal) || p.id.toLowerCase().includes(searchVal);
-                if (!matchSearch) return false;
+                const matchSearch = String(p.id).toLowerCase().includes(searchQuery) || 
+                                    String(p.name).toLowerCase().includes(searchQuery);
+                
+                const qty = Number(p.qty) || 0;
+                let matchFilter = true;
+                if (currentFilter === 'empty') matchFilter = qty === 0;
+                else if (currentFilter === 'warning') matchFilter = qty >= 1 && qty <= 19;
+                else if (currentFilter === 'good') matchFilter = qty >= 20;
 
-                if (currentFilter === 'empty') return p.qty === 0;
-                if (currentFilter === 'warning') return p.qty >= 1 && p.qty <= 19;
-                if (currentFilter === 'good') return p.qty >= 20;
-                return true;
+                return matchSearch && matchFilter;
             });
 
             if (filtered.length === 0) {
-                container.innerHTML = `<div class="p-8 text-center text-gray-500">Товарів не знайдено</div>`;
+                container.innerHTML = `
+                    <div class="text-center py-12 text-gray-500">
+                        <i class="fa-solid fa-box-open text-3xl mb-2 opacity-50"></i>
+                        <p>Товарів не знайдено</p>
+                    </div>`;
                 return;
             }
 
-            let html = '';
-            filtered.forEach(p => {
-                let badgeClass = 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
-                if (p.qty === 0) badgeClass = 'bg-red-500/10 text-red-400 border-red-500/20';
-                else if (p.qty < 20) badgeClass = 'bg-amber-500/10 text-amber-400 border-amber-500/20';
+            container.innerHTML = filtered.map(p => {
+                const qty = Number(p.qty) || 0;
+                const price = Number(p.price) || 0;
+                const totalCost = qty * price;
+                
+                const shipmentsCount = calculateShipmentsCount(p.id);
 
-                html += `
-                <div class="grid grid-cols-12 p-3.5 items-center hover:bg-gray-800/40 transition text-sm border-b border-cardBorder/40">
-                    <div class="col-span-2 md:col-span-1 font-mono text-xs text-gray-400">#${p.id}</div>
-                    <div class="col-span-4 md:col-span-4 font-semibold text-gray-200 truncate pr-2">${p.name}</div>
-                    <div class="col-span-3 md:col-span-2 text-center">
-                        <span class="inline-block px-2.5 py-0.5 rounded-full text-xs font-bold border ${badgeClass}">
-                            ${p.qty} шт
-                        </span>
-                    </div>
-                    <div class="col-span-3 md:col-span-2 text-center text-xs text-gray-400">—</div>
-                    <div class="hidden md:block md:col-span-3 text-right font-bold text-gray-300">${p.totalSum.toLocaleString('uk-UA')} ₴</div>
-                </div>`;
-            });
+                let badgeClass = "bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
+                if (qty === 0) badgeClass = "bg-red-500/10 text-red-400 border-red-500/20";
+                else if (qty < 20) badgeClass = "bg-amber-500/10 text-amber-400 border-amber-500/20";
 
-            container.innerHTML = html;
+                return `
+                    <div class="grid grid-cols-12 p-4 items-center text-sm hover:bg-gray-800/40 transition border-b border-cardBorder/40">
+                        <div class="col-span-2 md:col-span-1 font-mono font-bold text-brand">${escapeHtml(p.id)}</div>
+                        <div class="col-span-4 md:col-span-4 font-medium text-white pr-2 truncate">${escapeHtml(p.name)}</div>
+                        <div class="col-span-3 md:col-span-2 text-center">
+                            <span class="inline-block px-2.5 py-1 rounded-lg text-xs font-bold border ${badgeClass}">
+                                ${qty} шт
+                            </span>
+                        </div>
+                        <div class="col-span-3 md:col-span-2 text-center font-bold text-gray-300">
+                            ${shipmentsCount}
+                        </div>
+                        <div class="hidden md:block md:col-span-3 text-right font-mono font-semibold text-emerald-400">
+                            ${totalCost.toLocaleString('uk-UA')} ₴
+                        </div>
+                    </div>`;
+            }).join('');
         };
 
-        // ТАБЛИЦА ТОВАРОВ ВО ВКЛАДКЕ ЗАКУПІВЛЯ
         window.renderPurchaseProducts = () => {
             const container = document.getElementById('purchaseProductsContainer');
-            if (!container) return;
-
-            const searchVal = (document.getElementById('searchPurchaseInput')?.value || '').toLowerCase().trim();
+            const searchQuery = (document.getElementById('searchPurchaseInput').value || '').toLowerCase().trim();
 
             let filtered = allProducts.filter(p => {
-                return p.name.toLowerCase().includes(searchVal) || p.id.toLowerCase().includes(searchVal);
+                return String(p.id).toLowerCase().includes(searchQuery) || 
+                       String(p.name).toLowerCase().includes(searchQuery);
             });
 
             if (filtered.length === 0) {
-                container.innerHTML = `<div class="p-6 text-center text-gray-500">Товарів не знайдено</div>`;
+                container.innerHTML = `<div class="text-center py-8 text-gray-500"><p>Товарів не знайдено</p></div>`;
                 return;
             }
 
-            let html = '';
-            filtered.forEach(p => {
-                html += `
-                <div class="grid grid-cols-12 p-3 items-center hover:bg-gray-800/40 transition text-sm">
-                    <div class="col-span-2 md:col-span-1 font-mono text-xs text-gray-400">#${p.id}</div>
-                    <div class="col-span-5 md:col-span-5 font-semibold text-gray-200 truncate pr-2">${p.name}</div>
-                    <div class="col-span-2 md:col-span-2 text-center text-xs text-gray-400 font-bold">${p.qty} шт</div>
-                    <div class="col-span-3 md:col-span-4 text-right">
-                        <button onclick="openOrderModal('${p.id}', '${p.name.replace(/'/g, "\\'")}')" class="bg-brand/10 hover:bg-brand text-brand hover:text-white border border-brand/30 px-3 py-1 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ml-auto">
-                            <i class="fa-solid fa-plus text-[10px]"></i>
-                            <span>Замовити</span>
-                        </button>
-                    </div>
-                </div>`;
-            });
-
-            container.innerHTML = html;
+            container.innerHTML = filtered.map(p => {
+                const qty = Number(p.qty) || 0;
+                return `
+                    <div class="grid grid-cols-12 p-3 items-center text-xs hover:bg-gray-800/40 transition">
+                        <div class="col-span-2 md:col-span-1 font-mono font-bold text-brand">${escapeHtml(p.id)}</div>
+                        <div class="col-span-5 md:col-span-5 font-medium text-white pr-2 truncate">${escapeHtml(p.name)}</div>
+                        <div class="col-span-2 md:col-span-2 text-center text-gray-300 font-bold">${qty} шт</div>
+                        <div class="col-span-3 md:col-span-4 text-right">
+                            <button onclick="openOrderModal('${escapeHtml(p.id)}', '${escapeHtml(p.name)}')" class="px-3 py-1.5 bg-brand/10 hover:bg-brand text-brand hover:text-white border border-brand/30 rounded-xl transition font-semibold">
+                                <i class="fa-solid fa-cart-plus mr-1"></i>Замовити
+                            </button>
+                        </div>
+                    </div>`;
+            }).join('');
         };
 
-        // ТАБЛИЦА ИСТОРИИ ЗАКУПОК
         window.renderPurchasesHistory = () => {
             const container = document.getElementById('purchasesHistoryContainer');
             const badge = document.getElementById('purchasesCountBadge');
-            if (!container) return;
-
+            
             if (badge) badge.innerText = `${allPurchases.length} замовлень`;
 
             if (allPurchases.length === 0) {
-                container.innerHTML = `<div class="p-6 text-center text-gray-500">Закупівель ще немає</div>`;
+                container.innerHTML = `<div class="text-center py-8 text-gray-500"><p>Історія закупівель порожня</p></div>`;
                 return;
             }
 
-            let html = '';
-            // Показываем последние заказы сверху
-            [...allPurchases].reverse().forEach(pur => {
-                html += `
-                <div class="grid grid-cols-12 p-3 items-center hover:bg-gray-800/40 transition text-sm">
-                    <div class="col-span-2 md:col-span-2 text-xs text-gray-400">${pur.date || '—'}</div>
-                    <div class="col-span-2 md:col-span-1 font-mono text-xs text-gray-400">#${pur.id}</div>
-                    <div class="col-span-3 md:col-span-4 font-semibold text-gray-200 truncate pr-2">${pur.name}</div>
-                    <div class="col-span-2 md:col-span-1 text-center font-bold text-brand">${pur.qty} шт</div>
-                    <div class="col-span-3 md:col-span-2 text-center font-mono text-xs text-gray-300">${pur.ttn || '—'}</div>
-                    <div class="hidden md:block md:col-span-2 text-right text-xs text-gray-400 truncate">${pur.supplier || '—'}</div>
-                </div>`;
-            });
-
-            container.innerHTML = html;
+            container.innerHTML = allPurchases.map(p => {
+                return `
+                    <div class="grid grid-cols-12 p-3 items-center text-xs hover:bg-gray-800/40 transition">
+                        <div class="col-span-2 md:col-span-2 text-gray-400 font-mono">${escapeHtml(p.date || '--')}</div>
+                        <div class="col-span-2 md:col-span-1 font-mono font-bold text-brand">${escapeHtml(p.id)}</div>
+                        <div class="col-span-3 md:col-span-4 font-medium text-white truncate pr-2">${escapeHtml(p.name)}</div>
+                        <div class="col-span-2 md:col-span-1 text-center font-bold text-emerald-400">+${p.qty}</div>
+                        <div class="col-span-3 md:col-span-2 text-center text-gray-300 font-mono">${escapeHtml(p.ttn || '-')}</div>
+                        <div class="hidden md:block md:col-span-2 text-right text-gray-400 truncate">${escapeHtml(p.supplier || '-')}</div>
+                    </div>`;
+            }).join('');
         };
 
-        // МОДАЛЬНОЕ ОКНО
         window.openOrderModal = (id, name) => {
             document.getElementById('modalProductId').value = id;
             document.getElementById('modalProductName').value = name;
@@ -769,26 +826,29 @@
 
         window.submitPurchaseOrder = async (e) => {
             e.preventDefault();
-
+            const btnSubmitText = document.getElementById('btnSubmitText');
+            const btnSubmit = document.getElementById('btnSubmitPurchase');
+            
             const id = document.getElementById('modalProductId').value;
+            const name = document.getElementById('modalProductName').value;
             const qty = document.getElementById('modalQty').value;
             const ttn = document.getElementById('modalTtn').value;
             const supplier = document.getElementById('modalSupplier').value;
 
-            const btnSubmitText = document.getElementById('btnSubmitText');
-            const btnSubmit = document.getElementById('btnSubmitPurchase');
-
-            btnSubmitText.innerText = "Надсилання...";
             btnSubmit.disabled = true;
+            btnSubmitText.innerText = "Відправка...";
+
+            const payload = {
+                action: "addPurchase",
+                id: id,
+                name: name,
+                qty: Number(qty),
+                ttn: ttn,
+                supplier: supplier,
+                date: new Date().toLocaleDateString('uk-UA')
+            };
 
             try {
-                const payload = {
-                    id: id,
-                    qty: qty,
-                    ttn: ttn,
-                    supplier: supplier
-                };
-
                 await fetch(API_URL, {
                     method: 'POST',
                     mode: 'no-cors',
@@ -796,31 +856,38 @@
                     body: JSON.stringify(payload)
                 });
 
-                showToast("Замовлення успішно створено!");
+                allPurchases.unshift({
+                    date: payload.date,
+                    id: payload.id,
+                    name: payload.name,
+                    qty: payload.qty,
+                    ttn: payload.ttn,
+                    supplier: payload.supplier
+                });
+
+                showToast("Заявку на закупівлю успішно створено!");
                 closeOrderModal();
-                
-                // Перезагружаем данные через 1 секунду
-                setTimeout(() => {
-                    loadData();
-                }, 1000);
+                if (currentTab === 'purchases') renderPurchasesHistory();
+                setTimeout(loadData, 1500);
 
             } catch (err) {
                 console.error("Помилка відправки:", err);
-                alert("Не вдалося відправити замовлення. Перевірте з'єднання.");
+                showToast("Помилка при створенні заявки", "red");
             } finally {
-                btnSubmitText.innerText = "Створити замовлення";
                 btnSubmit.disabled = false;
+                btnSubmitText.innerText = "Створити замовлення";
             }
         };
 
-        function showToast(msg) {
+        function showToast(msg, color = "green") {
             const toast = document.getElementById('toast');
-            document.getElementById('toastMsg').innerText = msg;
-            toast.classList.remove('translate-y-20', 'opacity-0');
-            toast.classList.add('translate-y-0', 'opacity-100');
+            const toastMsg = document.getElementById('toastMsg');
+            
+            toastMsg.innerText = msg;
+            toast.className = `fixed bottom-5 right-5 z-50 ${color === 'red' ? 'bg-red-600' : 'bg-emerald-600'} text-white px-4 py-2.5 rounded-xl shadow-2xl flex items-center gap-2 transform translate-y-0 opacity-100 transition-all duration-300`;
+
             setTimeout(() => {
-                toast.classList.remove('translate-y-0', 'opacity-100');
-                toast.classList.add('translate-y-20', 'opacity-0');
+                toast.className = "fixed bottom-5 right-5 z-50 bg-emerald-600 text-white px-4 py-2.5 rounded-xl shadow-2xl flex items-center gap-2 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none";
             }, 3000);
         }
     </script>
