@@ -51,9 +51,7 @@
             transform: translateY(-2px); 
         }
 
-        .period-btn-hover, .filter-btn-hover {
-            transition: all 0.25s ease;
-        }
+        .period-btn-hover, .filter-btn-hover { transition: all 0.25s ease; }
         .period-btn-hover:hover, .filter-btn-hover:hover {
             border-color: rgba(255, 122, 0, 0.6) !important;
             box-shadow: 0 0 12px rgba(255, 122, 0, 0.4);
@@ -85,7 +83,6 @@
             0%, 100% { transform: translateY(0); }
             50% { transform: translateY(-3px); }
         }
-
         .box-top { animation: boxFloat 2.5s ease-in-out infinite; transform-origin: center; }
 
         .text-gradient-orange { background: linear-gradient(135deg, #FF9E43 0%, #FF7A00 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
@@ -217,18 +214,14 @@
                             <path class="box-side transition-colors duration-300" d="M18 12l-5 3v4l5 3 5-3v-4l-5-3zm0 2.2l2.8 1.7-2.8 1.7-2.8-1.7L18 14.2z" fill="#E06B00"/>
                         </svg>
                     </div>
-                    <span class="text-[10px] font-black tracking-wider uppercase transition-colors duration-300 text-brand group-hover:text-white">
-                        Облік
-                    </span>
+                    <span class="text-[10px] font-black tracking-wider uppercase transition-colors duration-300 text-brand group-hover:text-white">Облік</span>
                 </button>
 
                 <button onclick="switchTab('purchases')" id="nav-purchases" class="w-full nav-card-inactive flex flex-col items-center justify-center text-center p-3 rounded-2xl group transition">
                     <div class="mb-2 relative">
                         <i class="fa-solid fa-cart-shopping text-2xl text-gray-400 group-hover:text-brand transition-colors duration-300"></i>
                     </div>
-                    <span class="text-[10px] font-black tracking-wider uppercase text-gray-400 group-hover:text-white transition-colors duration-300">
-                        Закупівля
-                    </span>
+                    <span class="text-[10px] font-black tracking-wider uppercase text-gray-400 group-hover:text-white transition-colors duration-300">Закупівля</span>
                 </button>
             </nav>
         </div>
@@ -278,7 +271,7 @@
             </div>
         </div>
 
-        <!-- VIEW 1: ОБЛІК (ТОВАРЫ И СКЛАД) -->
+        <!-- VIEW 1: ОБЛІК -->
         <div id="viewStock">
             <!-- KPI Карточки -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
@@ -330,7 +323,6 @@
                         <button onclick="setPeriod('custom')" id="period-custom" class="period-btn period-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400">Свій період</button>
                     </div>
 
-                    <!-- Выбор дат (Календари) -->
                     <div id="customDateContainer" class="hidden flex items-center gap-2 bg-gray-900 p-1 rounded-xl border border-cardBorder">
                         <input type="date" id="dateFrom" onchange="onCustomDateChange()" class="bg-gray-800 text-xs text-white rounded-lg px-2 py-1 border border-cardBorder focus:outline-none focus:border-brand">
                         <span class="text-xs text-gray-500">—</span>
@@ -418,7 +410,7 @@
         </div>
     </main>
 
-    <!-- FIREBASE SDKs & LOGIC -->
+    <!-- FIREBASE & SCRIPT LOGIC -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, setPersistence, browserSessionPersistence, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
@@ -441,12 +433,28 @@
         let allProducts = [];
         let allShipments = [];
         let allPurchases = [];
-        let currentFilter = 'good'; // По умолчанию в вашем скриншоте У наявності (>=20)
-        let currentPeriod = '7d';   // По умолчанию 7 дней
+        let currentFilter = 'good';
+        let currentPeriod = '7d';
         let countdown = 60;
         let isAuthenticated = false;
         let liveUsdRate = 41.5;
-        let currentTab = 'stock';
+
+        // Миттєве відновлення кешу із localStorage
+        function loadLocalCache() {
+            try {
+                const cached = localStorage.getItem('point_warehouse_data');
+                if (cached) {
+                    const parsed = JSON.parse(cached);
+                    allProducts = parsed.products || [];
+                    allShipments = parsed.shipments || [];
+                    allPurchases = parsed.purchases || [];
+                    updateKPIs();
+                    renderProducts();
+                    renderPurchaseProducts();
+                    renderPurchasesHistory();
+                }
+            } catch(e) {}
+        }
 
         async function fetchLiveUsdRate() {
             try {
@@ -455,9 +463,7 @@
                 if (data && data.rates && data.rates.UAH) {
                     liveUsdRate = data.rates.UAH;
                 }
-            } catch (err) {
-                console.warn("Не вдалося завантажити живий курс USD:", err);
-            }
+            } catch (err) {}
         }
 
         onAuthStateChanged(auth, async (user) => {
@@ -465,7 +471,12 @@
                 isAuthenticated = true;
                 document.getElementById('authOverlay').classList.add('hidden');
                 document.getElementById('mainDashboard').classList.remove('hidden');
-                await fetchLiveUsdRate();
+                
+                // Спочатку миттєво показуємо локальні дані
+                loadLocalCache();
+                
+                // Потім паралельно оновлюємо дані з сервера
+                fetchLiveUsdRate();
                 loadData();
             } else {
                 isAuthenticated = false;
@@ -503,7 +514,6 @@
                 await signInWithEmailAndPassword(auth, email, pass);
                 document.getElementById('passInput').value = '';
             } catch (err) {
-                console.error(err);
                 authError.classList.remove('hidden');
                 authError.innerText = "Неправильний Email або пароль!";
             } finally {
@@ -511,12 +521,9 @@
             }
         };
 
-        window.handleLogout = () => {
-            signOut(auth);
-        };
+        window.handleLogout = () => signOut(auth);
 
         window.switchTab = (tab) => {
-            currentTab = tab;
             const navStock = document.getElementById('nav-stock');
             const navPurchases = document.getElementById('nav-purchases');
             const viewStock = document.getElementById('viewStock');
@@ -544,22 +551,25 @@
             const refreshIcon = document.getElementById('refreshIcon');
             if (refreshIcon) refreshIcon.classList.add('fa-spin');
 
-            await fetchLiveUsdRate();
-
             const oldScript = document.getElementById('jsonp-script');
             if (oldScript) oldScript.remove();
 
             window.handleDataResponse = (data) => {
                 if (refreshIcon) refreshIcon.classList.remove('fa-spin');
-                
-                if (data && data.error) {
-                    console.error("Помилка Apps Script:", data.error);
-                    return;
-                }
+                if (data && data.error) return;
 
                 allProducts = data.products || [];
                 allShipments = data.shipments || [];
                 allPurchases = data.purchases || [];
+
+                // Зберігаємо в LocalStorage
+                try {
+                    localStorage.setItem('point_warehouse_data', JSON.stringify({
+                        products: allProducts,
+                        shipments: allShipments,
+                        purchases: allPurchases
+                    }));
+                } catch(e) {}
 
                 updateKPIs();
                 renderProducts();
@@ -582,13 +592,10 @@
 
         function updateLastUpdatedTime() {
             const now = new Date();
-            const timeStr = now.toLocaleTimeString('uk-UA', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-            document.getElementById('lastUpdatedText').innerText = `Оновлено о ${timeStr}`;
+            document.getElementById('lastUpdatedText').innerText = `Оновлено о ${now.toLocaleTimeString('uk-UA')}`;
         }
 
-        window.manualRefresh = () => {
-            window.loadData();
-        };
+        window.manualRefresh = () => window.loadData();
 
         setInterval(() => {
             if (isAuthenticated) {
@@ -614,9 +621,7 @@
 
             document.getElementById('kpiTotalQty').innerText = calcTotalQty.toLocaleString('uk-UA');
             document.getElementById('kpiTotalSumUah').innerText = `${calcTotalSumUah.toLocaleString('uk-UA')} ₴`;
-
-            const displayRate = liveUsdRate ? liveUsdRate.toFixed(2) : '41.50';
-            document.getElementById('usdRateBadge').innerText = `Курс: ${displayRate}`;
+            document.getElementById('usdRateBadge').innerText = `Курс: ${liveUsdRate ? liveUsdRate.toFixed(2) : '41.50'}`;
 
             const totalUsd = Math.round(calcTotalSumUah / liveUsdRate);
             document.getElementById('kpiTotalSumUsd').innerText = `$${totalUsd.toLocaleString('en-US')}`;
@@ -654,11 +659,8 @@
             renderProducts();
         };
 
-        window.onCustomDateChange = () => {
-            renderProducts();
-        };
+        window.onCustomDateChange = () => renderProducts();
 
-        // ВЫЧИСЛЕНИЕ ВІДПРАВОК ЗА ПЕРИОД
         function calculateShipmentsMap() {
             const map = {};
             const now = new Date();
@@ -675,12 +677,8 @@
                 const dateFromVal = document.getElementById('dateFrom').value;
                 const dateToVal = document.getElementById('dateTo').value;
 
-                if (dateFromVal) {
-                    minTime = new Date(dateFromVal + 'T00:00:00').getTime();
-                }
-                if (dateToVal) {
-                    maxTime = new Date(dateToVal + 'T23:59:59').getTime();
-                }
+                if (dateFromVal) minTime = new Date(dateFromVal + 'T00:00:00').getTime();
+                if (dateToVal) maxTime = new Date(dateToVal + 'T23:59:59').getTime();
             }
 
             allShipments.forEach(s => {
@@ -696,7 +694,6 @@
         window.renderProducts = () => {
             const container = document.getElementById('productsContainer');
             const searchVal = (document.getElementById('searchInput').value || '').toLowerCase().trim();
-
             const shipmentsMap = calculateShipmentsMap();
 
             let filtered = allProducts.filter(p => {
@@ -835,29 +832,18 @@
             btnSubmit.disabled = true;
 
             try {
-                const payload = {
-                    id: id,
-                    qty: qty,
-                    ttn: ttn,
-                    supplier: supplier
-                };
-
                 await fetch(API_URL, {
                     method: 'POST',
                     mode: 'no-cors',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify({ id, qty, ttn, supplier })
                 });
 
                 showToast("Замовлення успішно створено!");
                 closeOrderModal();
-                
-                setTimeout(() => {
-                    loadData();
-                }, 1000);
+                setTimeout(() => loadData(), 800);
 
             } catch (err) {
-                console.error("Помилка відправки:", err);
                 alert("Не вдалося відправити замовлення. Перевірте з'єднання.");
             } finally {
                 btnSubmitText.innerText = "Створити замовлення";
