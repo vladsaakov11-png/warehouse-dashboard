@@ -144,10 +144,10 @@
     <!-- Toast Notification -->
     <div id="toast" class="fixed bottom-5 right-5 z-50 bg-emerald-600 text-white px-4 py-2.5 rounded-xl shadow-2xl flex items-center gap-2 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
         <i class="fa-solid fa-circle-check"></i>
-        <span id="toastMsg" class="text-sm font-medium">Текст скопійовано!</span>
+        <span id="toastMsg" class="text-sm font-medium">Повідомлення</span>
     </div>
 
-    <!-- MODAL ORDER FORM (МОДАЛЬНЕ ОКНО ЗАКУПІВЛІ) -->
+    <!-- MODAL ORDER FORM -->
     <div id="orderModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
         <div class="bg-cardBg border border-cardBorder rounded-2xl p-6 max-w-md w-full shadow-2xl relative overflow-hidden">
             <div class="flex items-center justify-between mb-4 pb-3 border-b border-cardBorder">
@@ -209,7 +209,6 @@
             </div>
 
             <nav class="space-y-2">
-                <!-- Кнопка ОБЛІК -->
                 <button onclick="switchTab('stock')" id="nav-stock" class="w-full nav-card-active flex flex-col items-center justify-center text-center p-3 rounded-2xl group transition">
                     <div class="mb-2 relative">
                         <svg class="w-8 h-8 text-brand transition-transform duration-300 group-hover:scale-110" viewBox="0 0 24 24" fill="currentColor">
@@ -223,7 +222,6 @@
                     </span>
                 </button>
 
-                <!-- Кнопка ЗАКУПІВЛЯ -->
                 <button onclick="switchTab('purchases')" id="nav-purchases" class="w-full nav-card-inactive flex flex-col items-center justify-center text-center p-3 rounded-2xl group transition">
                     <div class="mb-2 relative">
                         <i class="fa-solid fa-cart-shopping text-2xl text-gray-400 group-hover:text-brand transition-colors duration-300"></i>
@@ -317,7 +315,7 @@
                 </div>
             </div>
 
-            <!-- Блок выбора периода -->
+            <!-- Блок выбора периода відправок -->
             <div class="cyber-card border border-cardBorder rounded-xl p-3.5 mb-6 flex flex-col md:flex-row md:items-center justify-between gap-3">
                 <div class="flex items-center gap-2">
                     <i class="fa-solid fa-truck-fast text-brand"></i>
@@ -326,9 +324,17 @@
 
                 <div class="flex flex-wrap items-center gap-2">
                     <div class="flex items-center gap-1.5 bg-gray-900 p-1 rounded-xl border border-cardBorder">
-                        <button onclick="setPeriod('1d')" id="period-1d" class="period-btn period-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent bg-brand text-white shadow-lg shadow-brand/20">24г (доба)</button>
-                        <button onclick="setPeriod('7d')" id="period-7d" class="period-btn period-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400">7 днів</button>
+                        <button onclick="setPeriod('1d')" id="period-1d" class="period-btn period-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400">24г (доба)</button>
+                        <button onclick="setPeriod('7d')" id="period-7d" class="period-btn period-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent bg-brand text-white shadow-lg shadow-brand/20">7 днів</button>
                         <button onclick="setPeriod('30d')" id="period-30d" class="period-btn period-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400">30 днів</button>
+                        <button onclick="setPeriod('custom')" id="period-custom" class="period-btn period-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400">Свій період</button>
+                    </div>
+
+                    <!-- Выбор дат (Календари) -->
+                    <div id="customDateContainer" class="hidden flex items-center gap-2 bg-gray-900 p-1 rounded-xl border border-cardBorder">
+                        <input type="date" id="dateFrom" onchange="onCustomDateChange()" class="bg-gray-800 text-xs text-white rounded-lg px-2 py-1 border border-cardBorder focus:outline-none focus:border-brand">
+                        <span class="text-xs text-gray-500">—</span>
+                        <input type="date" id="dateTo" onchange="onCustomDateChange()" class="bg-gray-800 text-xs text-white rounded-lg px-2 py-1 border border-cardBorder focus:outline-none focus:border-brand">
                     </div>
                 </div>
             </div>
@@ -337,10 +343,10 @@
             <div class="flex flex-col md:flex-row items-center justify-between gap-4 mb-6">
                 <div class="flex flex-wrap items-center gap-2 w-full md:w-auto">
                     <div class="flex items-center gap-1.5 bg-cardBg p-1.5 rounded-xl border border-cardBorder overflow-x-auto max-w-full">
-                        <button onclick="setFilter('all')" id="btn-all" class="filter-btn filter-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent bg-brand text-white shadow-lg shadow-brand/20 whitespace-nowrap">Усі</button>
+                        <button onclick="setFilter('all')" id="btn-all" class="filter-btn filter-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400 whitespace-nowrap">Усі</button>
                         <button onclick="setFilter('empty')" id="btn-empty" class="filter-btn filter-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400 whitespace-nowrap">Немає (0)</button>
                         <button onclick="setFilter('warning')" id="btn-warning" class="filter-btn filter-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400 whitespace-nowrap">Малий залишок (1–19)</button>
-                        <button onclick="setFilter('good')" id="btn-good" class="filter-btn filter-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400 whitespace-nowrap">У наявності (&ge;20)</button>
+                        <button onclick="setFilter('good')" id="btn-good" class="filter-btn filter-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent bg-brand text-white shadow-lg shadow-brand/20 whitespace-nowrap">У наявності (&ge;20)</button>
                     </div>
                 </div>
 
@@ -363,13 +369,13 @@
                 <div id="productsContainer" class="divide-y divide-cardBorder/60">
                     <div class="text-center py-12 text-gray-500">
                         <i class="fa-solid fa-spinner fa-spin text-2xl mb-2 text-brand"></i>
-                        <p>Завантаження данных...</p>
+                        <p>Завантаження даних...</p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- VIEW 2: ЗАКУПІВЛЯ (УПРАВЛЕНИЕ ЗАКАЗАМИ) -->
+        <!-- VIEW 2: ЗАКУПІВЛЯ -->
         <div id="viewPurchases" class="hidden">
             <div class="flex flex-col md:flex-row items-center justify-between gap-4 mb-6">
                 <p class="text-sm text-gray-400">Виберіть товар зі списку, щоб оформити нову заявку на закупівлю.</p>
@@ -379,7 +385,6 @@
                 </div>
             </div>
 
-            <!-- Таблица каталога для закупки -->
             <div class="bg-cardBg border border-cardBorder rounded-2xl overflow-hidden shadow-xl mb-8">
                 <div class="bg-gray-900/90 p-4 border-b border-cardBorder text-xs font-bold text-brand tracking-wider uppercase flex items-center justify-between">
                     <span><i class="fa-solid fa-boxes-stacked mr-2"></i>Каталог товарів для замовлення</span>
@@ -388,15 +393,12 @@
                     <div class="col-span-2 md:col-span-1">ID</div>
                     <div class="col-span-5 md:col-span-5">НАЗВА ТОВАРУ</div>
                     <div class="col-span-2 md:col-span-2 text-center">ПОТОЧНИЙ ЗАЛИШОК</div>
-                    <div class="col-span-3 md:col-span-4 text-right">ДЕЙСТВИЕ</div>
+                    <div class="col-span-3 md:col-span-4 text-right">ДІЯ</div>
                 </div>
 
-                <div id="purchaseProductsContainer" class="divide-y divide-cardBorder/60 max-h-96 overflow-y-auto">
-                    <!-- Заполняется динамически -->
-                </div>
+                <div id="purchaseProductsContainer" class="divide-y divide-cardBorder/60 max-h-96 overflow-y-auto"></div>
             </div>
 
-            <!-- Таблица уже сделанных закупівлей (История из листа ЗАКУПІВЛІ) -->
             <div class="bg-cardBg border border-cardBorder rounded-2xl overflow-hidden shadow-xl">
                 <div class="bg-gray-900/90 p-4 border-b border-cardBorder text-xs font-bold text-gray-300 tracking-wider uppercase flex items-center justify-between">
                     <span><i class="fa-solid fa-clock-rotate-left mr-2 text-brand"></i>Останні оформлені закупівлі</span>
@@ -411,9 +413,7 @@
                     <div class="hidden md:block md:col-span-2 text-right">ПОСТАЧАЛЬНИК</div>
                 </div>
 
-                <div id="purchasesHistoryContainer" class="divide-y divide-cardBorder/60 max-h-96 overflow-y-auto">
-                    <!-- Заполняется динамически -->
-                </div>
+                <div id="purchasesHistoryContainer" class="divide-y divide-cardBorder/60 max-h-96 overflow-y-auto"></div>
             </div>
         </div>
     </main>
@@ -441,8 +441,8 @@
         let allProducts = [];
         let allShipments = [];
         let allPurchases = [];
-        let currentFilter = 'all';
-        let currentPeriod = '1d';
+        let currentFilter = 'good'; // По умолчанию в вашем скриншоте У наявності (>=20)
+        let currentPeriod = '7d';   // По умолчанию 7 дней
         let countdown = 60;
         let isAuthenticated = false;
         let liveUsdRate = 41.5;
@@ -639,6 +639,14 @@
             document.querySelectorAll('.period-btn').forEach(btn => {
                 btn.className = 'period-btn period-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400';
             });
+
+            const customContainer = document.getElementById('customDateContainer');
+            if (period === 'custom') {
+                customContainer.classList.remove('hidden');
+            } else {
+                customContainer.classList.add('hidden');
+            }
+
             const activeBtn = document.getElementById(`period-${period}`);
             if (activeBtn) {
                 activeBtn.className = 'period-btn period-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent bg-brand text-white shadow-lg shadow-brand/20';
@@ -646,9 +654,50 @@
             renderProducts();
         };
 
+        window.onCustomDateChange = () => {
+            renderProducts();
+        };
+
+        // ВЫЧИСЛЕНИЕ ВІДПРАВОК ЗА ПЕРИОД
+        function calculateShipmentsMap() {
+            const map = {};
+            const now = new Date();
+            let minTime = 0;
+            let maxTime = Infinity;
+
+            if (currentPeriod === '1d') {
+                minTime = now.getTime() - (24 * 60 * 60 * 1000);
+            } else if (currentPeriod === '7d') {
+                minTime = now.getTime() - (7 * 24 * 60 * 60 * 1000);
+            } else if (currentPeriod === '30d') {
+                minTime = now.getTime() - (30 * 24 * 60 * 60 * 1000);
+            } else if (currentPeriod === 'custom') {
+                const dateFromVal = document.getElementById('dateFrom').value;
+                const dateToVal = document.getElementById('dateTo').value;
+
+                if (dateFromVal) {
+                    minTime = new Date(dateFromVal + 'T00:00:00').getTime();
+                }
+                if (dateToVal) {
+                    maxTime = new Date(dateToVal + 'T23:59:59').getTime();
+                }
+            }
+
+            allShipments.forEach(s => {
+                const sTime = new Date(s.date).getTime();
+                if (!isNaN(sTime) && sTime >= minTime && sTime <= maxTime) {
+                    map[s.id] = (map[s.id] || 0) + (Number(s.qty) || 0);
+                }
+            });
+
+            return map;
+        }
+
         window.renderProducts = () => {
             const container = document.getElementById('productsContainer');
             const searchVal = (document.getElementById('searchInput').value || '').toLowerCase().trim();
+
+            const shipmentsMap = calculateShipmentsMap();
 
             let filtered = allProducts.filter(p => {
                 const matchSearch = p.name.toLowerCase().includes(searchVal) || p.id.toLowerCase().includes(searchVal);
@@ -671,6 +720,12 @@
                 if (p.qty === 0) badgeClass = 'bg-red-500/10 text-red-400 border-red-500/20';
                 else if (p.qty < 20) badgeClass = 'bg-amber-500/10 text-amber-400 border-amber-500/20';
 
+                const shipQty = shipmentsMap[p.id] || 0;
+                let shipDisplay = `<span class="text-gray-500">—</span>`;
+                if (shipQty > 0) {
+                    shipDisplay = `<span class="inline-block px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">+${shipQty} відпр.</span>`;
+                }
+
                 html += `
                 <div class="grid grid-cols-12 p-3.5 items-center hover:bg-gray-800/40 transition text-sm border-b border-cardBorder/40">
                     <div class="col-span-2 md:col-span-1 font-mono text-xs text-gray-400">#${p.id}</div>
@@ -680,7 +735,9 @@
                             ${p.qty} шт
                         </span>
                     </div>
-                    <div class="col-span-3 md:col-span-2 text-center text-xs text-gray-400">—</div>
+                    <div class="col-span-3 md:col-span-2 text-center text-xs">
+                        ${shipDisplay}
+                    </div>
                     <div class="hidden md:block md:col-span-3 text-right font-bold text-gray-300">${p.totalSum.toLocaleString('uk-UA')} ₴</div>
                 </div>`;
             });
@@ -688,7 +745,6 @@
             container.innerHTML = html;
         };
 
-        // ТАБЛИЦА ТОВАРОВ ВО ВКЛАДКЕ ЗАКУПІВЛЯ
         window.renderPurchaseProducts = () => {
             const container = document.getElementById('purchaseProductsContainer');
             if (!container) return;
@@ -723,7 +779,6 @@
             container.innerHTML = html;
         };
 
-        // ТАБЛИЦА ИСТОРИИ ЗАКУПОК
         window.renderPurchasesHistory = () => {
             const container = document.getElementById('purchasesHistoryContainer');
             const badge = document.getElementById('purchasesCountBadge');
@@ -737,7 +792,6 @@
             }
 
             let html = '';
-            // Показываем последние заказы сверху
             [...allPurchases].reverse().forEach(pur => {
                 html += `
                 <div class="grid grid-cols-12 p-3 items-center hover:bg-gray-800/40 transition text-sm">
@@ -753,7 +807,6 @@
             container.innerHTML = html;
         };
 
-        // МОДАЛЬНОЕ ОКНО
         window.openOrderModal = (id, name) => {
             document.getElementById('modalProductId').value = id;
             document.getElementById('modalProductName').value = name;
@@ -799,7 +852,6 @@
                 showToast("Замовлення успішно створено!");
                 closeOrderModal();
                 
-                // Перезагружаем данные через 1 секунду
                 setTimeout(() => {
                     loadData();
                 }, 1000);
