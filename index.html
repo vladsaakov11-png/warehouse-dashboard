@@ -370,7 +370,7 @@
                 </div>
             </div>
 
-            <!-- Таблица товаров с сортировкой по клику -->
+            <!-- Таблица товаров -->
             <div class="bg-cardBg border border-cardBorder rounded-2xl overflow-hidden shadow-xl">
                 <div class="grid grid-cols-12 bg-gray-900/80 p-4 border-b border-cardBorder text-xs font-bold text-gray-400 tracking-wider uppercase select-none">
                     <div class="col-span-2 md:col-span-1 sort-header flex items-center gap-1" onclick="toggleSort('id')">
@@ -403,7 +403,6 @@
 
         <!-- VIEW 2: ЗАКУПІВЛЯ -->
         <div id="viewPurchases" class="hidden space-y-6">
-            <!-- Верхняя панель с кнопкой создания и поиском по заказам -->
             <div class="flex flex-col md:flex-row items-center justify-between gap-4 bg-cardBg border border-cardBorder p-4 rounded-2xl shadow-lg">
                 <div>
                     <h3 class="text-base font-bold text-white flex items-center gap-2">
@@ -419,7 +418,6 @@
                 </button>
             </div>
 
-            <!-- Таблица истории всех закупок -->
             <div class="bg-cardBg border border-cardBorder rounded-2xl overflow-hidden shadow-xl">
                 <div class="bg-gray-900/90 p-4 border-b border-cardBorder text-xs font-bold text-gray-300 tracking-wider uppercase flex items-center justify-between">
                     <span class="flex items-center gap-2">
@@ -439,7 +437,6 @@
                 </div>
 
                 <div id="purchasesHistoryContainer" class="divide-y divide-cardBorder/60 max-h-[600px] overflow-y-auto">
-                    <!-- Заполняется JS -->
                 </div>
             </div>
         </div>
@@ -479,9 +476,8 @@
         let timerInterval = null;
         let selectedProductForModal = null;
 
-        // ПАРАМЕТРЫ СОРТИРОВКИ
-        let sortField = null; // 'qty', 'shipments', 'id', 'sum'
-        let sortOrder = null; // 'desc', 'asc', null
+        let sortField = null;
+        let sortOrder = null;
 
         async function fetchLiveUsdRate() {
             try {
@@ -620,8 +616,29 @@
             });
         }
 
+        function findProductByInput(inputVal) {
+            if (!inputVal) return null;
+            const str = inputVal.trim();
+
+            let found = allProducts.find(p => String(p.id) === str);
+            if (found) return found;
+
+            const match = str.match(/^\[ID:\s*(\d+)\]/i);
+            if (match) {
+                const extractedId = match[1];
+                found = allProducts.find(p => String(p.id) === String(extractedId));
+                if (found) return found;
+            }
+
+            found = allProducts.find(p => p.name.toLowerCase() === str.toLowerCase());
+            if (found) return found;
+
+            found = allProducts.find(p => p.name.toLowerCase().includes(str.toLowerCase()));
+            return found || null;
+        }
+
         window.onModalProductInputChange = () => {
-            const inputVal = document.getElementById('modalProductIdInput').value.trim();
+            const inputVal = document.getElementById('modalProductIdInput').value;
             const infoBox = document.getElementById('selectedProductInfo');
             const errorBox = document.getElementById('productNotFoundError');
             const nameLabel = document.getElementById('modalProductName');
@@ -634,22 +651,7 @@
                 return;
             }
 
-            // Поиск товара по ID или полному имени в datalist
-            let found = allProducts.find(p => String(p.id) === inputVal);
-            
-            if (!found) {
-                // Если ввели текст формата "[ID: 3] Батарейки AAA"
-                const match = inputVal.match(/^\[ID:\s*(\d+)\]/i);
-                if (match) {
-                    const extractedId = match[1];
-                    found = allProducts.find(p => String(p.id) === String(extractedId));
-                }
-            }
-
-            if (!found) {
-                // Прямой поиск по совпадению наименования
-                found = allProducts.find(p => p.name.toLowerCase() === inputVal.toLowerCase());
-            }
+            const found = findProductByInput(inputVal);
 
             if (found) {
                 selectedProductForModal = found;
@@ -960,8 +962,11 @@
             e.preventDefault();
             const btnSubmitText = document.getElementById('btnSubmitText');
             const btnSubmit = document.getElementById('btnSubmitPurchase');
+            const inputVal = document.getElementById('modalProductIdInput').value;
 
-            if (!selectedProductForModal) {
+            const product = selectedProductForModal || findProductByInput(inputVal);
+
+            if (!product) {
                 showToast("Будь ласка, введіть дійсний ID або назву товара!", "red");
                 return;
             }
@@ -973,24 +978,29 @@
             btnSubmit.disabled = true;
             btnSubmitText.innerText = "Відправка...";
 
+            const today = new Date();
+            const formattedDate = today.toLocaleDateString('uk-UA');
+
             const payload = {
                 action: "addPurchase",
-                id: selectedProductForModal.id,
-                name: selectedProductForModal.name,
+                id: String(product.id),
+                name: product.name,
                 qty: Number(qty),
-                ttn: ttn,
-                supplier: supplier,
-                date: new Date().toLocaleDateString('uk-UA')
+                ttn: ttn || "-",
+                supplier: supplier || "-",
+                date: formattedDate
             };
 
             try {
+                // Передаем через text/plain для обхода ограничений CORS Google Apps Script
                 await fetch(API_URL, {
                     method: 'POST',
                     mode: 'no-cors',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                     body: JSON.stringify(payload)
                 });
 
+                // Мгновенное локальное обновление списка закупок
                 allPurchases.unshift({
                     date: payload.date,
                     id: payload.id,
@@ -1002,8 +1012,10 @@
 
                 showToast("Заявку на закупівлю успішно створено!");
                 closeOrderModal();
-                if (currentTab === 'purchases') renderPurchasesHistory();
-                setTimeout(loadData, 1500);
+                renderPurchasesHistory();
+                
+                // Перезагрузка данных с сервера для полной синхронизации
+                setTimeout(loadData, 2000);
 
             } catch (err) {
                 console.error("Помилка відправки:", err);
