@@ -68,131 +68,74 @@
     </div>
 
     <!-- Основний інтерфейс дашборду -->
-    <div id="app-dashboard" class="hidden flex min-h-screen">
-        
-        <!-- Бічна панель навігації -->
-        <aside class="w-20 bg-cardBg border-r border-gray-800 flex flex-col items-center py-6 space-y-8 select-none">
-            <div class="text-accent text-2xl font-black">
-                <i class="fa-solid fa-box-open"></i>
+    <div id="app-dashboard" class="hidden flex flex-col min-h-screen">
+        <!-- Шапка -->
+        <header class="bg-cardBg border-b border-gray-800 px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-4">
+                <h1 class="text-xl font-bold tracking-wider text-white">POINT. <span class="text-accent">FULFILLMENT</span></h1>
+                <span class="text-xs bg-gray-800 text-gray-300 px-3 py-1 rounded-full">Панель закупівлі та складу</span>
             </div>
-            <nav class="flex flex-col space-y-4 w-full px-2">
-                <button onclick="switchTab('stock')" id="nav-stock" class="flex flex-col items-center justify-center py-3 rounded-xl text-gray-400 hover:text-white hover:bg-gray-800/50 transition">
-                    <i class="fa-solid fa-cubes text-lg mb-1"></i>
-                    <span class="text-[10px] font-medium uppercase">Облік</span>
+            <div class="flex items-center space-x-4">
+                <button id="refresh-btn" class="text-gray-400 hover:text-white transition" title="Оновити дані">
+                    <i class="fa-solid fa-rotate"></i>
                 </button>
-                <button onclick="switchTab('purchases')" id="nav-purchases" class="flex flex-col items-center justify-center py-3 rounded-xl text-accent bg-accent/10 transition">
-                    <i class="fa-solid fa-cart-shopping text-lg mb-1"></i>
-                    <span class="text-[10px] font-medium uppercase">Закупівля</span>
+                <button id="logout-btn" class="bg-gray-800 hover:bg-gray-700 text-gray-300 px-4 py-2 rounded-lg text-sm transition">
+                    <i class="fa-solid fa-arrow-right-from-bracket mr-2"></i> Вийти
                 </button>
-            </nav>
-        </aside>
+            </div>
+        </header>
 
-        <div class="flex-1 flex flex-col min-w-0">
-            <!-- Шапка -->
-            <header class="bg-cardBg border-b border-gray-800 px-6 py-4 flex justify-between items-center">
-                <div class="flex items-center space-x-4">
-                    <h1 id="page-title" class="text-xl font-bold tracking-wider text-white">Управління закупівлями</h1>
-                    <span class="text-xs bg-gray-800 text-accent font-semibold px-3 py-1 rounded-full uppercase" id="badge-title">BULL</span>
+        <!-- Контент -->
+        <main class="flex-1 p-6 space-y-6 max-w-7xl mx-auto w-full">
+            
+            <!-- Статистика / Залишки -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-cardBg border border-gray-800 p-6 rounded-xl">
+                    <p class="text-gray-400 text-sm">Загальна кількість одиниць</p>
+                    <h3 id="stat-total-qty" class="text-3xl font-bold mt-2 text-white">0</h3>
                 </div>
-                <div class="flex items-center space-x-4">
-                    <div class="text-xs bg-gray-900 border border-gray-800 px-3 py-1.5 rounded-lg text-gray-300 flex items-center space-x-2">
-                        <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                        <span id="auto-refresh-timer">Автооновлення: 29s</span>
+                <div class="bg-cardBg border border-gray-800 p-6 rounded-xl">
+                    <p class="text-gray-400 text-sm">Залишок у гривнях (UAH)</p>
+                    <h3 id="stat-total-uah" class="text-3xl font-bold mt-2 text-white">0 ₴</h3>
+                </div>
+                <div class="bg-cardBg border border-gray-800 p-6 rounded-xl flex justify-between items-center">
+                    <div>
+                        <p class="text-gray-400 text-sm">Залишок у доларах (USD)</p>
+                        <h3 id="stat-total-usd" class="text-3xl font-bold mt-2 text-white">$0</h3>
                     </div>
-                    <button id="refresh-btn" class="bg-cardBg hover:bg-gray-800 border border-gray-800 text-gray-300 p-2 rounded-lg transition" title="Оновити дані">
-                        <i class="fa-solid fa-rotate"></i>
-                    </button>
-                    <button id="logout-btn" class="bg-gray-800 hover:bg-gray-700 text-gray-300 px-4 py-2 rounded-lg text-sm transition">
-                        <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                    <button onclick="openPurchaseModal()" class="bg-accent hover:bg-accentHover text-white px-4 py-3 rounded-xl font-semibold transition flex items-center space-x-2">
+                        <i class="fa-solid fa-plus"></i>
+                        <span>Закупівля</span>
                     </button>
                 </div>
-            </header>
+            </div>
 
-            <!-- Контент (Вкладки) -->
-            <main class="flex-1 p-6 space-y-6 max-w-7xl mx-auto w-full overflow-y-auto">
+            <!-- Історія закупівель (Компактна картка зі скролом та сортуванням) -->
+            <div class="bg-cardBg border border-gray-800 rounded-xl p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-lg font-bold text-white">Історія закупівель</h2>
+                    <span class="text-xs text-gray-400">Прокрутіть вниз для перегляду всіх записів</span>
+                </div>
                 
-                <!-- ВКЛАДКА: ОБЛІК (СКЛАД) -->
-                <div id="tab-content-stock" class="hidden space-y-6">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div class="bg-cardBg border border-gray-800 p-6 rounded-xl">
-                            <p class="text-gray-400 text-sm">Загальна кількість товарів</p>
-                            <h3 id="stock-total-qty" class="text-3xl font-bold mt-2 text-white">0</h3>
-                        </div>
-                        <div class="bg-cardBg border border-gray-800 p-6 rounded-xl">
-                            <p class="text-gray-400 text-sm">Загальна сума (UAH)</p>
-                            <h3 id="stock-total-uah" class="text-3xl font-bold mt-2 text-white">0 ₴</h3>
-                        </div>
-                        <div class="bg-cardBg border border-gray-800 p-6 rounded-xl">
-                            <p class="text-gray-400 text-sm">Загальна сума (USD)</p>
-                            <h3 id="stock-total-usd" class="text-3xl font-bold mt-2 text-white">$0</h3>
-                        </div>
-                    </div>
-                    <div class="bg-cardBg border border-gray-800 rounded-xl p-6">
-                        <h2 class="text-lg font-bold text-white mb-4">Складські залишки</h2>
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-left border-collapse">
-                                <thead class="border-b border-gray-800 text-gray-400 text-xs uppercase">
-                                    <tr>
-                                        <th class="py-3 px-4">ID</th>
-                                        <th class="py-3 px-4">Назва товару</th>
-                                        <th class="py-3 px-4 text-right">Залишок</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="stock-table-body" class="divide-y divide-gray-800 text-sm">
-                                    <tr><td colspan="3" class="text-center py-4 text-gray-500">Завантаження даних...</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+                <!-- Обгортка з фіксованою висотою та вертикальним скролом -->
+                <div class="max-h-[420px] overflow-y-auto custom-scrollbar border border-gray-800 rounded-lg">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="sticky top-0 bg-[#0e1320] border-b border-gray-800 text-gray-400 text-xs uppercase z-10">
+                            <tr>
+                                <th class="py-3 px-4 cursor-pointer hover:text-white transition" onclick="sortPurchases('date')">Дата <i class="fa-solid fa-sort ml-1"></i></th>
+                                <th class="py-3 px-4 cursor-pointer hover:text-white transition" onclick="sortPurchases('supplier')">Постачальник <i class="fa-solid fa-sort ml-1"></i></th>
+                                <th class="py-3 px-4 cursor-pointer hover:text-white transition" onclick="sortPurchases('np')">Номер ЕН <i class="fa-solid fa-sort ml-1"></i></th>
+                                <th class="py-3 px-4 cursor-pointer hover:text-white transition text-right" onclick="sortPurchases('quantity')">Кількість <i class="fa-solid fa-sort ml-1"></i></th>
+                            </tr>
+                        </thead>
+                        <tbody id="purchases-table-body" class="divide-y divide-gray-800 text-sm">
+                            <!-- Дані заповнюються через JS -->
+                        </tbody>
+                    </table>
                 </div>
+            </div>
 
-                <!-- ВКЛАДКА: ЗАКУПІВЛІ -->
-                <div id="tab-content-purchases" class="space-y-6">
-                    <!-- Верхня панель створення -->
-                    <div class="bg-cardBg border border-gray-800 rounded-xl p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                        <div>
-                            <h2 class="text-lg font-bold text-white flex items-center space-x-2">
-                                <i class="fa-solid fa-truck-fast text-accent"></i>
-                                <span>Управління замовленнями постачальникам</span>
-                            </h2>
-                            <p class="text-gray-400 text-sm mt-1">Оформлюйте нові закупівлі та відстежуйте статус доставки</p>
-                        </div>
-                        <button onclick="openPurchaseModal()" class="bg-accent hover:bg-accentHover text-white px-5 py-3 rounded-xl font-semibold transition flex items-center space-x-2 shadow-lg shadow-accent/20">
-                            <i class="fa-solid fa-plus"></i>
-                            <span>Створити нову закупівлю</span>
-                        </button>
-                    </div>
-
-                    <!-- Історія закупівель (Компактна карточка із скролом та сортуванням) -->
-                    <div class="bg-cardBg border border-gray-800 rounded-xl p-6">
-                        <div class="flex justify-between items-center mb-4">
-                            <h3 class="text-sm font-bold tracking-wider text-gray-400 uppercase">Останні оформлені закупівлі</h3>
-                            <span id="purchases-count-badge" class="text-xs bg-gray-900 border border-gray-800 px-3 py-1 rounded-full text-gray-300">0 замовлень</span>
-                        </div>
-                        
-                        <!-- Обгортка з фіксованою висотою (приблизно 10 рядків) та вертикальним скролом -->
-                        <div class="max-h-[420px] overflow-y-auto custom-scrollbar border border-gray-800 rounded-lg">
-                            <table class="w-full text-left border-collapse">
-                                <thead class="sticky top-0 bg-[#0e1320] border-b border-gray-800 text-gray-400 text-xs uppercase z-10">
-                                    <tr>
-                                        <th class="py-3 px-4 cursor-pointer hover:text-white transition" onclick="sortPurchases('date')">Дата <i class="fa-solid fa-sort ml-1"></i></th>
-                                        <th class="py-3 px-4 cursor-pointer hover:text-white transition" onclick="sortPurchases('id')">ID <i class="fa-solid fa-sort ml-1"></i></th>
-                                        <th class="py-3 px-4 cursor-pointer hover:text-white transition" onclick="sortPurchases('name')">Назва товару <i class="fa-solid fa-sort ml-1"></i></th>
-                                        <th class="py-3 px-4 cursor-pointer hover:text-white transition text-right" onclick="sortPurchases('quantity')">К-сть <i class="fa-solid fa-sort ml-1"></i></th>
-                                        <th class="py-3 px-4 cursor-pointer hover:text-white transition" onclick="sortPurchases('np')">Номер ЕН (ТТН) <i class="fa-solid fa-sort ml-1"></i></th>
-                                        <th class="py-3 px-4 cursor-pointer hover:text-white transition" onclick="sortPurchases('supplier')">Постачальник <i class="fa-solid fa-sort ml-1"></i></th>
-                                    </tr>
-                                </thead>
-                                <tbody id="purchases-table-body" class="divide-y divide-gray-800 text-sm">
-                                    <!-- Дані заповнюються через JS -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
-            </main>
-        </div>
+        </main>
     </div>
 
     <!-- Модальне вікно закупівлі -->
@@ -228,125 +171,81 @@
         </div>
     </div>
 
-    <!-- Скріпти та логіка -->
+    <!-- Скріпти (Логіка, Firebase, Сортування та API) -->
     <script>
-        const API_URL = "YOUR_GOOGLE_APPS_SCRIPT_URL_HERE"; // Замініть на ваш URL бекенду
-
+        const API_URL = "YOUR_GOOGLE_APPS_SCRIPT_URL_HERE"; // Замініть на ваш дійсний URL бекенду
+        
         let purchasesData = [
-            { date: '22.09', id: '1240', name: 'Товар #1', quantity: 20, np: '20451143478901', supplier: 'Постачальник А' },
-            { date: '22.09', id: '1241', name: 'Товар #2', quantity: 5, np: '20451143478901', supplier: 'Постачальник Б' },
-            { date: '21.09', id: '1239', name: 'Товар #3', quantity: 10, np: '20451143531669', supplier: 'Постачальник А' },
-            { date: '21.09', id: '1242', name: 'Товар #4', quantity: 50, np: '20451144756523', supplier: 'Постачальник В' },
-            { date: '20.09', id: '1243', name: 'Товар #5', quantity: 40, np: '20451144756523', supplier: 'Постачальник Г' },
-            { date: '20.09', id: '1244', name: 'Товар #6', quantity: 40, np: '20451144756523', supplier: 'Постачальник Д' },
-            { date: '19.09', id: '1245', name: 'Товар #7', quantity: 10, np: '20451144756523', supplier: 'Постачальник Е' },
-            { date: '18.09', id: '1251', name: 'Товар #8', quantity: 24, np: '59001358890980', supplier: 'Постачальник Ж' },
-            { date: '18.09', id: '1252', name: 'Товар #9', quantity: 21, np: '59001358890980', supplier: 'Постачальник З' },
-            { date: '17.09', id: '1253', name: 'Товар #10', quantity: 1, np: '59001358890980', supplier: 'Постачальник І' },
-            { date: '16.09', id: '1254', name: 'Товар #11', quantity: 15, np: '59001358890981', supplier: 'Постачальник К' }
+            // Демо-дані для перевірки сортування та скролу
+            { date: '2026-09-20', supplier: 'Постачальник А', np: '20450012345678', quantity: 15 },
+            { date: '2026-09-19', supplier: 'Постачальник Б', np: '20450087654321', quantity: 50 },
+            { date: '2026-09-18', supplier: 'Постачальник В', np: '20450011223344', quantity: 5 },
+            { date: '2026-09-17', supplier: 'Постачальник Г', np: '20450099887766', quantity: 30 },
+            { date: '2026-09-16', supplier: 'Постачальник Д', np: '20450055443322', quantity: 12 },
+            { date: '2026-09-15', supplier: 'Постачальник Е', np: '20450033221100', quantity: 80 },
+            { date: '2026-09-14', supplier: 'Постачальник Ж', np: '20450077889900', quantity: 22 },
+            { date: '2026-09-13', supplier: 'Постачальник З', np: '20450044556677', quantity: 4 },
+            { date: '2026-09-12', supplier: 'Постачальник І', np: '20450099001122', quantity: 65 },
+            { date: '2026-09-11', supplier: 'Постачальник К', np: '20450022334455', quantity: 18 },
+            { date: '2026-09-10', supplier: 'Постачальник Л', np: '20450066778899', quantity: 33 }
         ];
 
         let currentSortColumn = null;
-        let sortDirection = 0; // 0 - за замовчуванням (нові зверху), 1 - від більшого/А до меншого/Я, 2 - від меншого/Я до більшого/А
+        let isAscending = true;
 
-        // Перемикання вкладок
-        function switchTab(tab) {
-            const stockTab = document.getElementById('tab-content-stock');
-            const purchasesTab = document.getElementById('tab-content-purchases');
-            const navStock = document.getElementById('nav-stock');
-            const navPurchases = document.getElementById('nav-purchases');
-            const pageTitle = document.getElementById('page-title');
-            const badgeTitle = document.getElementById('badge-title');
-
-            if (tab === 'stock') {
-                stockTab.classList.remove('hidden');
-                purchasesTab.classList.add('hidden');
-                navStock.className = "flex flex-col items-center justify-center py-3 rounded-xl text-accent bg-accent/10 transition";
-                navPurchases.className = "flex flex-col items-center justify-center py-3 rounded-xl text-gray-400 hover:text-white hover:bg-gray-800/50 transition";
-                pageTitle.textContent = "Складський облік";
-                badgeTitle.textContent = "СКЛАД";
-            } else {
-                stockTab.classList.add('hidden');
-                purchasesTab.classList.remove('hidden');
-                navPurchases.className = "flex flex-col items-center justify-center py-3 rounded-xl text-accent bg-accent/10 transition";
-                navStock.className = "flex flex-col items-center justify-center py-3 rounded-xl text-gray-400 hover:text-white hover:bg-gray-800/50 transition";
-                pageTitle.textContent = "Управління закупівлями";
-                badgeTitle.textContent = "BULL";
-                renderPurchasesTable();
-            }
-        }
-
-        // Логіка сортування та відображення списку закупівель
-        function getDisplayedPurchases() {
-            let data = [...purchasesData];
-            
-            if (currentSortColumn === null) {
-                return data.reverse(); // За замовчуванням нові зверху
-            }
-
-            data.sort((a, b) => {
-                let valA = a[currentSortColumn];
-                let valB = b[currentSortColumn];
-
-                if (!isNaN(valA) && !isNaN(valB) && valA !== '' && valB !== '') {
-                    valA = Number(valA);
-                    valB = Number(valB);
-                } else {
-                    valA = String(valA || '').toLowerCase();
-                    valB = String(valB || '').toLowerCase();
-                }
-
-                if (valA < valB) return sortDirection === 1 ? -1 : 1;
-                if (valA > valB) return sortDirection === 1 ? 1 : -1;
-                return 0;
-            });
-
-            return data;
-        }
-
+        // Функція рендерингу таблиці закупівель
         function renderPurchasesTable() {
             const tbody = document.getElementById('purchases-table-body');
-            const badge = document.getElementById('purchases-count-badge');
             tbody.innerHTML = '';
 
-            const dataToRender = getDisplayedPurchases();
-            badge.textContent = `${purchasesData.length} замовлень`;
-
-            if (dataToRender.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-gray-500">Немає даних історії</td></tr>`;
+            if (purchasesData.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="text-center py-4 text-gray-500">Немає даних історії</td></tr>`;
                 return;
             }
 
-            dataToRender.forEach(item => {
+            purchasesData.forEach(item => {
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-gray-900/40 transition';
                 tr.innerHTML = `
-                    <td class="py-3 px-4 text-gray-400">${item.date}</td>
-                    <td class="py-3 px-4 text-accent font-semibold">${item.id}</td>
-                    <td class="py-3 px-4 text-white">${item.name || '--'}</td>
-                    <td class="py-3 px-4 text-right font-semibold text-accent">+${item.quantity}</td>
+                    <td class="py-3 px-4 text-gray-300">${item.date}</td>
+                    <td class="py-3 px-4 text-white font-medium">${item.supplier}</td>
                     <td class="py-3 px-4 text-gray-300 font-mono text-xs">${item.np}</td>
-                    <td class="py-3 px-4 text-gray-300">${item.supplier}</td>
+                    <td class="py-3 px-4 text-right font-semibold text-accent">${item.quantity}</td>
                 `;
                 tbody.appendChild(tr);
             });
         }
 
+        // Функція сортування
         function sortPurchases(column) {
             if (currentSortColumn === column) {
-                sortDirection++;
-                if (sortDirection > 2) {
-                    sortDirection = 0;
-                    currentSortColumn = null; // Повертаємо у вихідний стан (нові зверху)
-                }
+                isAscending = !isAscending;
             } else {
                 currentSortColumn = column;
-                sortDirection = 1;
+                isAscending = true;
             }
+
+            purchasesData.sort((a, b) => {
+                let valA = a[column];
+                let valB = b[column];
+
+                if (!isNaN(valA) && !isNaN(valB)) {
+                    valA = Number(valA);
+                    valB = Number(valB);
+                } else {
+                    valA = String(valA).toLowerCase();
+                    valB = String(valB).toLowerCase();
+                }
+
+                if (valA < valB) return isAscending ? -1 : 1;
+                if (valA > valB) return isAscending ? 1 : -1;
+                return 0;
+            });
+
             renderPurchasesTable();
         }
 
-        // Модальні вікна закупівлі
+        // Модальні вікна
         function openPurchaseModal() {
             document.getElementById('purchase-modal').classList.remove('hidden');
         }
@@ -354,7 +253,7 @@
             document.getElementById('purchase-modal').classList.add('hidden');
         }
 
-        // Перемикач видимості пароля
+        // Перемикач пароля
         document.getElementById('toggle-password').addEventListener('click', () => {
             const passInput = document.getElementById('login-password');
             const icon = document.getElementById('toggle-password').querySelector('i');
@@ -367,7 +266,7 @@
             }
         });
 
-        // Форма входу
+        // Імітація входу для перевірки (тут підключається ваш Firebase)
         document.getElementById('login-form').addEventListener('submit', (e) => {
             e.preventDefault();
             document.getElementById('auth-screen').classList.add('hidden');
@@ -375,7 +274,7 @@
             renderPurchasesTable();
         });
 
-        // Ініціалізація
+        // Початковий рендер таблиці при завантаженні
         document.addEventListener('DOMContentLoaded', () => {
             renderPurchasesTable();
         });
