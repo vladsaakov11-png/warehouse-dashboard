@@ -3,287 +3,286 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>POINT Fulfillment — Облік та Закупівлі</title>
+  <title>POINT. FULFILLMENT — Облік та Закупівлі</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
     body {
       font-family: 'Inter', sans-serif;
       background-color: #0b0f19;
-      color: #94a3b8;
-    }
-    .active-nav {
-      background-color: rgba(249, 115, 22, 0.08);
-      border-left: 3px solid #f97316;
-      color: #f97316 !important;
+      color: #e2e8f0;
     }
     .custom-scrollbar::-webkit-scrollbar {
       width: 6px;
       height: 6px;
     }
     .custom-scrollbar::-webkit-scrollbar-track {
-      background: #0f172a;
+      background: #111827;
     }
     .custom-scrollbar::-webkit-scrollbar-thumb {
-      background: #334155;
+      background: #374151;
       border-radius: 3px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #4b5563;
+    }
+    .glass-panel {
+      background: rgba(17, 24, 39, 0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    .accent-glow {
+      box-shadow: 0 0 15px rgba(249, 115, 22, 0.2);
     }
   </style>
 </head>
-<body class="flex h-screen overflow-hidden text-sm">
+<body class="h-screen flex overflow-hidden select-none">
 
   <!-- SIDEBAR -->
-  <aside class="w-64 bg-[#0f172a] border-r border-slate-800 flex flex-col justify-between flex-shrink-0">
+  <aside class="w-64 bg-[#0d1322] border-r border-gray-800/60 flex flex-col justify-between z-20 flex-shrink-0">
     <div>
-      <!-- LOGO (EXACT REPLICA FROM SCREENSHOT) -->
-      <div class="px-8 py-6 border-b border-slate-800/60">
-        <div class="flex items-baseline gap-0.5">
-          <span class="text-white font-black text-2xl tracking-tight leading-none">POINT</span>
-          <span class="text-orange-500 font-black text-2xl leading-none">.</span>
-        </div>
-        <div class="text-orange-500 font-bold text-[10px] tracking-[0.2em] uppercase mt-1">
-          FULFILLMENT
+      <!-- LOGO (Восстановлен строго по вашему скриншоту) -->
+      <div class="p-6 border-b border-gray-800/40">
+        <div class="flex flex-col">
+          <div class="flex items-baseline">
+            <span class="text-2xl font-black tracking-tight text-white">POINT</span>
+            <span class="text-2xl font-black text-orange-500 ml-0.5">.</span>
+          </div>
+          <span class="text-[10px] font-bold tracking-[0.25em] text-orange-500 uppercase -mt-1">FULFILLMENT</span>
         </div>
       </div>
 
       <!-- NAVIGATION -->
-      <nav class="mt-6 px-3 space-y-1">
-        <button onclick="switchTab('stock')" id="btn-tab-stock" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-slate-400 hover:text-white hover:bg-slate-800/50 transition active-nav">
-          <i class="fa-solid fa-cubes text-base"></i>
+      <nav class="px-3 py-6 space-y-1.5">
+        <button id="nav-oblik" onclick="switchTab('oblik')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm transition-all duration-200 bg-orange-500/10 text-orange-400 border border-orange-500/20 shadow-lg shadow-orange-500/5">
+          <i class="fa-solid fa-cubes text-lg"></i>
           <span>ОБЛІК</span>
         </button>
-        <button onclick="switchTab('purchases')" id="btn-tab-purchases" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-slate-400 hover:text-white hover:bg-slate-800/50 transition">
-          <i class="fa-solid fa-cart-shopping text-base"></i>
+
+        <button id="nav-zakupivlya" onclick="switchTab('zakupivlya')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm transition-all duration-200 text-gray-400 hover:text-white hover:bg-gray-800/50 border border-transparent">
+          <i class="fa-solid fa-cart-shopping text-lg"></i>
           <span>ЗАКУПІВЛЯ</span>
         </button>
       </nav>
     </div>
 
-    <!-- FOOTER -->
-    <div class="p-4 border-t border-slate-800/60 text-xs text-slate-600 flex flex-col items-center">
-      <div class="p-2.5 bg-orange-500/10 text-orange-500 rounded-xl mb-3 border border-orange-500/20">
-        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M12 2L3 7v10l9 5 9-5V7l-9-5zm0 2.2L18.6 8 12 11.8 5.4 8 12 4.2zM5 9.3l6 3.5v6.9l-6-3.3V9.3zm14 7.1l-6 3.3v-6.9l6-3.5v7.1z"/>
-        </svg>
+    <!-- FOOTER STATUS -->
+    <div class="p-4 border-t border-gray-800/40 flex flex-col items-center gap-2">
+      <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-medium">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span>Онлайн</span>
       </div>
-      <div class="flex items-center gap-2 mb-1">
-        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-        <span class="text-slate-400 font-medium">Онлайн</span>
-      </div>
-      <p>© 2026 POINT Fulfillment</p>
+      <span class="text-[11px] text-gray-500">© 2026 POINT Fulfillment</span>
     </div>
   </aside>
 
   <!-- MAIN CONTENT -->
-  <main class="flex-1 flex flex-col overflow-hidden bg-[#0b0f19]">
-    
-    <!-- TOP HEADER -->
-    <header class="h-16 border-b border-slate-800/60 flex items-center justify-between px-8 bg-[#0f172a]/40 backdrop-blur-md">
+  <main class="flex-1 flex flex-col min-w-0 overflow-hidden bg-[#0b0f19]">
+
+    <!-- TOP HEADER BAR -->
+    <header class="h-16 border-b border-gray-800/50 px-8 flex items-center justify-between glass-panel z-10">
       <div class="flex items-center gap-3">
-        <h2 id="page-title" class="text-xl font-bold text-white">Облік товарів</h2>
-        <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-orange-500/10 text-orange-400 border border-orange-500/20">BULL</span>
+        <h1 id="page-title" class="text-xl font-bold text-white tracking-wide">Облік товарів</h1>
+        <span class="px-2.5 py-0.5 rounded-md text-[11px] font-extrabold uppercase bg-orange-500/10 text-orange-400 border border-orange-500/30 tracking-wider">BULL</span>
       </div>
 
       <div class="flex items-center gap-4">
-        <!-- AUTO UPDATE -->
-        <div class="flex items-center gap-2 bg-slate-800/40 px-3 py-1.5 rounded-lg border border-slate-700/50 text-xs">
-          <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-          <span>Автооновлення: <strong id="timer-counter" class="text-white">60s</strong></span>
+        <div class="flex items-center gap-2 text-xs text-gray-400 bg-gray-900/80 px-3.5 py-1.5 rounded-lg border border-gray-800">
+          <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+          <span>Автооновлення: <strong id="timer-text" class="text-white">20s</strong></span>
+          <span class="text-gray-600 ml-1">|</span>
+          <span id="last-update-time" class="text-gray-500 ml-1">Оновлено: --:--:--</span>
         </div>
 
-        <!-- REFRESH BUTTON -->
-        <button onclick="fetchData()" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition border border-slate-700/50" title="Оновити зараз">
-          <i id="refresh-icon" class="fa-solid fa-rotate"></i>
+        <button onclick="fetchData()" class="p-2 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white transition-colors border border-gray-700" title="Оновити зараз">
+          <i id="refresh-icon" class="fa-solid fa-rotate-right text-sm"></i>
         </button>
       </div>
     </header>
 
-    <!-- TAB 1: ОБЛІК (STOCK) -->
-    <section id="tab-stock" class="flex-1 overflow-y-auto p-8 space-y-6 custom-scrollbar">
-      
-      <!-- STATS CARDS -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div class="bg-[#0f172a]/60 border border-slate-800 p-6 rounded-2xl relative overflow-hidden">
-          <div class="flex justify-between items-start">
+    <!-- CONTENT BODY -->
+    <div class="flex-1 overflow-y-auto p-8 custom-scrollbar">
+
+      <!-- ================= TAB 1: ОБЛІК ================= -->
+      <section id="tab-oblik" class="space-y-6">
+        <!-- METRICS CARDS -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div class="p-5 rounded-2xl glass-panel border border-gray-800/80 flex items-center justify-between">
             <div>
-              <p class="text-xs font-semibold tracking-wider text-slate-400 uppercase">Одиниць товару</p>
-              <h3 id="stat-total-qty" class="text-3xl font-extrabold text-white mt-2">0</h3>
-              <p class="text-xs text-slate-500 mt-1">Загальна к-сть штук на складі</p>
+              <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Одиниць товару</p>
+              <h2 id="total-qty" class="text-3xl font-extrabold text-white">0</h2>
+              <p class="text-xs text-gray-500 mt-1">Загальна к-сть штук на складі</p>
             </div>
-            <div class="p-3 bg-slate-800/80 rounded-xl text-slate-400">
-              <i class="fa-solid fa-box-archive text-xl"></i>
+            <div class="w-12 h-12 rounded-xl bg-gray-800/80 border border-gray-700/50 flex items-center justify-between justify-center text-gray-400">
+              <i class="fa-solid fa-box text-xl"></i>
             </div>
           </div>
-        </div>
 
-        <div class="bg-[#0f172a]/60 border border-slate-800 p-6 rounded-2xl relative overflow-hidden">
-          <div class="flex justify-between items-start">
+          <div class="p-5 rounded-2xl glass-panel border border-gray-800/80 flex items-center justify-between">
             <div>
-              <p class="text-xs font-semibold tracking-wider text-slate-400 uppercase">Залишок скупки</p>
-              <h3 id="stat-total-sum" class="text-3xl font-extrabold text-emerald-400 mt-2">0 ₴</h3>
-              <p class="text-xs text-slate-500 mt-1">Оцінка в валюті: <span id="stat-total-usd" class="text-amber-400 font-semibold">$0</span></p>
+              <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Залишок скупки</p>
+              <div class="flex items-baseline gap-2">
+                <h2 id="total-sum" class="text-3xl font-extrabold text-emerald-400">0 ₴</h2>
+              </div>
+              <p class="text-xs text-gray-500 mt-1">Оцінка в валюті: <span id="usd-sum" class="text-amber-400 font-semibold">$0</span> <span class="text-[10px] text-gray-600">(Курс: 41.50)</span></p>
             </div>
-            <div class="flex flex-col items-end gap-2">
-              <div class="p-3 bg-slate-800/80 rounded-xl text-emerald-400">
-                <i class="fa-solid fa-wallet text-xl"></i>
-              </div>
-              <span class="text-[11px] bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded border border-amber-500/20">Курс: 41.50</span>
+            <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+              <i class="fa-solid fa-wallet text-xl"></i>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- TABLE CONTAINER -->
-      <div class="bg-[#0f172a]/60 border border-slate-800 rounded-2xl overflow-hidden">
-        
-        <!-- TABLE CONTROLS -->
-        <div class="p-4 border-b border-slate-800/80 flex flex-wrap items-center justify-between gap-4">
-          <div class="flex items-center gap-2">
-            <button onclick="setFilter('all')" id="filter-all" class="px-4 py-2 rounded-xl font-medium text-xs bg-slate-800 text-slate-300 hover:bg-slate-700">Усі</button>
-            <button onclick="setFilter('empty')" id="filter-empty" class="px-4 py-2 rounded-xl font-medium text-xs bg-slate-800 text-slate-300 hover:bg-slate-700">Немає (0)</button>
-            <button onclick="setFilter('low')" id="filter-low" class="px-4 py-2 rounded-xl font-medium text-xs bg-slate-800 text-slate-300 hover:bg-slate-700">Малий залишок (1–19)</button>
-            <button onclick="setFilter('good')" id="filter-good" class="px-4 py-2 rounded-xl font-medium text-xs bg-orange-500 text-white font-semibold shadow-lg shadow-orange-500/20">У наявності (≥20)</button>
+        <!-- CONTROLS & SEARCH -->
+        <div class="flex flex-col md:flex-row gap-4 items-center justify-between pt-2">
+          <!-- FILTER TABS -->
+          <div class="flex bg-gray-900/90 p-1 rounded-xl border border-gray-800 w-full md:w-auto">
+            <button onclick="setFilter('all')" id="filter-all" class="px-4 py-2 rounded-lg text-xs font-semibold transition-all bg-orange-500 text-white shadow-md">Усі</button>
+            <button onclick="setFilter('out')" id="filter-out" class="px-4 py-2 rounded-lg text-xs font-semibold text-gray-400 hover:text-white transition-all">Немає (0)</button>
+            <button onclick="setFilter('low')" id="filter-low" class="px-4 py-2 rounded-lg text-xs font-semibold text-gray-400 hover:text-white transition-all">Малий залишок (1–19)</button>
+            <button onclick="setFilter('in')" id="filter-in" class="px-4 py-2 rounded-lg text-xs font-semibold text-gray-400 hover:text-white transition-all">У наявності (≥20)</button>
           </div>
 
-          <div class="relative w-72">
-            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-500"></i>
-            <input type="text" id="search-stock" oninput="renderStockTable()" placeholder="Пошук за назвою або ID..." class="w-full bg-slate-900 border border-slate-800 rounded-xl pl-10 pr-4 py-2 text-xs text-white focus:outline-none focus:border-orange-500 transition">
+          <!-- SEARCH INPUT -->
+          <div class="relative w-full md:w-80">
+            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 text-xs"></i>
+            <input type="text" id="search-oblik" oninput="renderStockTable()" placeholder="Пошук за назвою або ID..." class="w-full bg-gray-900/90 border border-gray-800 rounded-xl pl-9 pr-4 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-orange-500/50 transition-colors">
           </div>
         </div>
 
-        <!-- TABLE -->
-        <div class="overflow-x-auto">
-          <table class="w-full text-left border-collapse">
-            <thead>
-              <tr class="bg-slate-900/50 text-[11px] font-bold uppercase text-slate-400 border-b border-slate-800">
-                <th class="p-4">ID</th>
-                <th class="p-4">НАЗВА ТОВАРУ</th>
-                <th class="p-4 text-center">ЗАЛИШОК</th>
-                <th class="p-4 text-center">ВІДПРАВКИ</th>
-                <th class="p-4 text-right">ЗАЛИШОК (ГРН)</th>
-              </tr>
-            </thead>
-            <tbody id="stock-tbody" class="divide-y divide-slate-800/50 text-xs">
-              <!-- Rendered via JS -->
-            </tbody>
-          </table>
+        <!-- STOCK TABLE -->
+        <div class="rounded-2xl glass-panel border border-gray-800 overflow-hidden">
+          <div class="overflow-x-auto custom-scrollbar">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-gray-900/80 text-gray-400 font-bold uppercase tracking-wider border-b border-gray-800">
+                <tr>
+                  <th class="py-3.5 px-6">ID</th>
+                  <th class="py-3.5 px-6">Назва товару</th>
+                  <th class="py-3.5 px-6 text-center">Залишок</th>
+                  <th class="py-3.5 px-6 text-center">Відправки</th>
+                  <th class="py-3.5 px-6 text-right">Залишок (ГРН)</th>
+                </tr>
+              </thead>
+              <tbody id="oblik-tbody" class="divide-y divide-gray-800/50 text-gray-300">
+                <!-- Dynamic Rows -->
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- TAB 2: ЗАКУПІВЛЯ (PURCHASES) -->
-    <section id="tab-purchases" class="hidden flex-1 overflow-y-auto p-8 space-y-6 custom-scrollbar">
-      
-      <!-- TOP ACTION BAR -->
-      <div class="flex items-center justify-between bg-[#0f172a]/60 border border-slate-800 p-6 rounded-2xl">
-        <div>
-          <h3 class="text-lg font-bold text-white">Управління закупівлями</h3>
-          <p class="text-xs text-slate-400 mt-1">Оформлюйте нові замовлення постачальникам та відстежуйте статус поставок</p>
+
+      <!-- ================= TAB 2: ЗАКУПІВЛЯ ================= -->
+      <section id="tab-zakupivlya" class="space-y-6 hidden">
+
+        <!-- TOP BAR FOR ZAKUPIVLYA -->
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-gray-900/60 p-6 rounded-2xl border border-gray-800">
+          <div>
+            <h2 class="text-lg font-bold text-white">Управління закупівлями</h2>
+            <p class="text-xs text-gray-400 mt-1">Оформлюйте нові замовлення постачальникам та відстежуйте стан поставок.</p>
+          </div>
+          <button onclick="openPurchaseModal()" class="flex items-center gap-2 px-5 py-3 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-bold text-xs uppercase tracking-wider transition-all shadow-lg shadow-orange-500/20 accent-glow">
+            <i class="fa-solid fa-plus text-sm"></i>
+            <span>Зробити закупівлю</span>
+          </button>
         </div>
-        <button onclick="openPurchaseModal()" class="px-5 py-3 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 text-white font-bold text-xs shadow-lg shadow-orange-500/20 hover:brightness-110 transition flex items-center gap-2">
-          <i class="fa-solid fa-plus text-sm"></i>
-          <span>ЗРОБИТИ ЗАКУПІВЛЮ</span>
-        </button>
-      </div>
 
-      <!-- TWO BIG CARDS GRID -->
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        
-        <!-- CARD 1: ОЧІКУВАНІ ПОСТАВКИ -->
-        <div class="bg-[#0f172a]/60 border border-slate-800 rounded-2xl p-6 flex flex-col h-[550px]">
-          <div class="flex items-center justify-between pb-4 border-b border-slate-800 mb-4">
-            <div class="flex items-center gap-3">
-              <div class="p-2.5 bg-amber-500/10 text-amber-400 rounded-xl border border-amber-500/20">
-                <i class="fa-solid fa-truck-ramp-box text-lg"></i>
+        <!-- TWO MAIN CARDS GRID -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+          <!-- CARD 1: ОЧІКУВАНІ ПОСТАВКИ -->
+          <div class="glass-panel rounded-2xl border border-gray-800 p-5 flex flex-col h-[520px]">
+            <div class="flex items-center justify-between pb-4 border-b border-gray-800 mb-4">
+              <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
+                  <i class="fa-solid fa-truck-fast text-xs"></i>
+                </div>
+                <h3 class="font-bold text-white text-sm">Очікувані поставки</h3>
               </div>
-              <div>
-                <h4 class="font-bold text-white text-base">Очікувані поставки</h4>
-                <p class="text-xs text-slate-400">Замовлення, які уже оформлені і прямують на склад</p>
-              </div>
+              <span id="pending-count-badge" class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">0 замовлень</span>
             </div>
-            <span id="pending-count" class="px-2.5 py-1 bg-amber-500/10 text-amber-400 text-xs font-bold rounded-lg border border-amber-500/20">0 замовлень</span>
-          </div>
 
-          <div class="flex-1 overflow-y-auto custom-scrollbar space-y-3 pr-1" id="pending-purchases-list">
-            <!-- Rendered via JS -->
-          </div>
-        </div>
-
-        <!-- CARD 2: ІСТОРІЯ ЗАКУПІВЕЛЬ -->
-        <div class="bg-[#0f172a]/60 border border-slate-800 rounded-2xl p-6 flex flex-col h-[550px]">
-          <div class="flex items-center justify-between pb-4 border-b border-slate-800 mb-4">
-            <div class="flex items-center gap-3">
-              <div class="p-2.5 bg-emerald-500/10 text-emerald-400 rounded-xl border border-emerald-500/20">
-                <i class="fa-solid fa-clock-rotate-left text-lg"></i>
-              </div>
-              <div>
-                <h4 class="font-bold text-white text-base">Історія закупівель</h4>
-                <p class="text-xs text-slate-400">Архів раніше виконаних замовлень</p>
+            <div class="flex-1 overflow-y-auto custom-scrollbar pr-1">
+              <div id="pending-list" class="space-y-3">
+                <!-- Dynamic Pending Cards -->
               </div>
             </div>
-            <span id="history-count" class="px-2.5 py-1 bg-slate-800 text-slate-400 text-xs font-bold rounded-lg">0 всього</span>
           </div>
 
-          <!-- SEARCH IN HISTORY -->
-          <div class="mb-3">
-            <input type="text" id="search-history" oninput="renderPurchasesTab()" placeholder="Пошук в історії..." class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-orange-500 transition">
+          <!-- CARD 2: ІСТОРІЯ ЗАКУПІВЕЛЬ -->
+          <div class="glass-panel rounded-2xl border border-gray-800 p-5 flex flex-col h-[520px]">
+            <div class="flex items-center justify-between pb-4 border-b border-gray-800 mb-4">
+              <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+                  <i class="fa-solid fa-clock-rotate-left text-xs"></i>
+                </div>
+                <h3 class="font-bold text-white text-sm">Історія закупівель</h3>
+              </div>
+              <span id="history-count-badge" class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-gray-800 text-gray-400 border border-gray-700">0 записів</span>
+            </div>
+
+            <div class="flex-1 overflow-y-auto custom-scrollbar pr-1">
+              <div id="history-list" class="space-y-3">
+                <!-- Dynamic History Cards -->
+              </div>
+            </div>
           </div>
 
-          <div class="flex-1 overflow-y-auto custom-scrollbar" id="history-purchases-list">
-            <!-- Rendered via JS -->
-          </div>
         </div>
+      </section>
 
-      </div>
-    </section>
-
+    </div>
   </main>
 
-  <!-- MODAL: СТВОРИТИ ЗАКУПІВЛЮ -->
-  <div id="modal-purchase" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-[#0f172a] border border-slate-800 rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl">
-      <div class="p-6 border-b border-slate-800 flex justify-between items-center">
-        <h3 class="font-bold text-white text-base">Нова закупівля товару</h3>
-        <button onclick="closePurchaseModal()" class="text-slate-500 hover:text-white transition"><i class="fa-solid fa-xmark text-lg"></i></button>
-      </div>
+  <!-- MODAL: ЗРОБИТИ ЗАКУПІВЛЮ -->
+  <div id="purchase-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-[#111827] border border-gray-800 w-full max-w-lg rounded-2xl p-6 shadow-2xl relative">
+      <button onclick="closePurchaseModal()" class="absolute right-4 top-4 text-gray-500 hover:text-white text-lg">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
 
-      <form id="purchase-form" onsubmit="submitPurchase(event)" class="p-6 space-y-4">
+      <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+        <i class="fa-solid fa-cart-plus text-orange-500"></i>
+        Оформлення нової закупівлі
+      </h3>
+
+      <form id="purchase-form" onsubmit="submitPurchase(event)" class="space-y-4">
         <div>
-          <label class="block text-xs font-semibold text-slate-400 mb-1.5">Виберіть товар</label>
-          <select id="modal-product-select" required class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-orange-500 transition">
-            <!-- Products loaded via JS -->
+          <label class="block text-xs font-semibold text-gray-400 mb-1">Оберіть товар *</label>
+          <select id="modal-product-select" required class="w-full bg-gray-900 border border-gray-800 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-orange-500">
+            <option value="">-- Оберіть товар зі складу --</option>
           </select>
         </div>
 
-        <div>
-          <label class="block text-xs font-semibold text-slate-400 mb-1.5">Кількість (шт)</label>
-          <input type="number" id="modal-qty" min="1" required placeholder="Наприклад: 100" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-orange-500 transition">
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-gray-400 mb-1">Кількість (шт) *</label>
+            <input type="number" id="modal-qty" min="1" required placeholder="100" class="w-full bg-gray-900 border border-gray-800 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-orange-500">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-400 mb-1">Постачальник</label>
+            <input type="text" id="modal-supplier" placeholder="Назва постачальника" class="w-full bg-gray-900 border border-gray-800 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-orange-500">
+          </div>
         </div>
 
         <div>
-          <label class="block text-xs font-semibold text-slate-400 mb-1.5">Номер ТТН (необов'язково)</label>
-          <input type="text" id="modal-ttn" placeholder="20500000000000" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-orange-500 transition">
+          <label class="block text-xs font-semibold text-gray-400 mb-1">Номер ТТН (Нова Пошта)</label>
+          <input type="text" id="modal-ttn" placeholder="20450000000000" class="w-full bg-gray-900 border border-gray-800 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-orange-500">
         </div>
 
-        <div>
-          <label class="block text-xs font-semibold text-slate-400 mb-1.5">Постачальник</label>
-          <input type="text" id="modal-supplier" placeholder="Назва постачальника або ім'я" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-orange-500 transition">
-        </div>
-
-        <div class="pt-4 flex justify-end gap-3 border-t border-slate-800/80">
-          <button type="button" onclick="closePurchaseModal()" class="px-4 py-2.5 rounded-xl bg-slate-800 text-slate-300 font-semibold text-xs hover:bg-slate-700 transition">Скасувати</button>
-          <button type="submit" id="modal-submit-btn" class="px-5 py-2.5 rounded-xl bg-orange-500 text-white font-bold text-xs hover:bg-orange-600 transition flex items-center gap-2">
-            <span>Оформити закупівлю</span>
-          </button>
+        <div class="pt-3 flex justify-end gap-3">
+          <button type="button" onclick="closePurchaseModal()" class="px-4 py-2.5 rounded-xl bg-gray-800 hover:bg-gray-700 text-gray-300 text-xs font-semibold transition-colors">Скасувати</button>
+          <button type="submit" class="px-5 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold transition-all shadow-lg shadow-orange-500/20">Зберегти замовлення</button>
         </div>
       </form>
     </div>
   </div>
 
+
   <!-- JAVASCRIPT LOGIC -->
   <script>
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwq2kL90-Kj81yIs-22wX8vH1rE1v2y1d2_SAMPLE/exec'; 
+    // URL твого Google Apps Script (Берется из настроек развертывания)
+    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzxxxx-your-script-id/exec"; // Вставьте актуальную ссылку веб-приложения
 
     let appData = {
       products: [],
@@ -292,271 +291,224 @@
     };
 
     let currentFilter = 'all';
-    let autoRefreshTimer = 60;
 
-    window.addEventListener('DOMContentLoaded', () => {
-      fetchData();
-      startTimer();
-    });
-
-    function switchTab(tab) {
-      const tabStock = document.getElementById('tab-stock');
-      const tabPurchases = document.getElementById('tab-purchases');
-      const btnStock = document.getElementById('btn-tab-stock');
-      const btnPurchases = document.getElementById('btn-tab-purchases');
-      const pageTitle = document.getElementById('page-title');
-
-      if (tab === 'stock') {
-        tabStock.classList.remove('hidden');
-        tabPurchases.classList.add('hidden');
-        btnStock.classList.add('active-nav');
-        btnPurchases.classList.remove('active-nav');
-        pageTitle.innerText = 'Облік товарів';
-      } else {
-        tabStock.classList.add('hidden');
-        tabPurchases.classList.remove('hidden');
-        btnPurchases.classList.add('active-nav');
-        btnStock.classList.remove('active-nav');
-        pageTitle.innerText = 'Закупівля товарів';
-        renderPurchasesTab();
-      }
-    }
-
+    // Fetch Data using JSONP to avoid CORS issues
     function fetchData() {
-      const refreshIcon = document.getElementById('refresh-icon');
-      refreshIcon.classList.add('fa-spin');
+      const icon = document.getElementById('refresh-icon');
+      if (icon) icon.classList.add('fa-spin');
 
       const script = document.createElement('script');
-      const callbackName = 'handleApiResponse_' + Math.round(Math.random() * 1000000);
+      const callbackName = 'handleApiResponse_' + Math.round(Math.random() * 100000);
 
       window[callbackName] = function(data) {
         delete window[callbackName];
         document.body.removeChild(script);
-        refreshIcon.classList.remove('fa-spin');
+        if (icon) icon.classList.remove('fa-spin');
 
         if (data && !data.error) {
-          appData = data;
-          updateDashboard();
-          const now = new Date();
-          document.querySelector('#timer-counter').parentElement.lastElementChild.innerText = 
-            `Оновлено о ${now.toTimeString().split(' ')[0]}`;
+          appData.products = data.products || [];
+          appData.shipments = data.shipments || [];
+          appData.purchases = data.purchases || [];
+          renderAll();
+          updateLastTime();
+        } else {
+          console.error("API Error:", data ? data.error : "No data");
         }
       };
 
-      script.src = `${SCRIPT_URL}?callback=${callbackName}&t=${new Date().getTime()}`;
+      script.src = APPS_SCRIPT_URL + (APPS_SCRIPT_URL.includes('?') ? '&' : '?') + 'callback=' + callbackName;
+      script.onerror = function() {
+        if (icon) icon.classList.remove('fa-spin');
+        console.error("Failed to load script");
+      };
       document.body.appendChild(script);
-
-      autoRefreshTimer = 60;
     }
 
-    function startTimer() {
-      setInterval(() => {
-        autoRefreshTimer--;
-        if (autoRefreshTimer <= 0) {
-          fetchData();
-        } else {
-          document.getElementById('timer-counter').innerText = `${autoRefreshTimer}s`;
-        }
-      }, 1000);
+    function renderAll() {
+      renderMetrics();
+      renderStockTable();
+      renderZakupivlyaCards();
+      populateProductSelect();
     }
 
-    function updateDashboard() {
+    function renderMetrics() {
       let totalQty = 0;
       let totalSum = 0;
 
       appData.products.forEach(p => {
-        totalQty += Number(p.qty) || 0;
-        totalSum += Number(p.totalSum) || 0;
+        totalQty += (p.qty || 0);
+        totalSum += (p.totalSum || 0);
       });
 
-      document.getElementById('stat-total-qty').innerText = totalQty.toLocaleString();
-      document.getElementById('stat-total-sum').innerText = `${totalSum.toLocaleString()} ₴`;
-      document.getElementById('stat-total-usd').innerText = `$${Math.round(totalSum / 41.5).toLocaleString()}`;
-
-      renderStockTable();
-      renderPurchasesTab();
+      document.getElementById('total-qty').innerText = totalQty.toLocaleString('uk-UA');
+      document.getElementById('total-sum').innerText = totalSum.toLocaleString('uk-UA') + ' ₴';
+      
+      const usdVal = (totalSum / 41.50).toFixed(0);
+      document.getElementById('usd-sum').innerText = '$' + Number(usdVal).toLocaleString('en-US');
     }
 
     function renderStockTable() {
-      const tbody = document.getElementById('stock-tbody');
-      const searchVal = document.getElementById('search-stock').value.toLowerCase();
+      const tbody = document.getElementById('oblik-tbody');
+      const query = (document.getElementById('search-oblik').value || '').toLowerCase();
+      tbody.innerHTML = '';
 
-      let filtered = appData.products.filter(p => {
-        const matchSearch = p.name.toLowerCase().includes(searchVal) || String(p.id).toLowerCase().includes(searchVal);
-        const qty = Number(p.qty) || 0;
+      const filtered = appData.products.filter(p => {
+        const matchesQuery = p.name.toLowerCase().includes(query) || p.id.toLowerCase().includes(query);
+        if (!matchesQuery) return false;
 
-        if (!matchSearch) return false;
-        if (currentFilter === 'empty') return qty === 0;
-        if (currentFilter === 'low') return qty >= 1 && qty <= 19;
-        if (currentFilter === 'good') return qty >= 20;
+        if (currentFilter === 'out') return p.qty === 0;
+        if (currentFilter === 'low') return p.qty >= 1 && p.qty <= 19;
+        if (currentFilter === 'in') return p.qty >= 20;
         return true;
       });
 
       if (filtered.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" class="text-center py-12 text-slate-500">Товарів не знайдено</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="5" class="py-8 text-center text-gray-500">Товари не знайдені</td></tr>`;
         return;
       }
 
-      tbody.innerHTML = filtered.map(p => {
-        const qty = Number(p.qty) || 0;
-        let badgeColor = 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20';
-        if (qty === 0) badgeColor = 'text-rose-400 bg-rose-500/10 border-rose-500/20';
-        else if (qty < 20) badgeColor = 'text-amber-400 bg-amber-500/10 border-amber-500/20';
+      filtered.forEach(p => {
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-gray-800/40 transition-colors";
 
-        const itemShipments = appData.shipments
-          .filter(s => String(s.id) === String(p.id))
-          .reduce((acc, curr) => acc + (Number(curr.qty) || 0), 0);
+        let statusClass = "bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
+        if (p.qty === 0) statusClass = "bg-rose-500/10 text-rose-400 border-rose-500/20";
+        else if (p.qty < 20) statusClass = "bg-amber-500/10 text-amber-400 border-amber-500/20";
 
-        return `
-          <tr class="hover:bg-slate-800/30 transition">
-            <td class="p-4 font-semibold text-slate-400">#${p.id}</td>
-            <td class="p-4 font-bold text-white">${p.name}</td>
-            <td class="p-4 text-center">
-              <span class="px-2.5 py-1 rounded-lg text-xs font-bold border ${badgeColor}">
-                ${qty} шт
-              </span>
-            </td>
-            <td class="p-4 text-center text-slate-400 font-medium">${itemShipments} шт</td>
-            <td class="p-4 text-right font-bold text-emerald-400">${(Number(p.totalSum) || 0).toLocaleString()} ₴</td>
-          </tr>
+        tr.innerHTML = `
+          <td class="py-3.5 px-6 font-mono text-gray-400">${p.id}</td>
+          <td class="py-3.5 px-6 font-semibold text-white">${p.name}</td>
+          <td class="py-3.5 px-6 text-center">
+            <span class="px-2.5 py-1 rounded-full border text-[11px] font-bold ${statusClass}">
+              ${p.qty} шт
+            </span>
+          </td>
+          <td class="py-3.5 px-6 text-center text-gray-400">-</td>
+          <td class="py-3.5 px-6 text-right font-medium text-emerald-400">${(p.totalSum || 0).toLocaleString('uk-UA')} ₴</td>
         `;
-      }).join('');
+        tbody.appendChild(tr);
+      });
     }
 
     function setFilter(filter) {
       currentFilter = filter;
-      ['all', 'empty', 'low', 'good'].forEach(f => {
+      ['all', 'out', 'low', 'in'].forEach(f => {
         const btn = document.getElementById(`filter-${f}`);
         if (f === filter) {
-          btn.className = 'px-4 py-2 rounded-xl font-medium text-xs bg-orange-500 text-white font-semibold shadow-lg shadow-orange-500/20';
+          btn.className = "px-4 py-2 rounded-lg text-xs font-semibold transition-all bg-orange-500 text-white shadow-md";
         } else {
-          btn.className = 'px-4 py-2 rounded-xl font-medium text-xs bg-slate-800 text-slate-300 hover:bg-slate-700';
+          btn.className = "px-4 py-2 rounded-lg text-xs font-semibold text-gray-400 hover:text-white transition-all";
         }
       });
       renderStockTable();
     }
 
-    function renderPurchasesTab() {
-      const pendingContainer = document.getElementById('pending-purchases-list');
-      const historyContainer = document.getElementById('history-purchases-list');
-      const searchVal = (document.getElementById('search-history')?.value || '').toLowerCase();
+    function renderZakupivlyaCards() {
+      const pendingContainer = document.getElementById('pending-list');
+      const historyContainer = document.getElementById('history-list');
 
-      const pending = [];
-      const history = [];
+      pendingContainer.innerHTML = '';
+      historyContainer.innerHTML = '';
 
-      appData.purchases.forEach(p => {
-        const matchesSearch = !searchVal || 
-          p.name.toLowerCase().includes(searchVal) || 
-          String(p.id).toLowerCase().includes(searchVal) || 
-          p.ttn.toLowerCase().includes(searchVal);
+      const pending = appData.purchases.filter(p => !p.received);
+      const history = appData.purchases.filter(p => p.received || p.date);
 
-        if (p.ttn || !p.date) {
-          pending.push(p);
-        }
-        if (matchesSearch) {
-          history.push(p);
-        }
-      });
-
-      document.getElementById('pending-count').innerText = `${pending.length} замовлень`;
-      document.getElementById('history-count').innerText = `${history.length} всього`;
+      document.getElementById('pending-count-badge').innerText = `${pending.length} замовлень`;
+      document.getElementById('history-count-badge').innerText = `${history.length} записів`;
 
       if (pending.length === 0) {
-        pendingContainer.innerHTML = `<div class="text-center py-16 text-slate-500 text-xs">Немає очікуваних поставок</div>`;
+        pendingContainer.innerHTML = `<p class="text-xs text-gray-500 text-center py-8">Немає очікуваних поставок</p>`;
       } else {
-        pendingContainer.innerHTML = pending.map(p => `
-          <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-4 flex items-center justify-between hover:border-slate-700 transition">
-            <div class="space-y-1">
-              <div class="flex items-center gap-2">
-                <span class="text-xs font-bold text-amber-400">#${p.id}</span>
-                <h5 class="font-bold text-white text-xs">${p.name || 'Товар'}</h5>
+        pending.forEach(item => {
+          pendingContainer.innerHTML += `
+            <div class="p-4 rounded-xl bg-gray-900/80 border border-gray-800 flex items-center justify-between">
+              <div>
+                <span class="text-[10px] font-mono text-orange-400 bg-orange-500/10 px-2 py-0.5 rounded border border-orange-500/20">${item.id || 'ID'}</span>
+                <h4 class="text-xs font-bold text-white mt-1">${item.name || 'Товар'}</h4>
+                <p class="text-[11px] text-gray-400 mt-0.5">Постачальник: ${item.supplier || 'Не вказано'}</p>
+                <p class="text-[10px] text-gray-500">ТТН: ${item.ttn || 'Немає'}</p>
               </div>
-              <div class="text-[11px] text-slate-400 flex items-center gap-3">
-                <span><i class="fa-solid fa-truck text-slate-500 mr-1"></i> ТТН: <strong class="text-slate-300">${p.ttn || 'Не вказано'}</strong></span>
-                <span><i class="fa-solid fa-user text-slate-500 mr-1"></i> ${p.supplier || 'Постачальник'}</span>
+              <div class="text-right">
+                <span class="text-xs font-extrabold text-amber-400">${item.qty} шт</span>
+                <p class="text-[10px] text-gray-500 mt-1">${item.date || ''}</p>
               </div>
             </div>
-            <div class="text-right">
-              <span class="block font-black text-amber-400 text-sm">+${p.qty} шт</span>
-              <span class="text-[10px] text-slate-500">${p.date || 'В дорозі'}</span>
-            </div>
-          </div>
-        `).join('');
+          `;
+        });
       }
 
       if (history.length === 0) {
-        historyContainer.innerHTML = `<div class="text-center py-16 text-slate-500 text-xs">Історія порожня</div>`;
+        historyContainer.innerHTML = `<p class="text-xs text-gray-500 text-center py-8">Історія порожня</p>`;
       } else {
-        historyContainer.innerHTML = `
-          <table class="w-full text-left border-collapse">
-            <thead>
-              <tr class="bg-slate-900/50 text-[10px] font-bold uppercase text-slate-500 border-b border-slate-800">
-                <th class="p-3">Дата</th>
-                <th class="p-3">Товар / ID</th>
-                <th class="p-3 text-center">К-сть</th>
-                <th class="p-3 text-right">ТТН</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-800/40 text-xs">
-              ${history.map(p => `
-                <tr class="hover:bg-slate-800/20 transition">
-                  <td class="p-3 text-slate-400 text-[11px]">${p.date || '-'}</td>
-                  <td class="p-3">
-                    <p class="font-bold text-white">${p.name || 'Товар'}</p>
-                    <span class="text-[10px] text-slate-500">ID: #${p.id}</span>
-                  </td>
-                  <td class="p-3 text-center font-bold text-emerald-400">+${p.qty}</td>
-                  <td class="p-3 text-right text-slate-400 text-[11px]">${p.ttn || '-'}</td>
-                </tr>
-              `).join('')}
-            </tbody>
-          </table>
-        `;
+        history.forEach(item => {
+          historyContainer.innerHTML += `
+            <div class="p-3.5 rounded-xl bg-gray-900/50 border border-gray-800/60 flex items-center justify-between">
+              <div>
+                <h4 class="text-xs font-semibold text-gray-200">${item.name || 'Товар'}</h4>
+                <p class="text-[10px] text-gray-500">ТТН: ${item.ttn || '-'} • ${item.supplier || ''}</p>
+              </div>
+              <div class="text-right">
+                <span class="text-xs font-bold text-gray-300">+${item.qty} шт</span>
+                <p class="text-[10px] text-gray-500">${item.date || ''}</p>
+              </div>
+            </div>
+          `;
+        });
+      }
+    }
+
+    function populateProductSelect() {
+      const select = document.getElementById('modal-product-select');
+      select.innerHTML = '<option value="">-- Оберіть товар зі складу --</option>';
+      appData.products.forEach(p => {
+        select.innerHTML += `<option value="${p.id}">${p.name} (Залишок: ${p.qty} шт)</option>`;
+      });
+    }
+
+    function switchTab(tab) {
+      document.getElementById('tab-oblik').classList.add('hidden');
+      document.getElementById('tab-zakupivlya').classList.add('hidden');
+
+      document.getElementById('nav-oblik').className = "w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm transition-all duration-200 text-gray-400 hover:text-white hover:bg-gray-800/50 border border-transparent";
+      document.getElementById('nav-zakupivlya').className = "w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm transition-all duration-200 text-gray-400 hover:text-white hover:bg-gray-800/50 border border-transparent";
+
+      if (tab === 'oblik') {
+        document.getElementById('tab-oblik').classList.remove('hidden');
+        document.getElementById('nav-oblik').className = "w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm transition-all duration-200 bg-orange-500/10 text-orange-400 border border-orange-500/20 shadow-lg shadow-orange-500/5";
+        document.getElementById('page-title').innerText = "Облік товарів";
+      } else {
+        document.getElementById('tab-zakupivlya').classList.remove('hidden');
+        document.getElementById('nav-zakupivlya').className = "w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm transition-all duration-200 bg-orange-500/10 text-orange-400 border border-orange-500/20 shadow-lg shadow-orange-500/5";
+        document.getElementById('page-title').innerText = "Закупівля товарів";
       }
     }
 
     function openPurchaseModal() {
-      const select = document.getElementById('modal-product-select');
-      select.innerHTML = appData.products.map(p => `
-        <option value="${p.id}">${p.name} (Залишок: ${p.qty} шт)</option>
-      `).join('');
-
-      document.getElementById('modal-purchase').classList.remove('hidden');
+      document.getElementById('purchase-modal').classList.remove('hidden');
     }
 
     function closePurchaseModal() {
-      document.getElementById('modal-purchase').classList.add('hidden');
+      document.getElementById('purchase-modal').classList.add('hidden');
     }
 
-    function submitPurchase(e) {
-      e.preventDefault();
-      const btn = document.getElementById('modal-submit-btn');
-      btn.disabled = true;
-      btn.innerText = 'Оформлення...';
+    function updateLastTime() {
+      const now = new Date();
+      document.getElementById('last-update-time').innerText = 'Оновлено: ' + now.toLocaleTimeString('uk-UA');
+    }
 
-      const payload = {
-        id: document.getElementById('modal-product-select').value,
-        qty: document.getElementById('modal-qty').value,
-        ttn: document.getElementById('modal-ttn').value,
-        supplier: document.getElementById('modal-supplier').value
-      };
-
-      fetch(SCRIPT_URL, {
-        method: 'POST',
-        body: JSON.stringify(payload)
-      })
-      .then(() => {
-        closePurchaseModal();
-        btn.disabled = false;
-        btn.innerText = 'Оформити закупівлю';
+    // Auto-refresh timer
+    let secondsLeft = 20;
+    setInterval(() => {
+      secondsLeft--;
+      if (secondsLeft <= 0) {
+        secondsLeft = 20;
         fetchData();
-      })
-      .catch(() => {
-        alert('Помилка при збереженні');
-        btn.disabled = false;
-        btn.innerText = 'Оформити закупівлю';
-      });
-    }
+      }
+      document.getElementById('timer-text').innerText = secondsLeft + 's';
+    }, 1000);
+
+    // Initial load
+    fetchData();
   </script>
 </body>
 </html>
