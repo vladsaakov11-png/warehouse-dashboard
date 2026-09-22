@@ -42,7 +42,7 @@
   <!-- SIDEBAR -->
   <aside class="w-64 bg-[#0d1322] border-r border-gray-800/60 flex flex-col justify-between z-20 flex-shrink-0">
     <div>
-      <!-- LOGO (Восстановлен строго по вашему скриншоту) -->
+      <!-- LOGO (Оригинальный дизайн) -->
       <div class="p-6 border-b border-gray-800/40">
         <div class="flex flex-col">
           <div class="flex items-baseline">
@@ -114,7 +114,7 @@
               <h2 id="total-qty" class="text-3xl font-extrabold text-white">0</h2>
               <p class="text-xs text-gray-500 mt-1">Загальна к-сть штук на складі</p>
             </div>
-            <div class="w-12 h-12 rounded-xl bg-gray-800/80 border border-gray-700/50 flex items-center justify-between justify-center text-gray-400">
+            <div class="w-12 h-12 rounded-xl bg-gray-800/80 border border-gray-700/50 flex items-center justify-center text-gray-400">
               <i class="fa-solid fa-box text-xl"></i>
             </div>
           </div>
@@ -281,8 +281,8 @@
 
   <!-- JAVASCRIPT LOGIC -->
   <script>
-    // URL твого Google Apps Script (Берется из настроек развертывания)
-    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzxxxx-your-script-id/exec"; // Вставьте актуальную ссылку веб-приложения
+    // Прямая ссылка на ваш Google Apps Script
+    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxHxTydxr0bCSPtjuuwq72QA6eUVgsmApc4Jjwy3qsJA5E8RBM90F2qspizWg6I7_nu/exec";
 
     let appData = {
       products: [],
@@ -292,7 +292,7 @@
 
     let currentFilter = 'all';
 
-    // Fetch Data using JSONP to avoid CORS issues
+    // Fetch Data с поддержкой JSONP
     function fetchData() {
       const icon = document.getElementById('refresh-icon');
       if (icon) icon.classList.add('fa-spin');
@@ -302,7 +302,7 @@
 
       window[callbackName] = function(data) {
         delete window[callbackName];
-        document.body.removeChild(script);
+        if (script.parentNode) script.parentNode.removeChild(script);
         if (icon) icon.classList.remove('fa-spin');
 
         if (data && !data.error) {
@@ -496,7 +496,7 @@
       document.getElementById('last-update-time').innerText = 'Оновлено: ' + now.toLocaleTimeString('uk-UA');
     }
 
-    // Auto-refresh timer
+    // Автообновление каждые 20 секунд
     let secondsLeft = 20;
     setInterval(() => {
       secondsLeft--;
@@ -507,7 +507,7 @@
       document.getElementById('timer-text').innerText = secondsLeft + 's';
     }, 1000);
 
-    // Initial load
+    // Первый запуск
     fetchData();
   </script>
 </body>
