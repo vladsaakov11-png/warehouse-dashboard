@@ -42,7 +42,7 @@
   <!-- SIDEBAR -->
   <aside class="w-64 bg-[#0d1322] border-r border-gray-800/60 flex flex-col justify-between z-20 flex-shrink-0">
     <div>
-      <!-- LOGO (Оригинальный дизайн) -->
+      <!-- LOGO -->
       <div class="p-6 border-b border-gray-800/40">
         <div class="flex flex-col">
           <div class="flex items-baseline">
@@ -125,7 +125,7 @@
               <div class="flex items-baseline gap-2">
                 <h2 id="total-sum" class="text-3xl font-extrabold text-emerald-400">0 ₴</h2>
               </div>
-              <p class="text-xs text-gray-500 mt-1">Оцінка в валюті: <span id="usd-sum" class="text-amber-400 font-semibold">$0</span> <span class="text-[10px] text-gray-600">(Курс: 41.50)</span></p>
+              <p class="text-xs text-gray-500 mt-1">Оцінка в валюті: <span id="usd-sum" class="text-amber-400 font-semibold">$0</span> <span class="text-[10px] text-gray-600">(Курс: 45.00)</span></p>
             </div>
             <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
               <i class="fa-solid fa-wallet text-xl"></i>
@@ -159,7 +159,7 @@
                   <th class="py-3.5 px-6">ID</th>
                   <th class="py-3.5 px-6">Назва товару</th>
                   <th class="py-3.5 px-6 text-center">Залишок</th>
-                  <th class="py-3.5 px-6 text-center">Відправки</th>
+                  <th class="py-3.5 px-6 text-center">Ціна закупівлі</th>
                   <th class="py-3.5 px-6 text-right">Залишок (ГРН)</th>
                 </tr>
               </thead>
@@ -272,7 +272,7 @@
 
         <div class="pt-3 flex justify-end gap-3">
           <button type="button" onclick="closePurchaseModal()" class="px-4 py-2.5 rounded-xl bg-gray-800 hover:bg-gray-700 text-gray-300 text-xs font-semibold transition-colors">Скасувати</button>
-          <button type="submit" class="px-5 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold transition-all shadow-lg shadow-orange-500/20">Зберегти замовлення</button>
+          <button type="submit" id="submit-btn" class="px-5 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold transition-all shadow-lg shadow-orange-500/20">Зберегти замовлення</button>
         </div>
       </form>
     </div>
@@ -281,7 +281,6 @@
 
   <!-- JAVASCRIPT LOGIC -->
   <script>
-    // Прямая ссылка на ваш Google Apps Script
     const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxHxTydxr0bCSPtjuuwq72QA6eUVgsmApc4Jjwy3qsJA5E8RBM90F2qspizWg6I7_nu/exec";
 
     let appData = {
@@ -292,18 +291,22 @@
 
     let currentFilter = 'all';
 
-    // Fetch Data с поддержкой JSONP
-    function fetchData() {
+    // Получение данных напрямую из Google Sheets через fetch
+    async function fetchData() {
       const icon = document.getElementById('refresh-icon');
       if (icon) icon.classList.add('fa-spin');
 
-      const script = document.createElement('script');
-      const callbackName = 'handleApiResponse_' + Math.round(Math.random() * 100000);
+      try {
+        const response = await fetch(APPS_SCRIPT_URL, {
+          method: 'GET',
+          redirect: 'follow'
+        });
 
-      window[callbackName] = function(data) {
-        delete window[callbackName];
-        if (script.parentNode) script.parentNode.removeChild(script);
-        if (icon) icon.classList.remove('fa-spin');
+        if (!response.ok) {
+          throw new Error('Помилка мережі');
+        }
+
+        const data = await response.json();
 
         if (data && !data.error) {
           appData.products = data.products || [];
@@ -312,16 +315,52 @@
           renderAll();
           updateLastTime();
         } else {
-          console.error("API Error:", data ? data.error : "No data");
+          console.error("API Error:", data ? data.error : "Порожня відповідь");
         }
+      } catch (err) {
+        console.error("Fetch Error:", err);
+      } finally {
+        if (icon) icon.classList.remove('fa-spin');
+      }
+    }
+
+    // Запись новой закупки в Google Таблицу
+    async function submitPurchase(e) {
+      e.preventDefault();
+
+      const btn = document.getElementById('submit-btn');
+      btn.disabled = true;
+      btn.innerText = "Збереження...";
+
+      const select = document.getElementById('modal-product-select');
+      const productId = select.value;
+      const selectedProduct = appData.products.find(p => p.id === productId);
+      const productName = selectedProduct ? selectedProduct.name : "";
+
+      const payload = {
+        id: productId,
+        name: productName,
+        qty: Number(document.getElementById('modal-qty').value) || 0,
+        supplier: document.getElementById('modal-supplier').value || "",
+        ttn: document.getElementById('modal-ttn').value || ""
       };
 
-      script.src = APPS_SCRIPT_URL + (APPS_SCRIPT_URL.includes('?') ? '&' : '?') + 'callback=' + callbackName;
-      script.onerror = function() {
-        if (icon) icon.classList.remove('fa-spin');
-        console.error("Failed to load script");
-      };
-      document.body.appendChild(script);
+      try {
+        await fetch(APPS_SCRIPT_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(payload)
+        });
+
+        closePurchaseModal();
+        document.getElementById('purchase-form').reset();
+        await fetchData(); // Обновляем таблицы
+      } catch (err) {
+        alert("Помилка збереження закупівлі: " + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerText = "Зберегти замовлення";
+      }
     }
 
     function renderAll() {
@@ -343,7 +382,7 @@
       document.getElementById('total-qty').innerText = totalQty.toLocaleString('uk-UA');
       document.getElementById('total-sum').innerText = totalSum.toLocaleString('uk-UA') + ' ₴';
       
-      const usdVal = (totalSum / 41.50).toFixed(0);
+      const usdVal = (totalSum / 45.00).toFixed(0);
       document.getElementById('usd-sum').innerText = '$' + Number(usdVal).toLocaleString('en-US');
     }
 
@@ -383,7 +422,7 @@
               ${p.qty} шт
             </span>
           </td>
-          <td class="py-3.5 px-6 text-center text-gray-400">-</td>
+          <td class="py-3.5 px-6 text-center text-gray-300">${(p.price || 0).toLocaleString('uk-UA')} ₴</td>
           <td class="py-3.5 px-6 text-right font-medium text-emerald-400">${(p.totalSum || 0).toLocaleString('uk-UA')} ₴</td>
         `;
         tbody.appendChild(tr);
@@ -423,7 +462,7 @@
           pendingContainer.innerHTML += `
             <div class="p-4 rounded-xl bg-gray-900/80 border border-gray-800 flex items-center justify-between">
               <div>
-                <span class="text-[10px] font-mono text-orange-400 bg-orange-500/10 px-2 py-0.5 rounded border border-orange-500/20">${item.id || 'ID'}</span>
+                <span class="text-[10px] font-mono text-orange-400 bg-orange-500/10 px-2 py-0.5 rounded border border-orange-500/20">ID: ${item.id || '-'}</span>
                 <h4 class="text-xs font-bold text-white mt-1">${item.name || 'Товар'}</h4>
                 <p class="text-[11px] text-gray-400 mt-0.5">Постачальник: ${item.supplier || 'Не вказано'}</p>
                 <p class="text-[10px] text-gray-500">ТТН: ${item.ttn || 'Немає'}</p>
@@ -496,7 +535,6 @@
       document.getElementById('last-update-time').innerText = 'Оновлено: ' + now.toLocaleTimeString('uk-UA');
     }
 
-    // Автообновление каждые 20 секунд
     let secondsLeft = 20;
     setInterval(() => {
       secondsLeft--;
@@ -507,7 +545,6 @@
       document.getElementById('timer-text').innerText = secondsLeft + 's';
     }, 1000);
 
-    // Первый запуск
     fetchData();
   </script>
 </body>
