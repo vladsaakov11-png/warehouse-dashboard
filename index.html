@@ -388,7 +388,7 @@
                     <div class="col-span-2 md:col-span-1">ID</div>
                     <div class="col-span-5 md:col-span-5">НАЗВА ТОВАРУ</div>
                     <div class="col-span-2 md:col-span-2 text-center">ПОТОЧНИЙ ЗАЛИШОК</div>
-                    <div class="col-span-3 md:col-span-4 text-right">ДІЯ</div>
+                    <div class="col-span-3 md:col-span-4 text-right">ДЕЙСТВИЕ</div>
                 </div>
 
                 <div id="purchaseProductsContainer" class="divide-y divide-cardBorder/60 max-h-96 overflow-y-auto">
@@ -454,7 +454,6 @@
                 const data = await res.json();
                 if (data && data.rates && data.rates.UAH) {
                     liveUsdRate = data.rates.UAH;
-                    document.getElementById('usdRateBadge').innerText = `Курс: ${liveUsdRate.toFixed(2)} ₴`;
                 }
             } catch (err) {
                 console.warn("Не вдалося завантажити живий курс USD:", err);
@@ -507,8 +506,9 @@
                 console.error(err);
                 authError.classList.remove('hidden');
                 authError.innerText = "Неправильний Email або пароль!";
-            } font-medium
-            btnText.innerText = "Увійти в дашборд";
+            } finally {
+                btnText.innerText = "Увійти в дашборд";
+            }
         };
 
         window.handleLogout = () => {
@@ -535,185 +535,186 @@
                 viewStock.classList.add('hidden');
                 viewPurchases.classList.remove('hidden');
                 pageTitle.innerText = "Закупівля товарів";
+                renderPurchaseProducts();
+                renderPurchasesHistory();
             }
         };
 
-        async function loadData() {
+        window.loadData = async () => {
             const refreshIcon = document.getElementById('refreshIcon');
             if (refreshIcon) refreshIcon.classList.add('fa-spin');
 
-            try {
-                const response = await fetch(API_URL);
-                const data = await response.json();
+            await fetchLiveUsdRate();
+
+            const oldScript = document.getElementById('jsonp-script');
+            if (oldScript) oldScript.remove();
+
+            window.handleDataResponse = (data) => {
+                if (refreshIcon) refreshIcon.classList.remove('fa-spin');
+                
+                if (data && data.error) {
+                    console.error("Помилка Apps Script:", data.error);
+                    return;
+                }
 
                 allProducts = data.products || [];
                 allShipments = data.shipments || [];
                 allPurchases = data.purchases || [];
 
+                updateKPIs();
                 renderProducts();
                 renderPurchaseProducts();
                 renderPurchasesHistory();
-                updateKPIs();
+                resetTimer();
+                updateLastUpdatedTime();
+            };
 
-                const now = new Date();
-                const timeStr = now.toTimeString().split(' ')[0];
-                document.getElementById('lastUpdatedText').innerText = `Оновлено: ${timeStr}`;
+            const script = document.createElement('script');
+            script.id = 'jsonp-script';
+            script.src = `${API_URL}?callback=handleDataResponse&t=${Date.now()}`;
+            document.body.appendChild(script);
+        };
 
-            } catch (err) {
-                console.error("Помилка завантаження даних:", err);
-            } finally {
-                if (refreshIcon) refreshIcon.classList.remove('fa-spin');
-                countdown = 60;
-            }
+        function resetTimer() {
+            countdown = 60;
+            document.getElementById('timerText').innerText = `${countdown}s`;
         }
 
-        function parseSheetDate(dateInput) {
-            if (!dateInput) return null;
-            let d = new Date(dateInput);
-            if (!isNaN(d.getTime())) return d.getTime();
+        function updateLastUpdatedTime() {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('uk-UA', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            document.getElementById('lastUpdatedText').innerText = `Оновлено о ${timeStr}`;
+        }
 
-            const str = String(dateInput).trim();
-            const parts = str.split(/[\sT]+/);
-            const dateParts = parts[0].split('.');
-            
-            if (dateParts.length === 3) {
-                const day = parseInt(dateParts[0], 10);
-                const month = parseInt(dateParts[1], 10) - 1;
-                const year = parseInt(dateParts[2], 10);
-                let timeParts = [0, 0, 0];
-                if (parts[1]) {
-                    timeParts = parts[1].split(':').map(n => parseInt(n, 10) || 0);
+        window.manualRefresh = () => {
+            window.loadData();
+        };
+
+        setInterval(() => {
+            if (isAuthenticated) {
+                countdown--;
+                if (countdown <= 0) {
+                    window.loadData();
+                } else {
+                    document.getElementById('timerText').innerText = `${countdown}s`;
                 }
-                return new Date(year, month, day, timeParts[0], timeParts[1], timeParts[2] || 0).getTime();
             }
-            return null;
-        }
-
-        function getShipmentCountForProduct(productId) {
-            if (!allShipments || !Array.isArray(allShipments)) return 0;
-
-            const now = new Date().getTime();
-            let hoursLimit = 24;
-            if (currentPeriod === '7d') hoursLimit = 24 * 7;
-            if (currentPeriod === '30d') hoursLimit = 24 * 30;
-
-            const timeThreshold = now - (hoursLimit * 60 * 60 * 1000);
-            const targetId = String(productId).replace('#', '').trim();
-
-            return allShipments.reduce((sum, s) => {
-                const sId = String(s.id).replace('#', '').trim();
-                if (sId === targetId) {
-                    const shipTime = parseSheetDate(s.date);
-                    if (shipTime && shipTime >= timeThreshold) {
-                        return sum + (parseInt(s.qty, 10) || 1);
-                    }
-                }
-                return sum;
-            }, 0);
-        }
+        }, 1000);
 
         function updateKPIs() {
-            let totalQty = 0;
-            let totalSumUah = 0;
+            let calcTotalQty = 0;
+            let calcTotalSumUah = 0;
 
             allProducts.forEach(p => {
-                const stock = Number(p.stock) || 0;
-                const price = Number(p.price) || 0;
-                totalQty += stock;
-                totalSumUah += (stock * price);
+                const q = Number(p.qty) || 0;
+                const sum = Number(p.totalSum) || (p.price ? q * Number(p.price) : 0);
+                calcTotalQty += q;
+                calcTotalSumUah += sum;
             });
 
-            document.getElementById('kpiTotalQty').innerText = totalQty.toLocaleString('uk-UA');
-            document.getElementById('kpiTotalSumUah').innerText = totalSumUah.toLocaleString('uk-UA') + " ₴";
+            document.getElementById('kpiTotalQty').innerText = calcTotalQty.toLocaleString('uk-UA');
+            document.getElementById('kpiTotalSumUah').innerText = `${calcTotalSumUah.toLocaleString('uk-UA')} ₴`;
 
-            const totalSumUsd = liveUsdRate > 0 ? (totalSumUah / liveUsdRate) : 0;
-            document.getElementById('kpiTotalSumUsd').innerText = "$" + Math.round(totalSumUsd).toLocaleString('en-US');
+            const displayRate = liveUsdRate ? liveUsdRate.toFixed(2) : '41.50';
+            document.getElementById('usdRateBadge').innerText = `Курс: ${displayRate}`;
+
+            const totalUsd = Math.round(calcTotalSumUah / liveUsdRate);
+            document.getElementById('kpiTotalSumUsd').innerText = `$${totalUsd.toLocaleString('en-US')}`;
         }
+
+        window.setFilter = (filterType) => {
+            currentFilter = filterType;
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.className = 'filter-btn filter-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400 whitespace-nowrap';
+            });
+            const activeBtn = document.getElementById(`btn-${filterType}`);
+            if (activeBtn) {
+                activeBtn.className = 'filter-btn filter-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent bg-brand text-white shadow-lg shadow-brand/20 whitespace-nowrap';
+            }
+            renderProducts();
+        };
+
+        window.setPeriod = (period) => {
+            currentPeriod = period;
+            document.querySelectorAll('.period-btn').forEach(btn => {
+                btn.className = 'period-btn period-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400';
+            });
+            const activeBtn = document.getElementById(`period-${period}`);
+            if (activeBtn) {
+                activeBtn.className = 'period-btn period-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent bg-brand text-white shadow-lg shadow-brand/20';
+            }
+            renderProducts();
+        };
 
         window.renderProducts = () => {
             const container = document.getElementById('productsContainer');
             const searchVal = (document.getElementById('searchInput').value || '').toLowerCase().trim();
 
             let filtered = allProducts.filter(p => {
-                const idMatch = String(p.id).toLowerCase().includes(searchVal);
-                const nameMatch = String(p.name).toLowerCase().includes(searchVal);
-                return idMatch || nameMatch;
+                const matchSearch = p.name.toLowerCase().includes(searchVal) || p.id.toLowerCase().includes(searchVal);
+                if (!matchSearch) return false;
+
+                if (currentFilter === 'empty') return p.qty === 0;
+                if (currentFilter === 'warning') return p.qty >= 1 && p.qty <= 19;
+                if (currentFilter === 'good') return p.qty >= 20;
+                return true;
             });
 
-            if (currentFilter === 'empty') {
-                filtered = filtered.filter(p => Number(p.stock) === 0);
-            } else if (currentFilter === 'warning') {
-                filtered = filtered.filter(p => Number(p.stock) >= 1 && Number(p.stock) <= 19);
-            } else if (currentFilter === 'good') {
-                filtered = filtered.filter(p => Number(p.stock) >= 20);
-            }
-
             if (filtered.length === 0) {
-                container.innerHTML = `<div class="text-center py-10 text-gray-500">Товарів не знайдено</div>`;
+                container.innerHTML = `<div class="p-8 text-center text-gray-500">Товарів не знайдено</div>`;
                 return;
             }
 
             let html = '';
             filtered.forEach(p => {
-                const stock = Number(p.stock) || 0;
-                const price = Number(p.price) || 0;
-                const totalVal = stock * price;
-                const shipmentsCount = getShipmentCountForProduct(p.id);
-
-                let badgeColor = "bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
-                if (stock === 0) {
-                    badgeColor = "bg-red-500/10 text-red-400 border-red-500/20";
-                } else if (stock <= 19) {
-                    badgeColor = "bg-amber-500/10 text-amber-400 border-amber-500/20";
-                }
+                let badgeClass = 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
+                if (p.qty === 0) badgeClass = 'bg-red-500/10 text-red-400 border-red-500/20';
+                else if (p.qty < 20) badgeClass = 'bg-amber-500/10 text-amber-400 border-amber-500/20';
 
                 html += `
-                <div class="grid grid-cols-12 p-4 items-center hover:bg-gray-800/40 transition border-b border-cardBorder/40">
-                    <div class="col-span-2 md:col-span-1 font-mono text-xs font-bold text-brand cursor-pointer" onclick="copyToClipboard('${p.id}')">#${p.id}</div>
-                    <div class="col-span-4 md:col-span-4 text-sm font-semibold text-gray-200 pr-2 truncate" title="${p.name}">${p.name}</div>
+                <div class="grid grid-cols-12 p-3.5 items-center hover:bg-gray-800/40 transition text-sm border-b border-cardBorder/40">
+                    <div class="col-span-2 md:col-span-1 font-mono text-xs text-gray-400">#${p.id}</div>
+                    <div class="col-span-4 md:col-span-4 font-semibold text-gray-200 truncate pr-2">${p.name}</div>
                     <div class="col-span-3 md:col-span-2 text-center">
-                        <span class="inline-block px-2.5 py-1 rounded-lg text-xs font-bold border ${badgeColor}">
-                            ${stock} шт
+                        <span class="inline-block px-2.5 py-0.5 rounded-full text-xs font-bold border ${badgeClass}">
+                            ${p.qty} шт
                         </span>
                     </div>
-                    <div class="col-span-3 md:col-span-2 text-center font-bold text-gray-300 text-sm">
-                        <span class="text-brand">${shipmentsCount}</span> <span class="text-[10px] text-gray-500 font-normal">шт</span>
-                    </div>
-                    <div class="hidden md:block md:col-span-3 text-right font-mono text-sm font-semibold text-gray-300">
-                        ${totalVal.toLocaleString('uk-UA')} ₴
-                    </div>
+                    <div class="col-span-3 md:col-span-2 text-center text-xs text-gray-400">—</div>
+                    <div class="hidden md:block md:col-span-3 text-right font-bold text-gray-300">${p.totalSum.toLocaleString('uk-UA')} ₴</div>
                 </div>`;
             });
 
             container.innerHTML = html;
         };
 
+        // ТАБЛИЦА ТОВАРОВ ВО ВКЛАДКЕ ЗАКУПІВЛЯ
         window.renderPurchaseProducts = () => {
             const container = document.getElementById('purchaseProductsContainer');
+            if (!container) return;
+
             const searchVal = (document.getElementById('searchPurchaseInput')?.value || '').toLowerCase().trim();
 
             let filtered = allProducts.filter(p => {
-                const idMatch = String(p.id).toLowerCase().includes(searchVal);
-                const nameMatch = String(p.name).toLowerCase().includes(searchVal);
-                return idMatch || nameMatch;
+                return p.name.toLowerCase().includes(searchVal) || p.id.toLowerCase().includes(searchVal);
             });
 
             if (filtered.length === 0) {
-                container.innerHTML = `<div class="text-center py-8 text-gray-500">Товарів не знайдено</div>`;
+                container.innerHTML = `<div class="p-6 text-center text-gray-500">Товарів не знайдено</div>`;
                 return;
             }
 
             let html = '';
             filtered.forEach(p => {
-                const stock = Number(p.stock) || 0;
                 html += `
-                <div class="grid grid-cols-12 p-3 items-center hover:bg-gray-800/40 transition">
-                    <div class="col-span-2 md:col-span-1 font-mono text-xs font-bold text-brand">#${p.id}</div>
-                    <div class="col-span-5 md:col-span-5 text-sm font-semibold text-gray-200 truncate pr-2">${p.name}</div>
-                    <div class="col-span-2 md:col-span-2 text-center font-mono text-xs text-gray-400">${stock} шт</div>
+                <div class="grid grid-cols-12 p-3 items-center hover:bg-gray-800/40 transition text-sm">
+                    <div class="col-span-2 md:col-span-1 font-mono text-xs text-gray-400">#${p.id}</div>
+                    <div class="col-span-5 md:col-span-5 font-semibold text-gray-200 truncate pr-2">${p.name}</div>
+                    <div class="col-span-2 md:col-span-2 text-center text-xs text-gray-400 font-bold">${p.qty} шт</div>
                     <div class="col-span-3 md:col-span-4 text-right">
-                        <button onclick="openOrderModal('${p.id}', '${p.name.replace(/'/g, "\\'")}')" class="px-3 py-1.5 bg-brand hover:bg-[#E06B00] text-white rounded-lg text-xs font-bold transition shadow-md shadow-brand/20">
-                            + Замовити
+                        <button onclick="openOrderModal('${p.id}', '${p.name.replace(/'/g, "\\'")}')" class="bg-brand/10 hover:bg-brand text-brand hover:text-white border border-brand/30 px-3 py-1 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ml-auto">
+                            <i class="fa-solid fa-plus text-[10px]"></i>
+                            <span>Замовити</span>
                         </button>
                     </div>
                 </div>`;
@@ -722,35 +723,39 @@
             container.innerHTML = html;
         };
 
+        // ТАБЛИЦА ИСТОРИИ ЗАКУПОК
         window.renderPurchasesHistory = () => {
             const container = document.getElementById('purchasesHistoryContainer');
             const badge = document.getElementById('purchasesCountBadge');
+            if (!container) return;
 
             if (badge) badge.innerText = `${allPurchases.length} замовлень`;
 
-            if (!allPurchases || allPurchases.length === 0) {
-                container.innerHTML = `<div class="text-center py-8 text-gray-500">Замовлень поки немає</div>`;
+            if (allPurchases.length === 0) {
+                container.innerHTML = `<div class="p-6 text-center text-gray-500">Закупівель ще немає</div>`;
                 return;
             }
 
             let html = '';
-            allPurchases.forEach(p => {
+            // Показываем последние заказы сверху
+            [...allPurchases].reverse().forEach(pur => {
                 html += `
-                <div class="grid grid-cols-12 p-3 items-center hover:bg-gray-800/40 transition text-xs">
-                    <div class="col-span-2 md:col-span-2 text-gray-400 font-mono">${p.date || '--'}</div>
-                    <div class="col-span-2 md:col-span-1 font-mono font-bold text-brand">#${p.id}</div>
-                    <div class="col-span-3 md:col-span-4 text-gray-200 font-semibold truncate pr-2">${p.name || ''}</div>
-                    <div class="col-span-2 md:col-span-1 text-center font-bold text-emerald-400">${p.qty} шт</div>
-                    <div class="col-span-3 md:col-span-2 text-center font-mono text-gray-400 truncate">${p.ttn || '-'}</div>
-                    <div class="hidden md:block md:col-span-2 text-right text-gray-400 truncate">${p.supplier || '-'}</div>
+                <div class="grid grid-cols-12 p-3 items-center hover:bg-gray-800/40 transition text-sm">
+                    <div class="col-span-2 md:col-span-2 text-xs text-gray-400">${pur.date || '—'}</div>
+                    <div class="col-span-2 md:col-span-1 font-mono text-xs text-gray-400">#${pur.id}</div>
+                    <div class="col-span-3 md:col-span-4 font-semibold text-gray-200 truncate pr-2">${pur.name}</div>
+                    <div class="col-span-2 md:col-span-1 text-center font-bold text-brand">${pur.qty} шт</div>
+                    <div class="col-span-3 md:col-span-2 text-center font-mono text-xs text-gray-300">${pur.ttn || '—'}</div>
+                    <div class="hidden md:block md:col-span-2 text-right text-xs text-gray-400 truncate">${pur.supplier || '—'}</div>
                 </div>`;
             });
 
             container.innerHTML = html;
         };
 
+        // МОДАЛЬНОЕ ОКНО
         window.openOrderModal = (id, name) => {
-            document.getElementById('modalProductId').value = '#' + id;
+            document.getElementById('modalProductId').value = id;
             document.getElementById('modalProductName').value = name;
             document.getElementById('modalQty').value = '';
             document.getElementById('modalTtn').value = '';
@@ -764,22 +769,26 @@
 
         window.submitPurchaseOrder = async (e) => {
             e.preventDefault();
+
+            const id = document.getElementById('modalProductId').value;
+            const qty = document.getElementById('modalQty').value;
+            const ttn = document.getElementById('modalTtn').value;
+            const supplier = document.getElementById('modalSupplier').value;
+
             const btnSubmitText = document.getElementById('btnSubmitText');
-            const btnSubmitPurchase = document.getElementById('btnSubmitPurchase');
+            const btnSubmit = document.getElementById('btnSubmitPurchase');
 
-            btnSubmitPurchase.disabled = true;
             btnSubmitText.innerText = "Надсилання...";
-
-            const payload = {
-                action: 'addPurchase',
-                id: document.getElementById('modalProductId').value.replace('#', '').trim(),
-                name: document.getElementById('modalProductName').value,
-                qty: document.getElementById('modalQty').value,
-                ttn: document.getElementById('modalTtn').value,
-                supplier: document.getElementById('modalSupplier').value
-            };
+            btnSubmit.disabled = true;
 
             try {
+                const payload = {
+                    id: id,
+                    qty: qty,
+                    ttn: ttn,
+                    supplier: supplier
+                };
+
                 await fetch(API_URL, {
                     method: 'POST',
                     mode: 'no-cors',
@@ -787,72 +796,33 @@
                     body: JSON.stringify(payload)
                 });
 
+                showToast("Замовлення успішно створено!");
                 closeOrderModal();
-                showToast("Заявку успішно відправлено!");
-                setTimeout(loadData, 1000);
+                
+                // Перезагружаем данные через 1 секунду
+                setTimeout(() => {
+                    loadData();
+                }, 1000);
 
             } catch (err) {
-                console.error("Помилка при відправці замовлення:", err);
-                alert("Помилка відправки замовлення!");
+                console.error("Помилка відправки:", err);
+                alert("Не вдалося відправити замовлення. Перевірте з'єднання.");
             } finally {
-                btnSubmitPurchase.disabled = false;
                 btnSubmitText.innerText = "Створити замовлення";
+                btnSubmit.disabled = false;
             }
-        };
-
-        window.setFilter = (filter) => {
-            currentFilter = filter;
-            document.querySelectorAll('.filter-btn').forEach(b => {
-                b.className = "filter-btn filter-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400 whitespace-nowrap";
-            });
-            const activeBtn = document.getElementById(`btn-${filter}`);
-            if (activeBtn) {
-                activeBtn.className = "filter-btn filter-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent bg-brand text-white shadow-lg shadow-brand/20 whitespace-nowrap";
-            }
-            renderProducts();
-        };
-
-        window.setPeriod = (period) => {
-            currentPeriod = period;
-            document.querySelectorAll('.period-btn').forEach(b => {
-                b.className = "period-btn period-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400";
-            });
-            const activeBtn = document.getElementById(`period-${period}`);
-            if (activeBtn) {
-                activeBtn.className = "period-btn period-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent bg-brand text-white shadow-lg shadow-brand/20";
-            }
-            renderProducts();
-        };
-
-        window.manualRefresh = () => {
-            loadData();
-        };
-
-        window.copyToClipboard = (text) => {
-            navigator.clipboard.writeText(text);
-            showToast(`Скопійовано: #${text}`);
         };
 
         function showToast(msg) {
             const toast = document.getElementById('toast');
-            const toastMsg = document.getElementById('toastMsg');
-            toastMsg.innerText = msg;
+            document.getElementById('toastMsg').innerText = msg;
             toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
             setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
                 toast.classList.add('translate-y-20', 'opacity-0');
-            }, 2500);
+            }, 3000);
         }
-
-        setInterval(() => {
-            if (!isAuthenticated) return;
-            countdown--;
-            if (countdown <= 0) {
-                loadData();
-            } else {
-                const timerText = document.getElementById('timerText');
-                if (timerText) timerText.innerText = `${countdown}s`;
-            }
-        }, 1000);
     </script>
 </body>
 </html>
