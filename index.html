@@ -139,7 +139,7 @@
         <span id="toastMsg" class="text-sm font-medium">Повідомлення</span>
     </div>
 
-    <!-- MODAL ORDER FORM -->
+    <!-- MODAL ORDER FORM WITH PRODUCT SELECT -->
     <div id="orderModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
         <div class="bg-cardBg border border-cardBorder rounded-2xl p-6 max-w-md w-full shadow-2xl relative overflow-hidden">
             <div class="flex items-center justify-between mb-4 pb-3 border-b border-cardBorder">
@@ -154,13 +154,15 @@
 
             <form onsubmit="submitPurchaseOrder(event)" class="space-y-4">
                 <div>
-                    <label class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block mb-1">Товар (ID)</label>
-                    <input type="text" id="modalProductId" readonly class="w-full bg-gray-900 border border-cardBorder rounded-xl px-4 py-2 text-sm text-brand font-bold focus:outline-none cursor-not-allowed">
+                    <label class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block mb-1">Виберіть товар (ID / Назва) *</label>
+                    <select id="modalProductSelect" onchange="onModalProductSelectChange()" required class="w-full bg-gray-900 border border-cardBorder rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brand transition cursor-pointer">
+                        <option value="">-- Оберіть товар зі списку --</option>
+                    </select>
                 </div>
 
-                <div>
-                    <label class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block mb-1">Назва товару</label>
-                    <input type="text" id="modalProductName" readonly class="w-full bg-gray-900 border border-cardBorder rounded-xl px-4 py-2 text-sm text-gray-300 focus:outline-none cursor-not-allowed">
+                <div id="selectedProductInfo" class="hidden bg-gray-900/60 p-3 rounded-xl border border-cardBorder/60 text-xs flex items-center justify-between">
+                    <span class="text-gray-400">Поточний залишок на складі:</span>
+                    <span id="modalCurrentStock" class="font-bold text-brand">0 шт</span>
                 </div>
 
                 <div>
@@ -389,36 +391,33 @@
         </div>
 
         <!-- VIEW 2: ЗАКУПІВЛЯ -->
-        <div id="viewPurchases" class="hidden">
-            <div class="flex flex-col md:flex-row items-center justify-between gap-4 mb-6">
-                <p class="text-sm text-gray-400">Виберіть товар зі списку, щоб оформити нову заявку на закупівлю.</p>
-                <div class="relative w-full md:w-80">
-                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm pointer-events-none"></i>
-                    <input type="text" id="searchPurchaseInput" oninput="renderPurchaseProducts()" placeholder="Пошук товару для закупівлі..." class="w-full bg-cardBg border border-cardBorder rounded-xl pl-10 pr-9 py-2 text-sm text-gray-200 focus:outline-none focus:border-brand transition">
+        <div id="viewPurchases" class="hidden space-y-6">
+            <!-- Верхняя панель с кнопкой создания и поиском по заказам -->
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4 bg-cardBg border border-cardBorder p-4 rounded-2xl shadow-lg">
+                <div>
+                    <h3 class="text-base font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-boxes-packing text-brand"></i>
+                        <span>Управління замовленнями постачальникам</span>
+                    </h3>
+                    <p class="text-xs text-gray-400 mt-1">Оформлюйте нові закупівлі та відстежуйте статус доставки</p>
                 </div>
+
+                <button onclick="openOrderModal()" class="w-full md:w-auto px-6 py-3 bg-brand hover:bg-[#E06B00] text-white font-bold text-xs rounded-xl transition shadow-lg shadow-brand/20 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-plus text-sm"></i>
+                    <span>Створити нову закупівлю</span>
+                </button>
             </div>
 
-            <div class="bg-cardBg border border-cardBorder rounded-2xl overflow-hidden shadow-xl mb-8">
-                <div class="bg-gray-900/90 p-4 border-b border-cardBorder text-xs font-bold text-brand tracking-wider uppercase flex items-center justify-between">
-                    <span><i class="fa-solid fa-boxes-stacked mr-2"></i>Каталог товарів для замовлення</span>
-                </div>
-                <div class="grid grid-cols-12 bg-gray-900/50 p-3 border-b border-cardBorder text-[11px] font-bold text-gray-400 uppercase select-none">
-                    <div class="col-span-2 md:col-span-1">ID</div>
-                    <div class="col-span-5 md:col-span-5">НАЗВА ТОВАРУ</div>
-                    <div class="col-span-2 md:col-span-2 text-center">ПОТОЧНИЙ ЗАЛИШОК</div>
-                    <div class="col-span-3 md:col-span-4 text-right">ДІЯ</div>
-                </div>
-
-                <div id="purchaseProductsContainer" class="divide-y divide-cardBorder/60 max-h-96 overflow-y-auto">
-                    <!-- Динамика -->
-                </div>
-            </div>
-
+            <!-- Таблица истории всех закупок -->
             <div class="bg-cardBg border border-cardBorder rounded-2xl overflow-hidden shadow-xl">
                 <div class="bg-gray-900/90 p-4 border-b border-cardBorder text-xs font-bold text-gray-300 tracking-wider uppercase flex items-center justify-between">
-                    <span><i class="fa-solid fa-clock-rotate-left mr-2 text-brand"></i>Останні оформлені закупівлі</span>
-                    <span id="purchasesCountBadge" class="text-[10px] bg-brand/20 text-brand px-2 py-0.5 rounded-full">0 замовлень</span>
+                    <span class="flex items-center gap-2">
+                        <i class="fa-solid fa-clock-rotate-left text-brand"></i>
+                        <span>Останні оформлені закупівлі</span>
+                    </span>
+                    <span id="purchasesCountBadge" class="text-[10px] bg-brand/20 text-brand font-mono font-bold px-3 py-1 rounded-full border border-brand/30">0 замовлень</span>
                 </div>
+
                 <div class="grid grid-cols-12 bg-gray-900/50 p-3 border-b border-cardBorder text-[11px] font-bold text-gray-400 uppercase select-none">
                     <div class="col-span-2 md:col-span-2">ДАТА</div>
                     <div class="col-span-2 md:col-span-1">ID</div>
@@ -428,8 +427,8 @@
                     <div class="hidden md:block md:col-span-2 text-right">ПОСТАЧАЛЬНИК</div>
                 </div>
 
-                <div id="purchasesHistoryContainer" class="divide-y divide-cardBorder/60 max-h-96 overflow-y-auto">
-                    <!-- Динамика -->
+                <div id="purchasesHistoryContainer" class="divide-y divide-cardBorder/60 max-h-[600px] overflow-y-auto">
+                    <!-- Заполняется JS -->
                 </div>
             </div>
         </div>
@@ -563,7 +562,6 @@
                 viewStock.classList.add('hidden');
                 viewPurchases.classList.remove('hidden');
                 pageTitle.innerText = "Управління закупівлями";
-                renderPurchaseProducts();
                 renderPurchasesHistory();
             }
         };
@@ -580,12 +578,13 @@
                 allShipments = data.shipments || [];
                 allPurchases = data.purchases || [];
 
+                populateProductSelectOptions();
                 updateLastUpdatedTime();
                 updateKPIs();
+
                 if (currentTab === 'stock') {
                     renderProducts();
                 } else {
-                    renderPurchaseProducts();
                     renderPurchasesHistory();
                 }
             } catch (err) {
@@ -595,6 +594,40 @@
                 if (refreshIcon) refreshIcon.classList.remove('fa-spin');
             }
         }
+
+        function populateProductSelectOptions() {
+            const select = document.getElementById('modalProductSelect');
+            if (!select) return;
+
+            select.innerHTML = '<option value="">-- Оберіть товар зі списку --</option>';
+            
+            allProducts.forEach(p => {
+                const option = document.createElement('option');
+                option.value = p.id;
+                option.textContent = `[ID: ${p.id}] ${p.name}`;
+                select.appendChild(option);
+            });
+        }
+
+        window.onModalProductSelectChange = () => {
+            const select = document.getElementById('modalProductSelect');
+            const infoBox = document.getElementById('selectedProductInfo');
+            const stockLabel = document.getElementById('modalCurrentStock');
+
+            const selectedId = select.value;
+            if (!selectedId) {
+                infoBox.classList.add('hidden');
+                return;
+            }
+
+            const foundProduct = allProducts.find(p => String(p.id) === String(selectedId));
+            if (foundProduct) {
+                stockLabel.innerText = `${foundProduct.qty || 0} шт`;
+                infoBox.classList.remove('hidden');
+            } else {
+                infoBox.classList.add('hidden');
+            }
+        };
 
         function startTimer() {
             if (timerInterval) clearInterval(timerInterval);
@@ -691,14 +724,13 @@
             renderProducts();
         };
 
-        // ЛОГИКА ПЕРЕКЛЮЧЕНИЯ СОРТИРОВКИ
         window.toggleSort = (field) => {
             if (sortField === field) {
                 if (sortOrder === 'desc') sortOrder = 'asc';
                 else if (sortOrder === 'asc') { sortField = null; sortOrder = null; }
             } else {
                 sortField = field;
-                sortOrder = 'desc'; // По умолчанию сначала от большего к меньшему
+                sortOrder = 'desc';
             }
             updateSortIcons();
             renderProducts();
@@ -781,7 +813,6 @@
                 return matchSearch && matchFilter;
             });
 
-            // СОРТИРОВКА
             if (sortField && sortOrder) {
                 filtered.sort((a, b) => {
                     let valA = 0;
@@ -847,36 +878,6 @@
             }).join('');
         };
 
-        window.renderPurchaseProducts = () => {
-            const container = document.getElementById('purchaseProductsContainer');
-            const searchQuery = (document.getElementById('searchPurchaseInput').value || '').toLowerCase().trim();
-
-            let filtered = allProducts.filter(p => {
-                return String(p.id).toLowerCase().includes(searchQuery) || 
-                       String(p.name).toLowerCase().includes(searchQuery);
-            });
-
-            if (filtered.length === 0) {
-                container.innerHTML = `<div class="text-center py-8 text-gray-500"><p>Товарів не знайдено</p></div>`;
-                return;
-            }
-
-            container.innerHTML = filtered.map(p => {
-                const qty = Number(p.qty) || 0;
-                return `
-                    <div class="grid grid-cols-12 p-3 items-center text-xs hover:bg-gray-800/40 transition">
-                        <div class="col-span-2 md:col-span-1 font-mono font-bold text-brand">${escapeHtml(p.id)}</div>
-                        <div class="col-span-5 md:col-span-5 font-medium text-white pr-2 truncate">${escapeHtml(p.name)}</div>
-                        <div class="col-span-2 md:col-span-2 text-center text-gray-300 font-bold">${qty} шт</div>
-                        <div class="col-span-3 md:col-span-4 text-right">
-                            <button onclick="openOrderModal('${escapeHtml(p.id)}', '${escapeHtml(p.name)}')" class="px-3 py-1.5 bg-brand/10 hover:bg-brand text-brand hover:text-white border border-brand/30 rounded-xl transition font-semibold">
-                                <i class="fa-solid fa-cart-plus mr-1"></i>Замовити
-                            </button>
-                        </div>
-                    </div>`;
-            }).join('');
-        };
-
         window.renderPurchasesHistory = () => {
             const container = document.getElementById('purchasesHistoryContainer');
             const badge = document.getElementById('purchasesCountBadge');
@@ -884,13 +885,13 @@
             if (badge) badge.innerText = `${allPurchases.length} замовлень`;
 
             if (allPurchases.length === 0) {
-                container.innerHTML = `<div class="text-center py-8 text-gray-500"><p>Історія закупівель порожня</p></div>`;
+                container.innerHTML = `<div class="text-center py-12 text-gray-500"><p>Історія закупівель порожня</p></div>`;
                 return;
             }
 
             container.innerHTML = allPurchases.map(p => {
                 return `
-                    <div class="grid grid-cols-12 p-3 items-center text-xs hover:bg-gray-800/40 transition">
+                    <div class="grid grid-cols-12 p-3.5 items-center text-xs hover:bg-gray-800/40 transition border-b border-cardBorder/30">
                         <div class="col-span-2 md:col-span-2 text-gray-400 font-mono">${escapeHtml(p.date || '--')}</div>
                         <div class="col-span-2 md:col-span-1 font-mono font-bold text-brand">${escapeHtml(p.id)}</div>
                         <div class="col-span-3 md:col-span-4 font-medium text-white truncate pr-2">${escapeHtml(p.name)}</div>
@@ -901,9 +902,15 @@
             }).join('');
         };
 
-        window.openOrderModal = (id, name) => {
-            document.getElementById('modalProductId').value = id;
-            document.getElementById('modalProductName').value = name;
+        window.openOrderModal = (id = null) => {
+            const select = document.getElementById('modalProductSelect');
+            if (id) {
+                select.value = id;
+            } else {
+                select.value = '';
+            }
+            window.onModalProductSelectChange();
+
             document.getElementById('modalQty').value = '';
             document.getElementById('modalTtn').value = '';
             document.getElementById('modalSupplier').value = '';
@@ -919,8 +926,14 @@
             const btnSubmitText = document.getElementById('btnSubmitText');
             const btnSubmit = document.getElementById('btnSubmitPurchase');
             
-            const id = document.getElementById('modalProductId').value;
-            const name = document.getElementById('modalProductName').value;
+            const selectedId = document.getElementById('modalProductSelect').value;
+            const selectedProduct = allProducts.find(p => String(p.id) === String(selectedId));
+
+            if (!selectedId || !selectedProduct) {
+                showToast("Будь ласка, оберіть товар зі списку!", "red");
+                return;
+            }
+
             const qty = document.getElementById('modalQty').value;
             const ttn = document.getElementById('modalTtn').value;
             const supplier = document.getElementById('modalSupplier').value;
@@ -930,8 +943,8 @@
 
             const payload = {
                 action: "addPurchase",
-                id: id,
-                name: name,
+                id: selectedProduct.id,
+                name: selectedProduct.name,
                 qty: Number(qty),
                 ttn: ttn,
                 supplier: supplier,
