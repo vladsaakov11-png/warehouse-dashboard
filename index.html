@@ -541,7 +541,7 @@
         };
 
         window.handleLogout = () => {
-            return signOut(auth);
+            signOut(auth);
         };
 
         window.switchTab = (tab) => {
@@ -569,33 +569,13 @@
             }
         };
 
-        // Firebase SDK сам кэширует и обновляет ID-токен: getIdToken() без
-        // аргумента возвращает валидный токен и молча продлевает его, если
-        // истёк срок — force-refresh здесь не нужен.
-        async function getFreshIdToken() {
-            if (!auth.currentUser) throw new Error('Не авторизовано');
-            return await auth.currentUser.getIdToken();
-        }
-
         async function loadData() {
             const refreshIcon = document.getElementById('refreshIcon');
             if (refreshIcon) refreshIcon.classList.add('fa-spin');
 
             try {
-                const token = await getFreshIdToken();
-                const response = await fetch(`${API_URL}?token=${encodeURIComponent(token)}`);
+                const response = await fetch(API_URL);
                 const data = await response.json();
-
-                if (data.status === 'error') {
-                    // Сервер отклонил токен (просрочен/недійсний) — не показываем
-                    // "тихую" ошибку, а просим перелогінитись.
-                    if (/токен/i.test(data.message || '')) {
-                        showToast(data.message, "red");
-                        await handleLogout();
-                        return;
-                    }
-                    throw new Error(data.message || 'Невідома помилка сервера');
-                }
 
                 allProducts = data.products || [];
                 allShipments = data.shipments || [];
@@ -611,7 +591,7 @@
                 }
             } catch (err) {
                 console.error("Помилка завантаження даних:", err);
-                showToast(err.message || "Помилка оновлення даних!", "red");
+                showToast("Помилка оновлення даних!", "red");
             } finally {
                 if (refreshIcon) refreshIcon.classList.remove('fa-spin');
             }
@@ -982,34 +962,23 @@
             const today = new Date();
             const formattedDate = today.toLocaleDateString('uk-UA');
 
+            const payload = {
+                action: "addPurchase",
+                id: String(product.id),
+                name: product.name,
+                qty: Number(qty),
+                ttn: ttn || "-",
+                supplier: supplier || "-",
+                date: formattedDate
+            };
+
             try {
-                const token = await getFreshIdToken();
-
-                const payload = {
-                    action: "addPurchase",
-                    idToken: token,
-                    id: String(product.id),
-                    name: product.name,
-                    qty: Number(qty),
-                    ttn: ttn || "-",
-                    supplier: supplier || "-",
-                    date: formattedDate
-                };
-
-                // Без mode:'no-cors' — иначе ответ сервера нельзя прочитать,
-                // и любая ошибка (в т.ч. "лист не знайдено") прошла бы незамеченной.
-                // Content-Type: text/plain убирает CORS-preflight, Apps Script
-                // при доступе "Anyone" отдаёт обычный читаемый ответ.
-                const res = await fetch(API_URL, {
+                await fetch(API_URL, {
                     method: 'POST',
+                    mode: 'no-cors',
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                     body: JSON.stringify(payload)
                 });
-                const result = await res.json();
-
-                if (result.status !== 'success') {
-                    throw new Error(result.message || 'Сервер відхилив заявку');
-                }
 
                 allPurchases.unshift({
                     date: payload.date,
@@ -1023,12 +992,12 @@
                 showToast("Заявку на закупівлю успішно створено!");
                 closeOrderModal();
                 renderPurchasesHistory();
-
+                
                 setTimeout(loadData, 2000);
 
             } catch (err) {
                 console.error("Помилка відправки:", err);
-                showToast(err.message || "Помилка при створенні заявки", "red");
+                showToast("Помилка при створенні заявки", "red");
             } finally {
                 btnSubmit.disabled = false;
                 btnSubmitText.innerText = "Створити замовлення";
