@@ -293,31 +293,35 @@
                 </div>
             </div>
 
-            <!-- БЛОК АНАЛІЗУ ВІДПРАВОК З КАЛЕНДАРЕМ -->
+            <!-- БЛОК АНАЛІЗУ ВІДПРАВОК -->
             <div class="cyber-card border border-cardBorder rounded-xl p-4 mb-6">
-                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div class="flex items-center gap-2">
                         <i class="fa-solid fa-truck-fast text-brand"></i>
                         <span class="text-xs font-bold uppercase tracking-wider text-gray-300">Аналіз відправок за період:</span>
                     </div>
 
-                    <!-- Панель кнопок і календар -->
-                    <div class="flex flex-wrap items-center gap-3">
-                        <div class="flex items-center gap-1 bg-gray-900 p-1 rounded-xl border border-cardBorder">
-                            <button onclick="setPeriod('1d')" id="period-1d" class="period-btn period-btn-hover px-3 py-1.5 rounded-lg text-xs font-medium border border-transparent bg-brand text-white shadow-lg shadow-brand/20">24г (доба)</button>
-                            <button onclick="setPeriod('7d')" id="period-7d" class="period-btn period-btn-hover px-3 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400">7 днів</button>
-                            <button onclick="setPeriod('30d')" id="period-30d" class="period-btn period-btn-hover px-3 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400">30 днів</button>
-                            <button onclick="setPeriod('all')" id="period-all" class="period-btn period-btn-hover px-3 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400">Весь час</button>
-                        </div>
-
-                        <!-- Выбор дат вручную -->
-                        <div class="flex items-center gap-2 bg-gray-900/80 px-3 py-1 rounded-xl border border-cardBorder text-xs">
+                    <!-- Объединенный блок кнопок: 24г, 7 днів, 30 днів + Календарь -->
+                    <div class="flex flex-wrap items-center gap-1 bg-gray-900 p-1.5 rounded-xl border border-cardBorder">
+                        <button onclick="setPeriod('1d')" id="period-1d" class="period-btn period-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400">24г (доба)</button>
+                        <button onclick="setPeriod('7d')" id="period-7d" class="period-btn period-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400">7 днів</button>
+                        <button onclick="setPeriod('30d')" id="period-30d" class="period-btn period-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent bg-brand text-white shadow-lg shadow-brand/20">30 днів</button>
+                        
+                        <button onclick="toggleCalendarPanel()" id="period-custom" class="period-btn period-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400 flex items-center gap-1.5">
                             <i class="fa-regular fa-calendar text-brand"></i>
-                            <span class="text-gray-400 font-medium">З:</span>
-                            <input type="date" id="startDateInput" onchange="applyCustomDates()" class="bg-cardBg border border-cardBorder text-white text-xs rounded-lg px-2 py-1 focus:outline-none focus:border-brand">
-                            <span class="text-gray-400 font-medium">По:</span>
-                            <input type="date" id="endDateInput" onchange="applyCustomDates()" class="bg-cardBg border border-cardBorder text-white text-xs rounded-lg px-2 py-1 focus:outline-none focus:border-brand">
-                        </div>
+                            <span>Календар</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Выпадающий выбор дат при нажатии на "Календар" -->
+                <div id="calendarPanel" class="hidden mt-3 pt-3 border-t border-cardBorder/60 flex flex-wrap items-center gap-3">
+                    <span class="text-xs text-gray-400 font-medium">Виберіть період:</span>
+                    <div class="flex items-center gap-2 bg-gray-900 px-3 py-1.5 rounded-xl border border-cardBorder text-xs">
+                        <span class="text-gray-400">З:</span>
+                        <input type="date" id="startDateInput" onchange="applyCustomDates()" class="bg-cardBg border border-cardBorder text-white text-xs rounded-lg px-2 py-1 focus:outline-none focus:border-brand">
+                        <span class="text-gray-400">По:</span>
+                        <input type="date" id="endDateInput" onchange="applyCustomDates()" class="bg-cardBg border border-cardBorder text-white text-xs rounded-lg px-2 py-1 focus:outline-none focus:border-brand">
                     </div>
                 </div>
             </div>
@@ -326,10 +330,10 @@
             <div class="flex flex-col md:flex-row items-center justify-between gap-4 mb-6">
                 <div class="flex flex-wrap items-center gap-2 w-full md:w-auto">
                     <div class="flex items-center gap-1.5 bg-cardBg p-1.5 rounded-xl border border-cardBorder overflow-x-auto max-w-full">
-                        <button onclick="setFilter('all')" id="btn-all" class="filter-btn filter-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent bg-brand text-white shadow-lg shadow-brand/20 whitespace-nowrap">Усі</button>
+                        <button onclick="setFilter('all')" id="btn-all" class="filter-btn filter-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400 whitespace-nowrap">Усі</button>
                         <button onclick="setFilter('empty')" id="btn-empty" class="filter-btn filter-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400 whitespace-nowrap">Немає (0)</button>
                         <button onclick="setFilter('warning')" id="btn-warning" class="filter-btn filter-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400 whitespace-nowrap">Малий залишок (1–19)</button>
-                        <button onclick="setFilter('good')" id="btn-good" class="filter-btn filter-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400 whitespace-nowrap">У наявності (&ge;20)</button>
+                        <button onclick="setFilter('good')" id="btn-good" class="filter-btn filter-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent bg-brand text-white shadow-lg shadow-brand/20 whitespace-nowrap">У наявності (&ge;20)</button>
                     </div>
                 </div>
 
@@ -380,7 +384,7 @@
                 </div>
 
                 <div id="purchaseProductsContainer" class="divide-y divide-cardBorder/60 max-h-96 overflow-y-auto">
-                    <!-- Заполняется динамически -->
+                    <!-- Динамика -->
                 </div>
             </div>
 
@@ -399,7 +403,7 @@
                 </div>
 
                 <div id="purchasesHistoryContainer" class="divide-y divide-cardBorder/60 max-h-96 overflow-y-auto">
-                    <!-- Заполняется динамически -->
+                    <!-- Динамика -->
                 </div>
             </div>
         </div>
@@ -428,13 +432,13 @@
         let allProducts = [];
         let allShipments = [];
         let allPurchases = [];
-        let currentFilter = 'all';
-        let currentPeriod = '1d'; // '1d', '7d', '30d', 'all', 'custom'
+        let currentFilter = 'good'; // как на скрине
+        let currentPeriod = '30d';   // как на скрине
         let customStartDate = null;
         let customEndDate = null;
         let countdown = 60;
         let isAuthenticated = false;
-        let liveUsdRate = 41.5;
+        let liveUsdRate = 44.71;
         let currentTab = 'stock';
         let timerInterval = null;
 
@@ -447,7 +451,7 @@
                     document.getElementById('usdRateBadge').innerText = `Курс: ${liveUsdRate.toFixed(2)} ₴`;
                 }
             } catch (err) {
-                console.warn("Не вдалося завантажити живий курс USD:", err);
+                console.warn("Помилка завантаження курсу USD:", err);
             }
         }
 
@@ -606,23 +610,28 @@
             document.getElementById('kpiTotalSumUsd').innerText = `$${Math.round(totalSumUsd).toLocaleString('en-US')}`;
         }
 
-        // ЛОГІКА ВИБОРУ ПЕРІОДІВ
+        // ПЕРЕКЛЮЧЕНИЕ ПЕРИОДОВ (ВКЛЮЧАЯ КАЛЕНДАРЬ)
         window.setPeriod = (period) => {
             currentPeriod = period;
-            document.getElementById('startDateInput').value = '';
-            document.getElementById('endDateInput').value = '';
-            customStartDate = null;
-            customEndDate = null;
+            document.getElementById('calendarPanel').classList.add('hidden');
 
-            ['1d', '7d', '30d', 'all'].forEach(p => {
+            ['1d', '7d', '30d', 'custom'].forEach(p => {
                 const btn = document.getElementById(`period-${p}`);
                 if (p === period) {
-                    btn.className = "period-btn period-btn-hover px-3 py-1.5 rounded-lg text-xs font-medium border border-transparent bg-brand text-white shadow-lg shadow-brand/20";
+                    btn.className = "period-btn period-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent bg-brand text-white shadow-lg shadow-brand/20 flex items-center gap-1.5";
                 } else {
-                    btn.className = "period-btn period-btn-hover px-3 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400";
+                    btn.className = "period-btn period-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400 flex items-center gap-1.5";
                 }
             });
             renderProducts();
+        };
+
+        window.toggleCalendarPanel = () => {
+            const panel = document.getElementById('calendarPanel');
+            panel.classList.toggle('hidden');
+            if (!panel.classList.contains('hidden')) {
+                setPeriod('custom');
+            }
         };
 
         window.applyCustomDates = () => {
@@ -633,12 +642,6 @@
                 currentPeriod = 'custom';
                 customStartDate = startVal ? new Date(startVal + 'T00:00:00') : null;
                 customEndDate = endVal ? new Date(endVal + 'T23:59:59') : null;
-
-                ['1d', '7d', '30d', 'all'].forEach(p => {
-                    const btn = document.getElementById(`period-${p}`);
-                    btn.className = "period-btn period-btn-hover px-3 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400";
-                });
-
                 renderProducts();
             }
         };
@@ -666,16 +669,19 @@
                 .replace(/'/g, "&#039;");
         }
 
-        // ПІДРАХУНОК ВІДПРАВОК ДЛЯ КОЖНОГО ТОВАРУ
+        // НАДЕЖНЫЙ РАСЧЕТ ОТПРАВОК
         function calculateShipmentsCount(productId) {
-            const pId = String(productId).trim();
+            const cleanProductId = String(productId).trim().toLowerCase();
             const now = new Date().getTime();
             const ms1d = 24 * 60 * 60 * 1000;
 
             let total = 0;
 
             allShipments.forEach(s => {
-                if (String(s.id).trim() !== pId) return;
+                const cleanShipId = String(s.id).trim().toLowerCase();
+                
+                // Проверяем точное совпадение ID
+                if (cleanShipId !== cleanProductId) return;
 
                 const shipDate = new Date(s.date).getTime();
                 if (isNaN(shipDate)) return;
@@ -686,8 +692,6 @@
                     if ((now - shipDate) <= (7 * ms1d)) total += Number(s.qty) || 0;
                 } else if (currentPeriod === '30d') {
                     if ((now - shipDate) <= (30 * ms1d)) total += Number(s.qty) || 0;
-                } else if (currentPeriod === 'all') {
-                    total += Number(s.qty) || 0;
                 } else if (currentPeriod === 'custom') {
                     let matchStart = true;
                     let matchEnd = true;
