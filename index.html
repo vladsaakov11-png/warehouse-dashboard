@@ -76,6 +76,12 @@
 
         @keyframes pulse-ring { 0% { transform: scale(0.95); opacity: 0.8; } 50% { transform: scale(1.1); opacity: 0.4; } 100% { transform: scale(0.95); opacity: 0.8; } }
         .live-dot { animation: pulse-ring 2s infinite ease-in-out; }
+
+        /* Стилізація полів календаря під темний дизайн */
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(0.8) sepia(100%) saturate(1000%) hue-rotate(350deg);
+            cursor: pointer;
+        }
     </style>
 </head>
 <body class="min-h-screen flex">
@@ -293,35 +299,34 @@
                 </div>
             </div>
 
-            <!-- БЛОК АНАЛІЗУ ВІДПРАВОК -->
+            <!-- БЛОК АНАЛІЗУ ВІДПРАВОК С КАЛЕНДАРЕМ -->
             <div class="cyber-card border border-cardBorder rounded-xl p-4 mb-6">
-                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                     <div class="flex items-center gap-2">
                         <i class="fa-solid fa-truck-fast text-brand"></i>
                         <span class="text-xs font-bold uppercase tracking-wider text-gray-300">Аналіз відправок за період:</span>
                     </div>
 
-                    <!-- Объединенный блок кнопок: 24г, 7 днів, 30 днів + Календарь -->
-                    <div class="flex flex-wrap items-center gap-1 bg-gray-900 p-1.5 rounded-xl border border-cardBorder">
-                        <button onclick="setPeriod('1d')" id="period-1d" class="period-btn period-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400">24г (доба)</button>
-                        <button onclick="setPeriod('7d')" id="period-7d" class="period-btn period-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400">7 днів</button>
-                        <button onclick="setPeriod('30d')" id="period-30d" class="period-btn period-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent bg-brand text-white shadow-lg shadow-brand/20">30 днів</button>
-                        
-                        <button onclick="toggleCalendarPanel()" id="period-custom" class="period-btn period-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400 flex items-center gap-1.5">
-                            <i class="fa-regular fa-calendar text-brand"></i>
-                            <span>Календар</span>
-                        </button>
-                    </div>
-                </div>
+                    <!-- Объединенный блок кнопок и календаря в едином стиле -->
+                    <div class="flex flex-wrap items-center gap-2 bg-gray-900/90 p-1.5 rounded-xl border border-cardBorder">
+                        <button onclick="setPeriod('1d')" id="period-1d" class="period-btn period-btn-hover px-3 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400">24г (доба)</button>
+                        <button onclick="setPeriod('7d')" id="period-7d" class="period-btn period-btn-hover px-3 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400">7 днів</button>
+                        <button onclick="setPeriod('30d')" id="period-30d" class="period-btn period-btn-hover px-3 py-1.5 rounded-lg text-xs font-medium border border-transparent bg-brand text-white shadow-lg shadow-brand/20">30 днів</button>
 
-                <!-- Выпадающий выбор дат при нажатии на "Календар" -->
-                <div id="calendarPanel" class="hidden mt-3 pt-3 border-t border-cardBorder/60 flex flex-wrap items-center gap-3">
-                    <span class="text-xs text-gray-400 font-medium">Виберіть період:</span>
-                    <div class="flex items-center gap-2 bg-gray-900 px-3 py-1.5 rounded-xl border border-cardBorder text-xs">
-                        <span class="text-gray-400">З:</span>
-                        <input type="date" id="startDateInput" onchange="applyCustomDates()" class="bg-cardBg border border-cardBorder text-white text-xs rounded-lg px-2 py-1 focus:outline-none focus:border-brand">
-                        <span class="text-gray-400">По:</span>
-                        <input type="date" id="endDateInput" onchange="applyCustomDates()" class="bg-cardBg border border-cardBorder text-white text-xs rounded-lg px-2 py-1 focus:outline-none focus:border-brand">
+                        <div class="h-4 w-[1px] bg-cardBorder mx-1 hidden sm:block"></div>
+
+                        <!-- Выбор периода по календарю -->
+                        <div id="calendarGroup" class="flex items-center gap-2 px-2 py-1 rounded-lg border border-transparent transition">
+                            <i class="fa-regular fa-calendar text-brand text-xs"></i>
+                            <div class="flex items-center gap-1.5 text-xs">
+                                <span class="text-gray-400 font-medium">З:</span>
+                                <input type="date" id="startDateInput" onchange="applyCustomDates()" class="bg-cardBg border border-cardBorder text-white text-xs rounded-lg px-2 py-1 focus:outline-none focus:border-brand transition">
+                            </div>
+                            <div class="flex items-center gap-1.5 text-xs">
+                                <span class="text-gray-400 font-medium">По:</span>
+                                <input type="date" id="endDateInput" onchange="applyCustomDates()" class="bg-cardBg border border-cardBorder text-white text-xs rounded-lg px-2 py-1 focus:outline-none focus:border-brand transition">
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -432,8 +437,8 @@
         let allProducts = [];
         let allShipments = [];
         let allPurchases = [];
-        let currentFilter = 'good'; // как на скрине
-        let currentPeriod = '30d';   // как на скрине
+        let currentFilter = 'good';
+        let currentPeriod = '30d';
         let customStartDate = null;
         let customEndDate = null;
         let countdown = 60;
@@ -610,28 +615,35 @@
             document.getElementById('kpiTotalSumUsd').innerText = `$${Math.round(totalSumUsd).toLocaleString('en-US')}`;
         }
 
-        // ПЕРЕКЛЮЧЕНИЕ ПЕРИОДОВ (ВКЛЮЧАЯ КАЛЕНДАРЬ)
+        // ЛОГІКА ПЕРЕМИКАННЯ ПЕРІОДІВ І КАЛЕНДАРЯ
         window.setPeriod = (period) => {
             currentPeriod = period;
-            document.getElementById('calendarPanel').classList.add('hidden');
 
-            ['1d', '7d', '30d', 'custom'].forEach(p => {
+            // Скидаємо дати при виборі стандартних кнопок
+            if (period !== 'custom') {
+                document.getElementById('startDateInput').value = '';
+                document.getElementById('endDateInput').value = '';
+                customStartDate = null;
+                customEndDate = null;
+            }
+
+            ['1d', '7d', '30d'].forEach(p => {
                 const btn = document.getElementById(`period-${p}`);
                 if (p === period) {
-                    btn.className = "period-btn period-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent bg-brand text-white shadow-lg shadow-brand/20 flex items-center gap-1.5";
+                    btn.className = "period-btn period-btn-hover px-3 py-1.5 rounded-lg text-xs font-medium border border-transparent bg-brand text-white shadow-lg shadow-brand/20";
                 } else {
-                    btn.className = "period-btn period-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400 flex items-center gap-1.5";
+                    btn.className = "period-btn period-btn-hover px-3 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400";
                 }
             });
-            renderProducts();
-        };
 
-        window.toggleCalendarPanel = () => {
-            const panel = document.getElementById('calendarPanel');
-            panel.classList.toggle('hidden');
-            if (!panel.classList.contains('hidden')) {
-                setPeriod('custom');
+            const calGroup = document.getElementById('calendarGroup');
+            if (period === 'custom') {
+                calGroup.classList.add('border-brand', 'bg-brand/10');
+            } else {
+                calGroup.classList.remove('border-brand', 'bg-brand/10');
             }
+
+            renderProducts();
         };
 
         window.applyCustomDates = () => {
@@ -642,6 +654,16 @@
                 currentPeriod = 'custom';
                 customStartDate = startVal ? new Date(startVal + 'T00:00:00') : null;
                 customEndDate = endVal ? new Date(endVal + 'T23:59:59') : null;
+
+                // Скидаємо підсвітку стандартних кнопок
+                ['1d', '7d', '30d'].forEach(p => {
+                    const btn = document.getElementById(`period-${p}`);
+                    btn.className = "period-btn period-btn-hover px-3 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400";
+                });
+
+                // Підсвічуємо рамку вибору дат
+                document.getElementById('calendarGroup').classList.add('border-brand', 'bg-brand/10');
+
                 renderProducts();
             }
         };
@@ -669,7 +691,7 @@
                 .replace(/'/g, "&#039;");
         }
 
-        // НАДЕЖНЫЙ РАСЧЕТ ОТПРАВОК
+        // РАСЧЕТ ОТПРАВОК ПО ID И ДАТАМ
         function calculateShipmentsCount(productId) {
             const cleanProductId = String(productId).trim().toLowerCase();
             const now = new Date().getTime();
@@ -679,8 +701,6 @@
 
             allShipments.forEach(s => {
                 const cleanShipId = String(s.id).trim().toLowerCase();
-                
-                // Проверяем точное совпадение ID
                 if (cleanShipId !== cleanProductId) return;
 
                 const shipDate = new Date(s.date).getTime();
@@ -735,7 +755,6 @@
                 const qty = Number(p.qty) || 0;
                 const price = Number(p.price) || 0;
                 const totalCost = qty * price;
-                
                 const shipmentsCount = calculateShipmentsCount(p.id);
 
                 let badgeClass = "bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
