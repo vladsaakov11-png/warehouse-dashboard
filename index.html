@@ -39,7 +39,7 @@
 </head>
 <body class="bg-darkBg text-gray-100 min-h-screen font-sans selection:bg-accent selection:text-white">
 
-    <!-- Екран авторизації -->
+    <!-- Екран авторизації (Firebase Auth) -->
     <div id="auth-screen" class="fixed inset-0 z-50 flex items-center justify-center bg-darkBg/95 backdrop-blur-sm">
         <div class="bg-cardBg border border-gray-800 p-8 rounded-2xl w-full max-w-md shadow-2xl">
             <div class="text-center mb-8">
@@ -113,21 +113,19 @@
             <!-- Історія закупівель (Компактна картка зі скролом та сортуванням) -->
             <div class="bg-cardBg border border-gray-800 rounded-xl p-6">
                 <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-lg font-bold text-white">ОСТАННІ ОФОРМЛЕНІ ЗАКУПІВЛІ</h2>
-                    <span class="text-xs text-gray-400">Наведіть мишку та прокручуйте для перегляду</span>
+                    <h2 class="text-lg font-bold text-white">Історія закупівель</h2>
+                    <span class="text-xs text-gray-400">Прокрутіть вниз для перегляду всіх записів</span>
                 </div>
                 
-                <!-- Обгортка з фіксованою висотою (приблизно 10 рядків) та вертикальним скролом -->
+                <!-- Обгортка з фіксованою висотою та вертикальним скролом -->
                 <div class="max-h-[420px] overflow-y-auto custom-scrollbar border border-gray-800 rounded-lg">
                     <table class="w-full text-left border-collapse">
                         <thead class="sticky top-0 bg-[#0e1320] border-b border-gray-800 text-gray-400 text-xs uppercase z-10">
                             <tr>
                                 <th class="py-3 px-4 cursor-pointer hover:text-white transition" onclick="sortPurchases('date')">Дата <i class="fa-solid fa-sort ml-1"></i></th>
-                                <th class="py-3 px-4 cursor-pointer hover:text-white transition" onclick="sortPurchases('id')">ID <i class="fa-solid fa-sort ml-1"></i></th>
-                                <th class="py-3 px-4 cursor-pointer hover:text-white transition" onclick="sortPurchases('name')">Назва товару <i class="fa-solid fa-sort ml-1"></i></th>
-                                <th class="py-3 px-4 cursor-pointer hover:text-white transition text-right" onclick="sortPurchases('quantity')">К-сть <i class="fa-solid fa-sort ml-1"></i></th>
-                                <th class="py-3 px-4 cursor-pointer hover:text-white transition" onclick="sortPurchases('np')">Номер ЕН (ТТН) <i class="fa-solid fa-sort ml-1"></i></th>
                                 <th class="py-3 px-4 cursor-pointer hover:text-white transition" onclick="sortPurchases('supplier')">Постачальник <i class="fa-solid fa-sort ml-1"></i></th>
+                                <th class="py-3 px-4 cursor-pointer hover:text-white transition" onclick="sortPurchases('np')">Номер ЕН <i class="fa-solid fa-sort ml-1"></i></th>
+                                <th class="py-3 px-4 cursor-pointer hover:text-white transition text-right" onclick="sortPurchases('quantity')">Кількість <i class="fa-solid fa-sort ml-1"></i></th>
                             </tr>
                         </thead>
                         <tbody id="purchases-table-body" class="divide-y divide-gray-800 text-sm">
@@ -173,101 +171,77 @@
         </div>
     </div>
 
-    <!-- Скріпти (Логіка, Сортування та рендер) -->
+    <!-- Скріпти (Логіка, Firebase, Сортування та API) -->
     <script>
-        const API_URL = "YOUR_GOOGLE_APPS_SCRIPT_URL_HERE"; 
+        const API_URL = "YOUR_GOOGLE_APPS_SCRIPT_URL_HERE"; // Замініть на ваш дійсний URL бекенду
         
-        // Початкові демо-дані (схожі на ваш скріншот)
         let purchasesData = [
-            { date: '--', id: '1240', name: '#REF!', quantity: 20, np: '20451143478901', supplier: '--' },
-            { date: '--', id: '1241', name: '', quantity: 5, np: '20451143478901', supplier: '--' },
-            { date: '--', id: '1239', name: '', quantity: 10, np: '20451143531669', supplier: '--' },
-            { date: '--', id: '1242', name: '', quantity: 50, np: '20451144756523', supplier: '--' },
-            { date: '--', id: '1243', name: '', quantity: 40, np: '20451144756523', supplier: '--' },
-            { date: '--', id: '1244', name: '', quantity: 40, np: '20451144756523', supplier: '--' },
-            { date: '--', id: '1245', name: '', quantity: 10, np: '20451144756523', supplier: '--' },
-            { date: '--', id: '1251', name: '', quantity: 24, np: '59001358890980', supplier: '--' },
-            { date: '--', id: '1252', name: '', quantity: 21, np: '59001358890980', supplier: '--' },
-            { date: '--', id: '1253', name: '', quantity: 1, np: '59001358890980', supplier: '--' },
-            { date: '--', id: '1254', name: '', quantity: 15, np: '59001358890981', supplier: 'Постачальник А' },
-            { date: '--', id: '1255', name: '', quantity: 30, np: '59001358890982', supplier: 'Постачальник Б' }
+            // Демо-дані для перевірки сортування та скролу
+            { date: '2026-09-20', supplier: 'Постачальник А', np: '20450012345678', quantity: 15 },
+            { date: '2026-09-19', supplier: 'Постачальник Б', np: '20450087654321', quantity: 50 },
+            { date: '2026-09-18', supplier: 'Постачальник В', np: '20450011223344', quantity: 5 },
+            { date: '2026-09-17', supplier: 'Постачальник Г', np: '20450099887766', quantity: 30 },
+            { date: '2026-09-16', supplier: 'Постачальник Д', np: '20450055443322', quantity: 12 },
+            { date: '2026-09-15', supplier: 'Постачальник Е', np: '20450033221100', quantity: 80 },
+            { date: '2026-09-14', supplier: 'Постачальник Ж', np: '20450077889900', quantity: 22 },
+            { date: '2026-09-13', supplier: 'Постачальник З', np: '20450044556677', quantity: 4 },
+            { date: '2026-09-12', supplier: 'Постачальник І', np: '20450099001122', quantity: 65 },
+            { date: '2026-09-11', supplier: 'Постачальник К', np: '20450022334455', quantity: 18 },
+            { date: '2026-09-10', supplier: 'Постачальник Л', np: '20450066778899', quantity: 33 }
         ];
 
-        // Зберігаємо початковий порядок завантаження для скидання сортування
-        let originalPurchasesData = [...purchasesData];
-
         let currentSortColumn = null;
-        let sortDirection = 0; // 0 - оригінальний (нові зверху, якщо інвертувати), 1 - від більшого до меншого / А-Я, 2 - від меншого до більшого / Я-А
-
-        // При завантаженні робимо так, щоб нові (останні у масиві або за ID) були зверху за замовчуванням
-        // Якщо нові додаються в кінець масиву, розгортаємо їх для відображення:
-        function getDisplayedData() {
-            // За замовчуванням показуємо нові зверху (реверс від оригінального порядку введення)
-            let data = [...purchasesData];
-            
-            if (currentSortColumn === null) {
-                return data.reverse(); // Нові зверху за замовчуванням
-            }
-
-            data.sort((a, b) => {
-                let valA = a[currentSortColumn];
-                let valB = b[currentSortColumn];
-
-                if (!isNaN(valA) && !isNaN(valB) && valA !== '' && valB !== '') {
-                    valA = Number(valA);
-                    valB = Number(valB);
-                } else {
-                    valA = String(valA || '').toLowerCase();
-                    valB = String(valB || '').toLowerCase();
-                }
-
-                if (valA < valB) return sortDirection === 1 ? -1 : 1;
-                if (valA > valB) return sortDirection === 1 ? 1 : -1;
-                return 0;
-            });
-
-            return data;
-        }
+        let isAscending = true;
 
         // Функція рендерингу таблиці закупівель
         function renderPurchasesTable() {
             const tbody = document.getElementById('purchases-table-body');
             tbody.innerHTML = '';
 
-            const dataToRender = getDisplayedData();
-
-            if (dataToRender.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-gray-500">Немає даних історії</td></tr>`;
+            if (purchasesData.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="text-center py-4 text-gray-500">Немає даних історії</td></tr>`;
                 return;
             }
 
-            dataToRender.forEach(item => {
+            purchasesData.forEach(item => {
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-gray-900/40 transition';
                 tr.innerHTML = `
-                    <td class="py-3 px-4 text-gray-400">${item.date}</td>
-                    <td class="py-3 px-4 text-accent font-semibold">${item.id}</td>
-                    <td class="py-3 px-4 text-white">${item.name || '--'}</td>
-                    <td class="py-3 px-4 text-right font-semibold text-accent">+${item.quantity}</td>
+                    <td class="py-3 px-4 text-gray-300">${item.date}</td>
+                    <td class="py-3 px-4 text-white font-medium">${item.supplier}</td>
                     <td class="py-3 px-4 text-gray-300 font-mono text-xs">${item.np}</td>
-                    <td class="py-3 px-4 text-gray-300">${item.supplier}</td>
+                    <td class="py-3 px-4 text-right font-semibold text-accent">${item.quantity}</td>
                 `;
                 tbody.appendChild(tr);
             });
         }
 
-        // Логіка кліку по заголовках для сортування (Три цикли: Сброс -> Спадання -> Зростання)
+        // Функція сортування
         function sortPurchases(column) {
             if (currentSortColumn === column) {
-                sortDirection++;
-                if (sortDirection > 2) {
-                    sortDirection = 0;
-                    currentSortColumn = null; // Повертаємо у стан за замовчуванням (нові зверху)
-                }
+                isAscending = !isAscending;
             } else {
                 currentSortColumn = column;
-                sortDirection = 1; // Перший клік — від більшого до меншого (або від А до Я)
+                isAscending = true;
             }
+
+            purchasesData.sort((a, b) => {
+                let valA = a[column];
+                let valB = b[column];
+
+                if (!isNaN(valA) && !isNaN(valB)) {
+                    valA = Number(valA);
+                    valB = Number(valB);
+                } else {
+                    valA = String(valA).toLowerCase();
+                    valB = String(valB).toLowerCase();
+                }
+
+                if (valA < valB) return isAscending ? -1 : 1;
+                if (valA > valB) return isAscending ? 1 : -1;
+                return 0;
+            });
+
             renderPurchasesTable();
         }
 
@@ -292,7 +266,7 @@
             }
         });
 
-        // Імітація входу
+        // Імітація входу для перевірки (тут підключається ваш Firebase)
         document.getElementById('login-form').addEventListener('submit', (e) => {
             e.preventDefault();
             document.getElementById('auth-screen').classList.add('hidden');
@@ -300,7 +274,7 @@
             renderPurchasesTable();
         });
 
-        // Початковий рендер при завантаженні сторінки
+        // Початковий рендер таблиці при завантаженні
         document.addEventListener('DOMContentLoaded', () => {
             renderPurchasesTable();
         });
