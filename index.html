@@ -431,7 +431,10 @@
                     </div>
                     <div class="col-span-1">ID</div>
                     <div class="col-span-3">ТОВАР</div>
-                    <div class="col-span-2 text-center">СТАТУС</div>
+                    <div class="col-span-2 text-center sort-header flex items-center justify-center gap-1" onclick="toggleStatusGroup()">
+                        <span>СТАТУС</span>
+                        <span id="status-sort-icon" class="text-[10px] text-gray-500"><i class="fa-solid fa-sort"></i></span>
+                    </div>
                     <div class="col-span-4 text-center">КІЛЬКІСТЬ / ДІЯ</div>
                 </div>
 
@@ -479,6 +482,7 @@
         let sortField = null;
         let sortOrder = null;
         let purchaseSortOrder = 'desc';
+        let statusGroupMode = null; // null | 'transit-first' | 'received-first'
 
         async function fetchLiveUsdRate() {
             try {
@@ -930,6 +934,20 @@
             return 0;
         }
 
+        // Номер заявки має формат "PUR-<мілісекунди>" - це точний момент
+        // створення. Використовуємо це для сортування замість самої лише
+        // дати (у якій немає часу), щоб кілька заявок одного дня йшли
+        // рівно в тому порядку, в якому їх реально створили.
+        function getOrderSortKey(p) {
+            if (p.orderId) {
+                const match = String(p.orderId).match(/^PUR-(\d+)/);
+                if (match) return Number(match[1]);
+            }
+            // Старі рядки без номера заявки (створені ще до впровадження
+            // унікальних номерів) - сортуємо за датою як резервний варіант.
+            return parseOrderDate(p.date);
+        }
+
         window.togglePurchaseSort = () => {
             purchaseSortOrder = purchaseSortOrder === 'desc' ? 'asc' : 'desc';
             const icon = document.getElementById('purchase-sort-icon');
@@ -937,6 +955,26 @@
                 icon.innerHTML = purchaseSortOrder === 'desc'
                     ? '<i class="fa-solid fa-arrow-down-wide-short text-brand"></i>'
                     : '<i class="fa-solid fa-arrow-up-wide-short text-brand"></i>';
+            }
+            renderPurchasesList();
+        };
+
+        window.toggleStatusGroup = () => {
+            // Три стани по колу: без групування -> спочатку "в дорозі" ->
+            // спочатку "прийнято" -> знову без групування.
+            if (statusGroupMode === null) statusGroupMode = 'transit-first';
+            else if (statusGroupMode === 'transit-first') statusGroupMode = 'received-first';
+            else statusGroupMode = null;
+
+            const icon = document.getElementById('status-sort-icon');
+            if (icon) {
+                if (statusGroupMode === 'transit-first') {
+                    icon.innerHTML = '<i class="fa-solid fa-truck-fast text-amber-400"></i>';
+                } else if (statusGroupMode === 'received-first') {
+                    icon.innerHTML = '<i class="fa-solid fa-circle-check text-emerald-400"></i>';
+                } else {
+                    icon.innerHTML = '<i class="fa-solid fa-sort"></i>';
+                }
             }
             renderPurchasesList();
         };
@@ -953,11 +991,31 @@
             }
 
             const sorted = [...allPurchases].sort((a, b) => {
-                const diff = parseOrderDate(a.date) - parseOrderDate(b.date);
+                if (statusGroupMode) {
+                    const aReceived = !(a.received === null || a.received === undefined);
+                    const bReceived = !(b.received === null || b.received === undefined);
+                    if (aReceived !== bReceived) {
+                        if (statusGroupMode === 'transit-first') {
+                            return aReceived ? 1 : -1;
+                        } else {
+                            return aReceived ? -1 : 1;
+                        }
+                    }
+                }
+                const diff = getOrderSortKey(a) - getOrderSortKey(b);
                 return purchaseSortOrder === 'desc' ? -diff : diff;
             });
 
-            container.innerHTML = sorted.map(p => {
+            // Рендерити тисячі рядків DOM одночасно - головна причина
+            // "довгого завантаження" на великих таблицях. Дані з таблиці
+            // забираємо повністю (бейдж лічильника показує реальну
+            // кількість), але в інтерфейс виводимо тільки найактуальніші -
+            // цього достатньо для щоденної роботи складу.
+            const RENDER_LIMIT = 300;
+            const truncated = sorted.length > RENDER_LIMIT;
+            const toRender = truncated ? sorted.slice(0, RENDER_LIMIT) : sorted;
+ 
+            const rowsHtml = toRender.map(p => {
                 // Заявка "в дорозі", поки в таблиці порожня колонка "Прийнято" (G).
                 // Як тільки склад вносить фактичну кількість - стає "Прийнято".
                 const isReceived = !(p.received === null || p.received === undefined);
@@ -1001,17 +1059,22 @@
                         <div class="col-span-4 text-center">${actionHtml}</div>
                     </div>`;
             }).join('');
+
+            container.innerHTML = truncated
+                ? rowsHtml + `<div class="text-center py-3 text-[11px] text-gray-500">Показано ${RENDER_LIMIT} з ${sorted.length} заявок (найновіші)</div>`
+                : rowsHtml;
         };
 
         window.submitReceivedQty = async (orderId) => {
             const input = document.getElementById(`receivedInput_${orderId}`);
             if (!input) return;
-            const qty = input.value;
+            const qtyStr = input.value;
 
-            if (qty === '' || isNaN(qty) || Number(qty) < 0) {
+            if (qtyStr === '' || isNaN(qtyStr) || Number(qtyStr) < 0) {
                 showToast("Вкажіть коректну кількість (0 або більше)!", "red");
                 return;
             }
+            const qtyNum = Number(qtyStr);
 
             try {
                 await fetch(API_URL, {
@@ -1021,12 +1084,22 @@
                     body: JSON.stringify({
                         action: "receivePurchase",
                         orderId: orderId,
-                        qty: Number(qty)
+                        qty: qtyNum
                     })
                 });
 
+                // Миттєво позначаємо заявку прийнятою в інтерфейсі, не
+                // чекаючи наступного оновлення з таблиці.
+                const target = allPurchases.find(p => String(p.orderId) === String(orderId));
+                if (target) {
+                    target.received = qtyNum;
+                    target.receivedAt = new Date().toLocaleString('uk-UA');
+                    target.deviation = qtyNum - (Number(target.qty) || 0);
+                }
+                renderPurchasesList();
+
                 showToast("Фактичну кількість збережено!");
-                setTimeout(loadData, 1500);
+                setTimeout(loadData, 3000);
 
             } catch (err) {
                 console.error("Помилка збереження прийнятої кількості:", err);
@@ -1081,6 +1154,11 @@
             const today = new Date();
             const formattedDate = today.toLocaleDateString('uk-UA');
 
+            // Генеруємо номер заявки одразу на клієнті (той самий формат,
+            // що й на сервері) - і одразу показуємо заявку в списку, не
+            // чекаючи відповіді сервера чи наступного автооновлення.
+            const uniqueId = "PUR-" + Date.now();
+
             const payload = {
                 action: "addPurchase",
                 id: String(product.id),
@@ -1088,7 +1166,8 @@
                 qty: Number(qty),
                 ttn: ttn || "-",
                 supplier: supplier || "-",
-                date: formattedDate
+                date: formattedDate,
+                orderId: uniqueId
             };
 
             try {
@@ -1099,13 +1178,26 @@
                     body: JSON.stringify(payload)
                 });
 
-                // Нову заявку побачимо в "Активних" вже після наступного
-                // loadData() - вона визначається за порожньою колонкою
-                // "Прийнято" в самій таблиці, а не зберігається локально.
+                // Миттєво додаємо заявку в список - реальний час без очікування.
+                allPurchases.push({
+                    id: payload.id,
+                    name: payload.name,
+                    qty: payload.qty,
+                    ttn: payload.ttn,
+                    supplier: payload.supplier,
+                    date: payload.date,
+                    received: null,
+                    receivedAt: '',
+                    deviation: '',
+                    orderId: uniqueId
+                });
+
                 showToast("Заявку на закупівлю успішно створено!");
                 closeOrderModal();
-                
-                setTimeout(loadData, 2000);
+                if (currentTab === 'purchases') renderPurchasesList();
+
+                // Синхронізація з таблицею у фоні - про всяк випадок.
+                setTimeout(loadData, 3000);
 
             } catch (err) {
                 console.error("Помилка відправки:", err);
@@ -1130,3 +1222,4 @@
     </script>
 </body>
 </html>
+ 
