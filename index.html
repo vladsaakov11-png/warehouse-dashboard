@@ -90,6 +90,21 @@
         .sort-header:hover {
             color: #FF7A00;
         }
+
+        /* ---- Закупівлі та приймка ---- */
+        .text-gradient-red { background: linear-gradient(135deg, #FCA5A5 0%, #EF4444 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        #purchasesTable thead th { background: #0b101b; }
+        #purchasesTable thead th.wh-head { background: linear-gradient(rgba(16, 185, 129, 0.07), rgba(16, 185, 129, 0.07)), #0b101b; }
+        #purchasesTable td.wh-cell { background: rgba(16, 185, 129, 0.035); }
+        #purchasesTable tr:hover td { background-color: rgba(31, 41, 55, 0.35); }
+        #purchasesTable tr:hover td.wh-cell { background-color: rgba(16, 185, 129, 0.07); }
+        .wh-first { border-left: 1px solid rgba(16, 185, 129, 0.35); }
+        .dev-badge { display: inline-flex; min-width: 2.4rem; justify-content: center; padding: 0.2rem 0.5rem; border-radius: 0.5rem; border-width: 1px; font-weight: 700; font-size: 11px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+        .status-badge { display: inline-flex; align-items: center; gap: 0.375rem; padding: 0.25rem 0.625rem; border-radius: 0.5rem; border-width: 1px; font-size: 11px; font-weight: 700; white-space: nowrap; }
+        .icon-btn { width: 2rem; height: 2rem; display: inline-flex; align-items: center; justify-content: center; border-radius: 0.5rem; color: #9ca3af; transition: all 0.2s ease; }
+        .icon-btn:hover { background: rgba(26, 35, 54, 0.9); }
+        .icon-btn:focus-visible, .pf-btn:focus-visible { outline: 2px solid #FF7A00; outline-offset: 1px; }
+        .kpi-click { cursor: pointer; }
     </style>
 </head>
 <body class="min-h-screen flex">
@@ -203,6 +218,99 @@
                     </button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- MODAL: РЕДАГУВАННЯ ЗАЯВКИ -->
+    <div id="editPurchaseModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+        <div class="bg-cardBg border border-cardBorder rounded-2xl p-6 max-w-lg w-full shadow-2xl max-h-[92vh] overflow-y-auto">
+            <div class="flex items-start justify-between mb-5 pb-3 border-b border-cardBorder gap-3">
+                <div class="min-w-0">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-pen-to-square text-brand text-lg"></i>
+                        <h3 class="text-lg font-bold text-white" id="editPurchaseTitle">Заявка</h3>
+                    </div>
+                    <p class="text-xs text-gray-400 mt-1 truncate" id="editPurchaseProduct">--</p>
+                </div>
+                <button type="button" onclick="closeEditPurchase()" class="text-gray-400 hover:text-white transition" title="Закрити">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <form onsubmit="savePurchaseEdit(event)" class="space-y-5">
+                <div>
+                    <div class="text-xs font-bold text-gray-200 mb-2.5 flex items-center gap-2">
+                        <i class="fa-solid fa-file-invoice text-brand"></i> Замовлення
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div>
+                            <label for="editOrderedQty" class="text-[11px] font-semibold text-gray-400 block mb-1">Замовлено, шт *</label>
+                            <input type="number" id="editOrderedQty" min="1" step="1" required oninput="updateEditPreview()" class="w-full bg-gray-900/90 border border-cardBorder rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-[#FF7A00] transition">
+                        </div>
+                        <div>
+                            <label for="editTtn" class="text-[11px] font-semibold text-gray-400 block mb-1">ТТН</label>
+                            <input type="text" id="editTtn" maxlength="100" placeholder="Немає" class="w-full bg-gray-900/90 border border-cardBorder rounded-xl px-3 py-2 text-sm text-white font-mono focus:outline-none focus:border-[#FF7A00] transition">
+                        </div>
+                        <div>
+                            <label for="editSupplier" class="text-[11px] font-semibold text-gray-400 block mb-1">Постачальник</label>
+                            <input type="text" id="editSupplier" maxlength="200" placeholder="Не вказано" class="w-full bg-gray-900/90 border border-cardBorder rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-[#FF7A00] transition">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="rounded-xl border border-emerald-500/25 bg-emerald-500/[0.04] p-4 space-y-3">
+                    <div class="text-xs font-bold text-emerald-300 flex items-center gap-2">
+                        <i class="fa-solid fa-warehouse"></i> Приймання на складі
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label for="editReceivedQty" class="text-[11px] font-semibold text-gray-400 block mb-1">Прийнято фактично, шт</label>
+                            <input type="number" id="editReceivedQty" min="0" step="1" placeholder="Ще не прийнято" oninput="updateEditPreview()" class="w-full bg-gray-900/90 border border-cardBorder rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500 transition">
+                        </div>
+                        <div>
+                            <label for="editStatus" class="text-[11px] font-semibold text-gray-400 block mb-1">Статус приймки</label>
+                            <select id="editStatus" onchange="updateEditPreview()" class="w-full bg-gray-900/90 border border-cardBorder rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500 transition disabled:opacity-50">
+                                <option value="">Автоматично за кількістю</option>
+                                <option value="Прийнято повністю">Прийнято повністю</option>
+                                <option value="Частково">Частково</option>
+                                <option value="Брак / Недостача">Брак / Недостача</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="editDeviationPreview" class="text-xs text-gray-400"></div>
+                    <div>
+                        <label for="editComment" class="text-[11px] font-semibold text-gray-400 block mb-1">Коментар складу</label>
+                        <textarea id="editComment" rows="3" maxlength="500" placeholder="Наприклад: 2 шт. не вистачило в коробці" class="w-full bg-gray-900/90 border border-cardBorder rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500 transition resize-none"></textarea>
+                    </div>
+                </div>
+
+                <div class="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-3 pt-1">
+                    <button type="button" id="btnReturnTransit" onclick="returnToTransit()" class="hidden text-xs text-gray-400 hover:text-sky-300 transition text-left">
+                        <i class="fa-solid fa-rotate-left mr-1"></i>Повернути в дорогу
+                    </button>
+                    <div class="flex items-center justify-end gap-3 sm:ml-auto">
+                        <button type="button" onclick="closeEditPurchase()" class="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-xl text-xs font-semibold transition">Скасувати</button>
+                        <button type="submit" id="btnSaveEdit" class="disabled:opacity-60 disabled:cursor-wait px-5 py-2 bg-brand hover:bg-[#E06B00] text-white rounded-xl text-xs font-bold transition shadow-lg shadow-brand/20">
+                            Зберегти зміни
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: ВИДАЛЕННЯ ЗАЯВКИ -->
+    <div id="deletePurchaseModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+        <div class="bg-cardBg border border-red-500/30 rounded-2xl p-6 max-w-sm w-full shadow-2xl text-center">
+            <div class="w-12 h-12 mx-auto rounded-xl bg-red-500/10 border border-red-500/30 flex items-center justify-center text-red-400 text-lg mb-4">
+                <i class="fa-solid fa-trash-can"></i>
+            </div>
+            <h3 class="text-base font-bold text-white mb-2">Видалити заявку?</h3>
+            <p id="deletePurchaseText" class="text-xs text-gray-400 leading-relaxed mb-6"></p>
+            <div class="flex items-center justify-center gap-3">
+                <button type="button" onclick="closeDeletePurchase()" class="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-xl text-xs font-semibold transition">Скасувати</button>
+                <button type="button" id="btnConfirmDelete" onclick="confirmDeletePurchase()" class="disabled:opacity-60 disabled:cursor-wait px-5 py-2 bg-red-600 hover:bg-red-500 text-white rounded-xl text-xs font-bold transition">Видалити</button>
+            </div>
         </div>
     </div>
 
@@ -401,51 +509,88 @@
             </div>
         </div>
 
-        <!-- VIEW 2: ЗАКУПІВЛЯ (РОЗДІЛЕНА НА ДВІ КОЛОНКИ СНИЗУ) -->
+        <!-- VIEW 2: ЗАКУПІВЛІ ТА ПРИЙМКА -->
         <div id="viewPurchases" class="hidden space-y-6">
-            <!-- Верхня панель залишена без змін -->
-            <div class="flex flex-col md:flex-row items-center justify-between gap-4 bg-cardBg border border-cardBorder p-4 rounded-2xl shadow-lg">
-                <div>
-                    <h3 class="text-base font-bold text-white flex items-center gap-2">
-                        <i class="fa-solid fa-boxes-packing text-brand"></i>
-                        <span>Управління замовленнями постачальникам</span>
-                    </h3>
-                    <p class="text-xs text-gray-400 mt-1">Оформлюйте нові закупівлі та відстежуйте статус доставки</p>
+            <div class="flex flex-col lg:flex-row lg:items-start gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 flex-1 lg:max-w-3xl">
+                    <div onclick="setPurchaseFilter('transit')" class="kpi-click cyber-card cyber-card-brand border border-cardBorder rounded-xl p-4 flex flex-col justify-between" title="Показати заявки в дорозі">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[11px] font-bold text-gray-400 tracking-wider uppercase">В дорозі / очікується</span>
+                            <div class="w-8 h-8 rounded-lg bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-300 text-sm">
+                                <i class="fa-solid fa-truck-fast"></i>
+                            </div>
+                        </div>
+                        <div class="my-2">
+                            <div class="text-3xl font-black text-gradient-orange tracking-tight" id="kpiTransitQty">0 шт.</div>
+                        </div>
+                        <p class="text-[11px] text-gray-500 truncate" id="kpiTransitSub">--</p>
+                    </div>
+
+                    <div onclick="setPurchaseFilter('issues')" class="kpi-click cyber-card cyber-card-brand border border-cardBorder rounded-xl p-4 flex flex-col justify-between" title="Показати заявки з розбіжностями">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[11px] font-bold text-gray-400 tracking-wider uppercase">Розбіжності / брак</span>
+                            <div class="w-8 h-8 rounded-lg bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-400 text-sm">
+                                <i class="fa-solid fa-circle-exclamation"></i>
+                            </div>
+                        </div>
+                        <div class="my-2">
+                            <div class="text-3xl font-black text-gradient-red tracking-tight" id="kpiIssuesQty">0 шт.</div>
+                        </div>
+                        <p class="text-[11px] text-gray-500 truncate" id="kpiIssuesSub">--</p>
+                    </div>
                 </div>
 
-                <button onclick="openOrderModal()" class="w-full md:w-auto px-6 py-3 bg-brand hover:bg-[#E06B00] text-white font-bold text-xs rounded-xl transition shadow-lg shadow-brand/20 flex items-center justify-center gap-2">
+                <button onclick="openOrderModal()" class="lg:ml-auto w-full lg:w-auto px-6 py-3 bg-brand hover:bg-[#E06B00] text-white font-bold text-xs rounded-xl transition shadow-lg shadow-brand/20 flex items-center justify-center gap-2">
                     <i class="fa-solid fa-plus text-sm"></i>
-                    <span>Створити нову закупівлю</span>
+                    <span>Створити закупівлю</span>
                 </button>
             </div>
 
-            <!-- Єдиний список усіх заявок на закупівлю -->
-            <div class="bg-cardBg border border-cardBorder rounded-2xl overflow-hidden shadow-xl flex flex-col">
-                <div class="bg-gray-900/90 p-4 border-b border-cardBorder text-xs font-bold text-gray-300 tracking-wider uppercase flex items-center justify-between">
-                    <span class="flex items-center gap-2">
-                        <i class="fa-solid fa-boxes-packing text-brand"></i>
-                        <span>Заявки на закупівлю</span>
-                    </span>
-                    <span id="purchasesCountBadge" class="text-[10px] bg-brand/20 text-brand font-mono font-bold px-3 py-1 rounded-full border border-brand/30">0 заявок</span>
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                <div class="flex items-center gap-1.5 bg-cardBg p-1.5 rounded-xl border border-cardBorder overflow-x-auto max-w-full w-full md:w-auto">
+                    <button onclick="setPurchaseFilter('all')" id="pf-all" class="pf-btn filter-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent whitespace-nowrap">Усі замовлення</button>
+                    <button onclick="setPurchaseFilter('transit')" id="pf-transit" class="pf-btn filter-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent whitespace-nowrap">В дорозі</button>
+                    <button onclick="setPurchaseFilter('received')" id="pf-received" class="pf-btn filter-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent whitespace-nowrap">Прийнято</button>
+                    <button onclick="setPurchaseFilter('issues')" id="pf-issues" class="pf-btn filter-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent whitespace-nowrap">З розбіжностями</button>
                 </div>
 
-                <div class="grid grid-cols-12 bg-gray-900/50 p-3 border-b border-cardBorder text-[11px] font-bold text-gray-400 uppercase select-none">
-                    <div class="col-span-2 sort-header flex items-center gap-1" onclick="togglePurchaseSort()">
-                        <span>ДАТА</span>
-                        <span id="purchase-sort-icon" class="text-[10px] text-gray-500"><i class="fa-solid fa-arrow-down-wide-short text-brand"></i></span>
-                    </div>
-                    <div class="col-span-1">ID</div>
-                    <div class="col-span-3">ТОВАР</div>
-                    <div class="col-span-2 text-center sort-header flex items-center justify-center gap-1" onclick="toggleStatusGroup()">
-                        <span>СТАТУС</span>
-                        <span id="status-sort-icon" class="text-[10px] text-gray-500"><i class="fa-solid fa-sort"></i></span>
-                    </div>
-                    <div class="col-span-4 text-center">КІЛЬКІСТЬ / ДІЯ</div>
+                <div class="relative w-full md:w-80">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm pointer-events-none"></i>
+                    <input type="text" id="purchaseSearchInput" oninput="renderPurchasesList()" placeholder="Пошук: назва, ID, ТТН, номер..." class="w-full bg-cardBg border border-cardBorder rounded-xl pl-10 pr-4 py-2 text-sm text-gray-200 focus:outline-none focus:border-[#FF7A00] transition">
                 </div>
+            </div>
 
-                <div id="purchasesListContainer" class="divide-y divide-cardBorder/60 max-h-[650px] overflow-y-auto flex-1">
-                    <!-- Динамічно заповнюється -->
+            <div class="bg-cardBg border border-cardBorder rounded-2xl overflow-hidden shadow-xl">
+                <div class="overflow-auto max-h-[680px]">
+                    <table id="purchasesTable" class="w-full min-w-[1150px] text-xs border-separate border-spacing-0">
+                        <thead class="sticky top-0 z-10">
+                            <tr>
+                                <th colspan="4" class="px-4 pt-4 pb-3 text-left text-sm font-bold text-white border-b border-cardBorder">
+                                    <i class="fa-solid fa-file-invoice text-brand mr-2"></i>Клієнт
+                                </th>
+                                <th colspan="5" class="wh-head wh-first px-4 pt-4 pb-3 text-left text-sm font-bold text-emerald-300 border-b border-emerald-500/30">
+                                    <i class="fa-solid fa-warehouse mr-2"></i>Склад
+                                </th>
+                            </tr>
+                            <tr class="text-[10px] font-bold text-gray-400 uppercase tracking-wider select-none">
+                                <th class="px-4 py-3 text-left border-b border-cardBorder sort-header whitespace-nowrap" onclick="togglePurchaseSort()">
+                                    <span>ID / Дата</span>
+                                    <span id="purchase-sort-icon" class="ml-1"><i class="fa-solid fa-arrow-down-wide-short text-brand"></i></span>
+                                </th>
+                                <th class="px-4 py-3 text-left border-b border-cardBorder">Назва товару / ID</th>
+                                <th class="px-4 py-3 text-left border-b border-cardBorder">ТТН</th>
+                                <th class="px-4 py-3 text-right border-b border-cardBorder">Замовлено</th>
+                                <th class="wh-head wh-first px-4 py-3 text-center border-b border-emerald-500/20">Прийнято</th>
+                                <th class="wh-head px-4 py-3 text-center border-b border-emerald-500/20">Розбіжність</th>
+                                <th class="wh-head px-4 py-3 text-left border-b border-emerald-500/20">Статус приймки</th>
+                                <th class="wh-head px-4 py-3 text-left border-b border-emerald-500/20">Коментар складу</th>
+                                <th class="wh-head px-4 py-3 text-right border-b border-emerald-500/20">Дії</th>
+                            </tr>
+                        </thead>
+                        <tbody id="purchasesTableBody"></tbody>
+                    </table>
                 </div>
+                <div id="purchasesFooter" class="px-4 py-2.5 text-[11px] text-gray-500 border-t border-cardBorder"></div>
             </div>
         </div>
     </main>
@@ -492,7 +637,6 @@
         let sortField = null;
         let sortOrder = null;
         let purchaseSortOrder = 'desc';
-        let statusGroupMode = null; // null | 'transit-first' | 'received-first'
 
         async function fetchLiveUsdRate() {
             try {
@@ -532,7 +676,9 @@
                 allPurchases = [];
                 pendingOrderId = null;
                 document.getElementById('productsContainer').innerHTML = LOADING_HTML;
-                document.getElementById('purchasesListContainer').innerHTML = '';
+                document.getElementById('purchasesTableBody').innerHTML = '';
+                document.getElementById('editPurchaseModal').classList.add('hidden');
+                document.getElementById('deletePurchaseModal').classList.add('hidden');
                 document.getElementById('orderModal').classList.add('hidden');
                 document.getElementById('mainDashboard').classList.add('hidden');
                 document.getElementById('authOverlay').classList.remove('hidden');
@@ -664,7 +810,7 @@
                 navPurchases.className = "w-full nav-card-active flex flex-col items-center justify-center text-center p-3 rounded-2xl group transition";
                 viewStock.classList.add('hidden');
                 viewPurchases.classList.remove('hidden');
-                pageTitle.innerText = "Управління закупівлями";
+                pageTitle.innerText = "Закупівлі та приймка";
                 renderPurchasesList();
             }
         };
@@ -1083,32 +1229,82 @@
             }).join('');
         };
 
-        function parseOrderDate(str) {
-            if (!str) return 0;
-            let d = new Date(str);
-            if (!isNaN(d.getTime())) return d.getTime();
+        // ===================== ЗАКУПІВЛІ ТА ПРИЙМКА =====================
 
-            // Формат дд.мм.рррр (напр. 22.09.2026), який дає toLocaleDateString('uk-UA')
-            const parts = String(str).split('.');
-            if (parts.length === 3) {
-                d = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
-                if (!isNaN(d.getTime())) return d.getTime();
-            }
-            return 0;
+        let purchaseFilter = 'all';
+        let editingOrderId = null;
+        let deletingOrderId = null;
+
+        const STATUS_STYLES = {
+            transit: { label: 'В дорозі',          cls: 'bg-sky-500/10 text-sky-300 border-sky-500/30',             icon: 'fa-truck-fast' },
+            full:    { label: 'Прийнято повністю', cls: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30', icon: 'fa-circle-check' },
+            partial: { label: 'Частково',          cls: 'bg-amber-500/10 text-amber-400 border-amber-500/30',       icon: 'fa-circle-half-stroke' },
+            defect:  { label: 'Брак / Недостача',  cls: 'bg-red-500/10 text-red-400 border-red-500/30',             icon: 'fa-triangle-exclamation' },
+            surplus: { label: 'Надлишок',          cls: 'bg-violet-500/10 text-violet-300 border-violet-500/30',    icon: 'fa-circle-plus' }
+        };
+        const STORED_STATUS_KEYS = { 'Частково': 'partial', 'Прийнято повністю': 'full', 'Брак / Недостача': 'defect' };
+
+        const PF_ACTIVE = "pf-btn filter-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent bg-brand text-white shadow-lg shadow-brand/20 whitespace-nowrap";
+        const PF_INACTIVE = "pf-btn filter-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400 whitespace-nowrap";
+
+        function pluralUk(n, one, few, many) {
+            const n10 = n % 10, n100 = n % 100;
+            if (n10 === 1 && n100 !== 11) return one;
+            if (n10 >= 2 && n10 <= 4 && (n100 < 12 || n100 > 14)) return few;
+            return many;
         }
 
-        // Номер заявки має формат "PUR-<мілісекунди>" - це точний момент
-        // створення. Використовуємо це для сортування замість самої лише
-        // дати (у якій немає часу), щоб кілька заявок одного дня йшли
-        // рівно в тому порядку, в якому їх реально створили.
-        function getOrderSortKey(p) {
-            if (p.orderId) {
-                const match = String(p.orderId).match(/^PUR-(\d+)/);
-                if (match) return Number(match[1]);
+        function formatQty(n) {
+            return `${(Number(n) || 0).toLocaleString('uk-UA')} шт.`;
+        }
+
+        // "дд.мм.рррр" або "дд.мм.рррр гг:хх" -> мілісекунди (0, якщо не вдалося)
+        function parseOrderDate(str) {
+            if (!str) return 0;
+            const m = String(str).trim().match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})(?:[ ,T]+(\d{1,2}):(\d{2}))?/);
+            if (m) {
+                const d = new Date(+m[3], +m[2] - 1, +m[1], +(m[4] || 0), +(m[5] || 0));
+                return isNaN(d.getTime()) ? 0 : d.getTime();
             }
-            // Старі рядки без номера заявки (створені ще до впровадження
-            // унікальних номерів) - сортуємо за датою як резервний варіант.
-            return (typeof p.dateTs === 'number') ? p.dateTs : parseOrderDate(p.date);
+            const d = new Date(str);
+            return isNaN(d.getTime()) ? 0 : d.getTime();
+        }
+
+        // Номер "PUR-<мілісекунди>" — точний момент створення заявки.
+        function getOrderSortKey(p) {
+            const match = String(p.orderId || '').match(/^PUR-(\d+)/);
+            if (match) return Number(match[1]);
+            if (typeof p.dateTs === 'number') return p.dateTs;
+            return parseOrderDate(p.date);
+        }
+
+        function isPurchaseReceived(p) {
+            return !(p.received === null || p.received === undefined || p.received === '');
+        }
+
+        // Розбіжність завжди рахуємо як "прийнято мінус замовлено":
+        // 98 з 100 -> -2, 105 з 100 -> +5.
+        function getPurchaseDeviation(p) {
+            if (!isPurchaseReceived(p)) return null;
+            return (Number(p.received) || 0) - (Number(p.qty) || 0);
+        }
+
+        function getPurchaseStatus(p) {
+            if (!isPurchaseReceived(p)) return STATUS_STYLES.transit;
+            if (p.status && STORED_STATUS_KEYS[p.status]) return STATUS_STYLES[STORED_STATUS_KEYS[p.status]];
+            const dev = getPurchaseDeviation(p);
+            if (dev === 0) return STATUS_STYLES.full;
+            return dev < 0 ? STATUS_STYLES.partial : STATUS_STYLES.surplus;
+        }
+
+        function hasPurchaseIssue(p) {
+            if (!isPurchaseReceived(p)) return false;
+            const st = getPurchaseStatus(p);
+            return getPurchaseDeviation(p) !== 0 || st === STATUS_STYLES.defect || st === STATUS_STYLES.partial;
+        }
+
+        function findPurchase(orderId) {
+            return allPurchases.find(p => String(p.orderId) === String(orderId));
         }
 
         window.togglePurchaseSort = () => {
@@ -1122,182 +1318,340 @@
             renderPurchasesList();
         };
 
-        window.toggleStatusGroup = () => {
-            // Три стани по колу: без групування -> спочатку "в дорозі" ->
-            // спочатку "прийнято" -> знову без групування.
-            if (statusGroupMode === null) statusGroupMode = 'transit-first';
-            else if (statusGroupMode === 'transit-first') statusGroupMode = 'received-first';
-            else statusGroupMode = null;
-
-            const icon = document.getElementById('status-sort-icon');
-            if (icon) {
-                if (statusGroupMode === 'transit-first') {
-                    icon.innerHTML = '<i class="fa-solid fa-truck-fast text-amber-400"></i>';
-                } else if (statusGroupMode === 'received-first') {
-                    icon.innerHTML = '<i class="fa-solid fa-circle-check text-emerald-400"></i>';
-                } else {
-                    icon.innerHTML = '<i class="fa-solid fa-sort"></i>';
-                }
-            }
+        window.setPurchaseFilter = (filter) => {
+            purchaseFilter = filter;
             renderPurchasesList();
         };
 
-        window.renderPurchasesList = () => {
-            const container = document.getElementById('purchasesListContainer');
-            const badge = document.getElementById('purchasesCountBadge');
+        function updatePurchaseKPIs() {
+            let transitQty = 0, transitCount = 0, issueQty = 0, issueCount = 0;
+            const monthAgo = Date.now() - 30 * 24 * 60 * 60 * 1000;
 
-            if (badge) badge.innerText = `${allPurchases.length} заявок`;
-
-            // Зберігаємо те, що користувач уже ввів у поля "К-сть", щоб
-            // автооновлення кожні 60 с не стирало недописане значення.
-            const typedValues = {};
-            container.querySelectorAll('[data-receive-input]').forEach(inp => {
-                const row = inp.closest('[data-row]');
-                if (row && inp.value !== '') typedValues[row.dataset.orderId] = inp.value;
+            allPurchases.forEach(p => {
+                if (!isPurchaseReceived(p)) {
+                    transitQty += Number(p.qty) || 0;
+                    transitCount++;
+                    return;
+                }
+                if (!hasPurchaseIssue(p)) return;
+                const at = parseOrderDate(p.receivedAt);
+                if (at && at < monthAgo) return;
+                issueQty += Math.abs(getPurchaseDeviation(p));
+                issueCount++;
             });
 
-            if (allPurchases.length === 0) {
-                container.innerHTML = `<div class="text-center py-12 text-gray-500 text-xs"><p>Заявок ще немає</p></div>`;
-                return;
+            document.getElementById('kpiTransitQty').innerText = formatQty(transitQty);
+            document.getElementById('kpiTransitSub').innerText = transitCount
+                ? `${transitCount} ${pluralUk(transitCount, 'заявка', 'заявки', 'заявок')} очікує на приймання`
+                : 'Усе прийнято, нічого не очікується';
+
+            document.getElementById('kpiIssuesQty').innerText = formatQty(issueQty);
+            document.getElementById('kpiIssuesSub').innerText = issueCount
+                ? `Потребує уваги: ${issueCount} ${pluralUk(issueCount, 'заявка', 'заявки', 'заявок')} за 30 днів`
+                : 'За 30 днів розбіжностей немає';
+        }
+
+        function updatePurchaseFilterTabs(counts) {
+            const labels = {
+                all: `Усі замовлення (${counts.all})`,
+                transit: `В дорозі (${counts.transit})`,
+                received: `Прийнято (${counts.received})`,
+                issues: `З розбіжностями (${counts.issues})`
+            };
+            Object.keys(labels).forEach(key => {
+                const btn = document.getElementById(`pf-${key}`);
+                if (!btn) return;
+                btn.innerText = labels[key];
+                btn.className = key === purchaseFilter ? PF_ACTIVE : PF_INACTIVE;
+            });
+        }
+
+        function renderDeviationBadge(dev) {
+            if (dev === null) return '<span class="dev-badge bg-gray-800/70 text-gray-500 border-gray-700">—</span>';
+            if (dev === 0) return '<span class="dev-badge bg-emerald-500/10 text-emerald-400 border-emerald-500/30">0</span>';
+            if (dev < 0) return `<span class="dev-badge bg-red-500/10 text-red-400 border-red-500/30">${dev}</span>`;
+            return `<span class="dev-badge bg-violet-500/10 text-violet-300 border-violet-500/30">+${dev}</span>`;
+        }
+
+        function renderPurchaseRow(p) {
+            const received = isPurchaseReceived(p);
+            const st = getPurchaseStatus(p);
+            const td = 'px-4 py-3.5 border-b border-cardBorder/40 align-middle';
+            const wh = `${td} wh-cell`;
+            const supplier = p.supplier && p.supplier !== '-' ? p.supplier : '';
+
+            const ttnHtml = p.ttn && p.ttn !== '-'
+                ? `<button type="button" data-action="copy" data-copy="${escapeHtml(p.ttn)}" class="font-mono text-gray-200 hover:text-[#FF7A00] transition text-left" title="Натисніть, щоб скопіювати ТТН">${escapeHtml(p.ttn)}</button>`
+                : '<span class="text-gray-600">—</span>';
+
+            let receivedHtml;
+            if (received) {
+                receivedHtml = `<span class="font-bold text-white">${escapeHtml(p.received)} шт</span>`;
+            } else if (p.orderId) {
+                receivedHtml = `<button type="button" data-action="edit" class="px-2.5 py-1 rounded-lg border border-brandOrange/40 text-brandOrange hover:bg-brandOrange hover:text-white text-[11px] font-semibold transition">Прийняти</button>`;
+            } else {
+                receivedHtml = '<span class="text-gray-600">—</span>';
             }
 
-            const sorted = [...allPurchases].sort((a, b) => {
-                if (statusGroupMode) {
-                    const aReceived = !(a.received === null || a.received === undefined);
-                    const bReceived = !(b.received === null || b.received === undefined);
-                    if (aReceived !== bReceived) {
-                        if (statusGroupMode === 'transit-first') {
-                            return aReceived ? 1 : -1;
-                        } else {
-                            return aReceived ? -1 : 1;
-                        }
-                    }
+            const commentHtml = p.comment
+                ? `<div class="text-gray-300 leading-snug line-clamp-2" title="${escapeHtml(p.comment)}">${escapeHtml(p.comment)}</div>`
+                : `<span class="text-gray-600">${received ? '—' : 'Очікуємо розвантаження'}</span>`;
+
+            const statusTitle = received && p.receivedAt ? `Прийнято: ${p.receivedAt}` : '';
+
+            const actions = p.orderId ? `
+                <div class="flex items-center justify-end gap-0.5">
+                    <button type="button" data-action="edit" class="icon-btn hover:text-[#FF7A00]" title="Редагувати" aria-label="Редагувати заявку"><i class="fa-solid fa-pen"></i></button>
+                    <button type="button" data-action="delete" class="icon-btn hover:text-red-400" title="Видалити" aria-label="Видалити заявку"><i class="fa-solid fa-trash-can"></i></button>
+                </div>` : '';
+
+            return `
+                <tr data-order-id="${escapeHtml(p.orderId)}">
+                    <td class="${td} whitespace-nowrap">
+                        <div class="font-mono font-bold text-brand">${escapeHtml(p.number || '—')}</div>
+                        <div class="text-[10px] text-gray-500 mt-0.5">${escapeHtml(p.date || '')}</div>
+                    </td>
+                    <td class="${td}">
+                        <div class="font-medium text-white text-[13px] truncate max-w-[260px]" title="${escapeHtml(p.name)}">${escapeHtml(p.name)}</div>
+                        <div class="text-[10px] text-gray-500 mt-0.5 truncate max-w-[260px]">ID ${escapeHtml(p.id)}${supplier ? `, ${escapeHtml(supplier)}` : ''}</div>
+                    </td>
+                    <td class="${td} whitespace-nowrap">${ttnHtml}</td>
+                    <td class="${td} text-right font-bold text-white whitespace-nowrap">${escapeHtml(p.qty)} шт</td>
+                    <td class="${wh} wh-first text-center whitespace-nowrap">${receivedHtml}</td>
+                    <td class="${wh} text-center">${renderDeviationBadge(getPurchaseDeviation(p))}</td>
+                    <td class="${wh}"><span class="status-badge ${st.cls}" title="${escapeHtml(statusTitle)}"><i class="fa-solid ${st.icon}"></i>${st.label}</span></td>
+                    <td class="${wh} max-w-[280px]">${commentHtml}</td>
+                    <td class="${wh} text-right">${actions}</td>
+                </tr>`;
+        }
+
+        window.renderPurchasesList = () => {
+            const body = document.getElementById('purchasesTableBody');
+            const footer = document.getElementById('purchasesFooter');
+            if (!body) return;
+
+            updatePurchaseKPIs();
+
+            const counts = { all: allPurchases.length, transit: 0, received: 0, issues: 0 };
+            allPurchases.forEach(p => {
+                if (isPurchaseReceived(p)) {
+                    counts.received++;
+                    if (hasPurchaseIssue(p)) counts.issues++;
+                } else {
+                    counts.transit++;
                 }
+            });
+            updatePurchaseFilterTabs(counts);
+
+            const q = (document.getElementById('purchaseSearchInput').value || '').trim().toLowerCase();
+            const list = allPurchases.filter(p => {
+                if (purchaseFilter === 'transit' && isPurchaseReceived(p)) return false;
+                if (purchaseFilter === 'received' && !isPurchaseReceived(p)) return false;
+                if (purchaseFilter === 'issues' && !hasPurchaseIssue(p)) return false;
+                if (!q) return true;
+                return [p.number, p.id, p.name, p.ttn, p.supplier, p.comment]
+                    .some(v => String(v || '').toLowerCase().includes(q));
+            });
+
+            list.sort((a, b) => {
                 const diff = getOrderSortKey(a) - getOrderSortKey(b);
                 return purchaseSortOrder === 'desc' ? -diff : diff;
             });
 
-            // Рендерити тисячі рядків DOM одночасно - головна причина
-            // "довгого завантаження" на великих таблицях. Дані з таблиці
-            // забираємо повністю (бейдж лічильника показує реальну
-            // кількість), але в інтерфейс виводимо тільки найактуальніші -
-            // цього достатньо для щоденної роботи складу.
-            const RENDER_LIMIT = 300;
-            const truncated = sorted.length > RENDER_LIMIT;
-            const toRender = truncated ? sorted.slice(0, RENDER_LIMIT) : sorted;
- 
-            const rowsHtml = toRender.map(p => {
-                // Заявка "в дорозі", поки в таблиці порожня колонка "Прийнято" (G).
-                // Як тільки склад вносить фактичну кількість - стає "Прийнято".
-                const isReceived = !(p.received === null || p.received === undefined);
-
-                const statusBadge = isReceived
-                    ? `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-bold border bg-emerald-500/10 text-emerald-400 border-emerald-500/20">
-                         <i class="fa-solid fa-circle-check"></i> Прийнято
-                       </span>`
-                    : `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-bold border bg-amber-500/10 text-amber-400 border-amber-500/20">
-                         <i class="fa-solid fa-truck-fast"></i> В дорозі
-                       </span>`;
-
-                let actionHtml;
-                if (isReceived) {
-                    const hasDev = p.deviation !== '' && p.deviation !== null && p.deviation !== undefined;
-                    const devValue = hasDev ? p.deviation : (Number(p.received) - (Number(p.qty) || 0));
-                    const deviationNum = Number(devValue) || 0;
-                    const devClass = deviationNum < 0 ? 'text-red-400' : (deviationNum > 0 ? 'text-emerald-400' : 'text-gray-400');
-                    const devSign = deviationNum > 0 ? '+' : '';
-                    actionHtml = `
-                        <span class="font-bold text-emerald-400">${escapeHtml(p.received)} / ${escapeHtml(p.qty)} шт</span>
-                        <div class="text-[10px] font-mono ${devClass}">Відхилення: ${devSign}${escapeHtml(devValue)}</div>
-                        ${p.receivedAt ? `<div class="text-[10px] text-gray-500">${escapeHtml(p.receivedAt)}</div>` : ''}`;
-                } else if (!p.orderId) {
-                    actionHtml = `
-                        <div class="font-bold text-brand mb-1">Замовлено: ${escapeHtml(p.qty)} шт</div>
-                        <div class="text-[10px] text-gray-500">Номер заявки ще не присвоєно — оновіть дані</div>`;
-                } else {
-                    actionHtml = `
-                        <div class="font-bold text-brand mb-1">Замовлено: ${escapeHtml(p.qty)} шт</div>
-                        <div class="flex items-center gap-1 justify-center">
-                            <input type="number" min="0" step="1" placeholder="К-сть" data-receive-input
-                                value="${escapeHtml(typedValues[p.orderId] || '')}"
-                                class="w-16 bg-gray-900 border border-cardBorder rounded-lg px-1.5 py-1 text-[11px] text-white focus:outline-none focus:border-brand transition">
-                            <button type="button" data-receive-btn
-                                class="text-[10px] bg-brand hover:bg-[#E06B00] disabled:opacity-50 disabled:cursor-wait text-white px-2 py-1 rounded-lg font-semibold transition">
-                                Прийнято
-                            </button>
-                        </div>`;
-                }
-
-                const hint = [p.ttn && p.ttn !== '-' ? `ЕН: ${p.ttn}` : '', p.supplier && p.supplier !== '-' ? `Постачальник: ${p.supplier}` : '']
-                    .filter(Boolean).join(' | ');
-
-                return `
-                    <div data-row data-order-id="${escapeHtml(p.orderId)}" class="grid grid-cols-12 p-3.5 items-center text-xs hover:bg-gray-800/40 transition border-b border-cardBorder/30">
-                        <div class="col-span-2 text-gray-400 font-mono">${escapeHtml(p.date || '--')}</div>
-                        <div class="col-span-1 font-mono font-bold text-brand">${escapeHtml(p.id)}</div>
-                        <div class="col-span-3 font-medium text-white truncate pr-2" title="${escapeHtml(hint ? `${p.name}\n${hint}` : p.name)}">${escapeHtml(p.name)}</div>
-                        <div class="col-span-2 text-center">${statusBadge}</div>
-                        <div class="col-span-4 text-center">${actionHtml}</div>
-                    </div>`;
-            }).join('');
-
-            container.innerHTML = truncated
-                ? rowsHtml + `<div class="text-center py-3 text-[11px] text-gray-500">Показано ${RENDER_LIMIT} з ${sorted.length} заявок (найновіші)</div>`
-                : rowsHtml;
-        };
-
-        async function submitReceivedQty(btn) {
-            const row = btn.closest('[data-row]');
-            const input = row ? row.querySelector('[data-receive-input]') : null;
-            const orderId = row ? row.dataset.orderId : '';
-            if (!input || !orderId || btn.disabled) return;
-
-            const qtyStr = input.value.trim();
-            const qtyNum = Number(qtyStr);
-            if (qtyStr === '' || !Number.isInteger(qtyNum) || qtyNum < 0) {
-                showToast("Вкажіть коректну кількість (ціле число, 0 або більше)!", "red");
-                input.focus();
+            if (list.length === 0) {
+                let text = 'Заявок ще немає. Натисніть «Створити закупівлю», щоб додати першу.';
+                if (q) text = 'За цим запитом нічого не знайдено. Перевірте назву, ID або ТТН.';
+                else if (purchaseFilter === 'transit') text = 'Немає заявок в дорозі: усе прийнято.';
+                else if (purchaseFilter === 'received') text = 'Ще немає прийнятих заявок.';
+                else if (purchaseFilter === 'issues') text = 'Розбіжностей немає: усі заявки прийнято повністю.';
+                body.innerHTML = `<tr><td colspan="9" class="text-center py-14 text-gray-500 text-xs">
+                    <i class="fa-solid fa-box-open text-2xl mb-2 opacity-50 block"></i>${text}</td></tr>`;
+                footer.innerText = '';
                 return;
             }
 
-            btn.disabled = true;
-            input.disabled = true;
-            btn.innerText = '...';
+            // Тисячі рядків одночасно гальмують сторінку — показуємо найактуальніші.
+            const RENDER_LIMIT = 300;
+            const toRender = list.slice(0, RENDER_LIMIT);
+            body.innerHTML = toRender.map(renderPurchaseRow).join('');
+            footer.innerText = list.length > RENDER_LIMIT
+                ? `Показано ${RENDER_LIMIT} з ${list.length} заявок. Уточніть пошук, щоб знайти старіші.`
+                : `${list.length} ${pluralUk(list.length, 'заявка', 'заявки', 'заявок')}`;
+        };
 
-            try {
-                const result = await callApi('receivePurchase', { orderId, qty: qtyNum });
-                upsertPurchase(result.purchase);
-                renderPurchasesList();
-                showToast("Фактичну кількість збережено!");
-                loadData(); // підтягнути оновлені залишки і формули з таблиці
-            } catch (err) {
-                console.error("Помилка збереження прийнятої кількості:", err);
-                if (err.code === 'already_received' && err.data && err.data.purchase) {
-                    upsertPurchase(err.data.purchase);
-                    renderPurchasesList();
-                } else if (btn.isConnected) {
-                    btn.disabled = false;
-                    input.disabled = false;
-                    btn.innerText = 'Прийнято';
-                }
-                if (!AUTH_ERROR_CODES.includes(err.code)) {
-                    showToast(err.message || "Помилка при збереженні!", "red");
-                }
+        // ---------- Редагування ----------
+
+        window.openEditPurchase = (orderId) => {
+            const p = findPurchase(orderId);
+            if (!p) return;
+            editingOrderId = p.orderId;
+
+            document.getElementById('editPurchaseTitle').innerText = p.number ? `Заявка ${p.number}` : 'Заявка';
+            document.getElementById('editPurchaseProduct').innerText = `${p.name} (ID ${p.id})${p.date ? `, від ${p.date}` : ''}`;
+
+            document.getElementById('editOrderedQty').value = p.qty;
+            document.getElementById('editTtn').value = p.ttn && p.ttn !== '-' ? p.ttn : '';
+            document.getElementById('editSupplier').value = p.supplier && p.supplier !== '-' ? p.supplier : '';
+
+            const received = isPurchaseReceived(p);
+            document.getElementById('editReceivedQty').value = received ? p.received : '';
+            document.getElementById('editStatus').value = STORED_STATUS_KEYS[p.status] ? p.status : '';
+            document.getElementById('editComment').value = p.comment || '';
+            document.getElementById('btnReturnTransit').classList.toggle('hidden', !received);
+
+            updateEditPreview();
+            document.getElementById('editPurchaseModal').classList.remove('hidden');
+            if (!received) document.getElementById('editReceivedQty').focus();
+        };
+
+        window.closeEditPurchase = () => {
+            document.getElementById('editPurchaseModal').classList.add('hidden');
+            editingOrderId = null;
+        };
+
+        window.updateEditPreview = () => {
+            const box = document.getElementById('editDeviationPreview');
+            const statusSel = document.getElementById('editStatus');
+            const ordered = Number(document.getElementById('editOrderedQty').value) || 0;
+            const rv = document.getElementById('editReceivedQty').value.trim();
+
+            if (rv === '') {
+                statusSel.disabled = true;
+                box.innerHTML = 'Поки кількість не вказано, заявка має статус <b class="text-sky-300">В дорозі</b>.';
+                return;
             }
-        }
+            statusSel.disabled = false;
 
-        // Один обробник на весь список замість onclick у кожному рядку —
-        // номер заявки більше не підставляється в JS-код як рядок.
-        const purchasesListEl = document.getElementById('purchasesListContainer');
-        purchasesListEl.addEventListener('click', (e) => {
-            const btn = e.target.closest('[data-receive-btn]');
-            if (btn) submitReceivedQty(btn);
-        });
-        purchasesListEl.addEventListener('keydown', (e) => {
-            if (e.key !== 'Enter' || !e.target.matches('[data-receive-input]')) return;
+            const dev = Number(rv) - ordered;
+            const devText = dev === 0
+                ? '<b class="text-emerald-400">0</b>, усе збігається'
+                : dev < 0
+                    ? `<b class="text-red-400">${dev}</b> шт. (недостача)`
+                    : `<b class="text-violet-300">+${dev}</b> шт. (надлишок)`;
+            const st = getPurchaseStatus({ received: Number(rv), qty: ordered, status: statusSel.value });
+            box.innerHTML = `Розбіжність: ${devText}. Статус: <b class="text-white">${st.label}</b>.`;
+        };
+
+        window.returnToTransit = () => {
+            document.getElementById('editReceivedQty').value = '';
+            document.getElementById('editStatus').value = '';
+            updateEditPreview();
+            showToast("Кількість очищено. Натисніть «Зберегти зміни», щоб повернути заявку в дорогу.");
+        };
+
+        window.savePurchaseEdit = async (e) => {
             e.preventDefault();
-            const btn = e.target.closest('[data-row]')?.querySelector('[data-receive-btn]');
-            if (btn) submitReceivedQty(btn);
+            if (!editingOrderId) return;
+            const btn = document.getElementById('btnSaveEdit');
+            if (btn.disabled) return;
+
+            const orderedStr = document.getElementById('editOrderedQty').value.trim();
+            const ordered = Number(orderedStr);
+            if (orderedStr === '' || !Number.isInteger(ordered) || ordered <= 0) {
+                showToast("Замовлена кількість має бути цілим числом більше нуля", "red");
+                return;
+            }
+
+            const rv = document.getElementById('editReceivedQty').value.trim();
+            if (rv !== '' && (!Number.isInteger(Number(rv)) || Number(rv) < 0)) {
+                showToast("Прийнята кількість має бути цілим числом (0 або більше)", "red");
+                return;
+            }
+
+            const payload = {
+                orderId: editingOrderId,
+                qty: ordered,
+                ttn: document.getElementById('editTtn').value.trim() || '-',
+                supplier: document.getElementById('editSupplier').value.trim() || '-',
+                received: rv === '' ? null : Number(rv),
+                status: rv === '' ? '' : document.getElementById('editStatus').value,
+                comment: document.getElementById('editComment').value.trim()
+            };
+
+            btn.disabled = true;
+            btn.innerText = "Збереження...";
+            try {
+                const result = await callApi('updatePurchase', payload);
+                upsertPurchase(result.purchase);
+                closeEditPurchase();
+                renderPurchasesList();
+                showToast("Зміни збережено");
+                loadData(); // оновити залишки складу
+            } catch (err) {
+                console.error("Помилка збереження заявки:", err);
+                if (!AUTH_ERROR_CODES.includes(err.code)) showToast(err.message || "Не вдалося зберегти зміни", "red");
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Зберегти зміни";
+            }
+        };
+
+        // ---------- Видалення ----------
+
+        window.openDeletePurchase = (orderId) => {
+            const p = findPurchase(orderId);
+            if (!p) return;
+            deletingOrderId = p.orderId;
+            document.getElementById('deletePurchaseText').innerText =
+                `${p.number || 'Заявка'}: ${p.name}, ${p.qty} шт. Рядок буде видалено з листа ЗАКУПІВЛІ, відновити його з дашборда не вийде.`;
+            document.getElementById('deletePurchaseModal').classList.remove('hidden');
+        };
+
+        window.closeDeletePurchase = () => {
+            document.getElementById('deletePurchaseModal').classList.add('hidden');
+            deletingOrderId = null;
+        };
+
+        window.confirmDeletePurchase = async () => {
+            if (!deletingOrderId) return;
+            const btn = document.getElementById('btnConfirmDelete');
+            if (btn.disabled) return;
+            const orderId = deletingOrderId;
+
+            btn.disabled = true;
+            btn.innerText = "Видалення...";
+            try {
+                await callApi('deletePurchase', { orderId });
+                allPurchases = allPurchases.filter(p => String(p.orderId) !== String(orderId));
+                closeDeletePurchase();
+                renderPurchasesList();
+                showToast("Заявку видалено");
+            } catch (err) {
+                console.error("Помилка видалення заявки:", err);
+                if (!AUTH_ERROR_CODES.includes(err.code)) showToast(err.message || "Не вдалося видалити заявку", "red");
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Видалити";
+            }
+        };
+
+        // Один обробник на всю таблицю замість onclick у кожному рядку.
+        document.getElementById('purchasesTableBody').addEventListener('click', (e) => {
+            const btn = e.target.closest('[data-action]');
+            if (!btn) return;
+
+            if (btn.dataset.action === 'copy') {
+                const text = btn.dataset.copy || '';
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(text)
+                        .then(() => showToast(`ТТН ${text} скопійовано`))
+                        .catch(() => {});
+                }
+                return;
+            }
+
+            const orderId = btn.closest('tr[data-order-id]')?.dataset.orderId;
+            if (!orderId) return;
+            if (btn.dataset.action === 'edit') openEditPurchase(orderId);
+            else if (btn.dataset.action === 'delete') openDeletePurchase(orderId);
+        });
+
+        // Esc закриває відкрите вікно
+        document.addEventListener('keydown', (e) => {
+            if (e.key !== 'Escape') return;
+            if (!document.getElementById('deletePurchaseModal').classList.contains('hidden')) closeDeletePurchase();
+            else if (!document.getElementById('editPurchaseModal').classList.contains('hidden')) closeEditPurchase();
+            else if (!document.getElementById('orderModal').classList.contains('hidden')) closeOrderModal();
         });
 
         window.openOrderModal = (id = null) => {
