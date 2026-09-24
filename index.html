@@ -139,7 +139,7 @@
 
     <!-- Toast Notification -->
     <div id="toast" class="fixed bottom-5 right-5 z-50 bg-emerald-600 text-white px-4 py-2.5 rounded-xl shadow-2xl flex items-center gap-2 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
-        <i class="fa-solid fa-circle-check"></i>
+        <i id="toastIcon" class="fa-solid fa-circle-check"></i>
         <span id="toastMsg" class="text-sm font-medium">Повідомлення</span>
     </div>
 
@@ -1383,11 +1383,14 @@
             const toastMsg = document.getElementById('toastMsg');
             
             toastMsg.innerText = msg;
+            document.getElementById('toastIcon').className = color === 'red'
+                ? 'fa-solid fa-circle-exclamation'
+                : 'fa-solid fa-circle-check';
             toast.className = `fixed bottom-5 right-5 z-50 ${color === 'red' ? 'bg-red-600' : 'bg-emerald-600'} text-white px-4 py-2.5 rounded-xl shadow-2xl flex items-center gap-2 transform translate-y-0 opacity-100 transition-all duration-300`;
 
             setTimeout(() => {
                 toast.className = "fixed bottom-5 right-5 z-50 bg-emerald-600 text-white px-4 py-2.5 rounded-xl shadow-2xl flex items-center gap-2 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none";
-            }, 3000);
+            }, color === 'red' ? 6000 : 3000);
         }
     </script>
 </body>
