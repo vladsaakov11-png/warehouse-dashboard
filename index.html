@@ -434,13 +434,14 @@
                      class="kpi-click sm:col-span-2 xl:col-span-1 cyber-card cyber-card-brand border border-cardBorder rounded-xl p-4 flex flex-col justify-between"
                      title="Показати товари без продажів за останні 30 днів">
                     <div class="flex items-center justify-between">
-                        <span class="text-[11px] font-bold text-gray-400 tracking-wider uppercase">Неліквід 30+ днів</span>
+                        <span class="text-[11px] font-bold text-gray-400 tracking-wider uppercase">Без руху</span>
                         <div class="w-8 h-8 rounded-lg bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-400 text-sm">
                             <i class="fa-solid fa-hourglass-half"></i>
                         </div>
                     </div>
                     <div class="my-2">
                         <div class="text-3xl font-black text-gradient-red tracking-tight" id="kpiIlliquidCount">0</div>
+                        <div class="text-[11px] text-gray-500 mt-0.5">30+ днів</div>
                     </div>
                     <div class="flex items-center justify-between pt-2 border-t border-cardBorder/40 gap-2">
                         <span class="text-[11px] text-gray-400 truncate" id="kpiIlliquidSub">Без відправок за 30 днів</span>
@@ -488,7 +489,7 @@
                         <button onclick="setFilter('empty')" id="btn-empty" class="filter-btn filter-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400 whitespace-nowrap">Немає (0)</button>
                         <button onclick="setFilter('warning')" id="btn-warning" class="filter-btn filter-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400 whitespace-nowrap">Малий залишок (1–19)</button>
                         <button onclick="setFilter('good')" id="btn-good" class="filter-btn filter-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent bg-brand text-white shadow-lg shadow-brand/20 whitespace-nowrap">У наявності (&ge;20)</button>
-                        <button onclick="setFilter('illiquid')" id="btn-illiquid" class="filter-btn filter-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400 whitespace-nowrap">Неліквід 30+ дн</button>
+                        <button onclick="setFilter('illiquid')" id="btn-illiquid" class="filter-btn filter-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400 whitespace-nowrap">Без руху 30+ дн</button>
                     </div>
                 </div>
 
@@ -1293,7 +1294,7 @@
                     <div class="text-center py-12 text-gray-500">
                         <i class="fa-solid fa-box-open text-3xl mb-2 opacity-50"></i>
                         <p>${currentFilter === 'illiquid' && !searchQuery
-                            ? 'Неліквіду немає: усі товари з залишком продавались за останні 30 днів'
+                            ? 'Товарів без руху немає: усі товари з залишком продавались за останні 30 днів'
                             : 'Товарів не знайдено'}</p>
                     </div>`;
                 return;
