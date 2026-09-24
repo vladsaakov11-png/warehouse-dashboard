@@ -91,7 +91,7 @@
             color: #FF7A00;
         }
 
-        /* ---- Закупівлі та приймка ---- */
+        /* ---- Закупівлі та приймання ---- */
         .text-gradient-red { background: linear-gradient(135deg, #FCA5A5 0%, #EF4444 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         #purchasesTable thead th { background: #0b101b; }
         #purchasesTable thead th.wh-head { background: linear-gradient(rgba(16, 185, 129, 0.07), rgba(16, 185, 129, 0.07)), #0b101b; }
@@ -397,7 +397,7 @@
 
         <!-- VIEW 1: ОБЛІК -->
         <div id="viewStock">
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 mb-6">
                 <div class="cyber-card cyber-card-brand border border-cardBorder rounded-xl p-4 flex flex-col justify-between cursor-pointer">
                     <div class="flex items-center justify-between">
                         <span class="text-[11px] font-bold text-gray-400 tracking-wider uppercase">ОДИНИЦЬ ТОВАРУ</span>
@@ -427,6 +427,24 @@
                     <div class="flex items-center justify-between pt-2 border-t border-cardBorder/40">
                         <span class="text-[11px] text-gray-400">Оцінка в валюті:</span>
                         <span class="text-base font-black text-gradient-orange" id="kpiTotalSumUsd">$0</span>
+                    </div>
+                </div>
+
+                <div id="illiquidCard" onclick="toggleIlliquidFilter()" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleIlliquidFilter();}"
+                     class="kpi-click sm:col-span-2 xl:col-span-1 cyber-card cyber-card-brand border border-cardBorder rounded-xl p-4 flex flex-col justify-between"
+                     title="Показати товари без продажів за останні 30 днів">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[11px] font-bold text-gray-400 tracking-wider uppercase">Неліквід 30+ днів</span>
+                        <div class="w-8 h-8 rounded-lg bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-400 text-sm">
+                            <i class="fa-solid fa-hourglass-half"></i>
+                        </div>
+                    </div>
+                    <div class="my-2">
+                        <div class="text-3xl font-black text-gradient-red tracking-tight" id="kpiIlliquidCount">0</div>
+                    </div>
+                    <div class="flex items-center justify-between pt-2 border-t border-cardBorder/40 gap-2">
+                        <span class="text-[11px] text-gray-400 truncate" id="kpiIlliquidSub">Без відправок за 30 днів</span>
+                        <span class="text-[11px] font-semibold text-red-300 whitespace-nowrap" id="kpiIlliquidAction">Показати <i class="fa-solid fa-arrow-down text-[9px]"></i></span>
                     </div>
                 </div>
             </div>
@@ -470,6 +488,7 @@
                         <button onclick="setFilter('empty')" id="btn-empty" class="filter-btn filter-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400 whitespace-nowrap">Немає (0)</button>
                         <button onclick="setFilter('warning')" id="btn-warning" class="filter-btn filter-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400 whitespace-nowrap">Малий залишок (1–19)</button>
                         <button onclick="setFilter('good')" id="btn-good" class="filter-btn filter-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent bg-brand text-white shadow-lg shadow-brand/20 whitespace-nowrap">У наявності (&ge;20)</button>
+                        <button onclick="setFilter('illiquid')" id="btn-illiquid" class="filter-btn filter-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400 whitespace-nowrap">Неліквід 30+ дн</button>
                     </div>
                 </div>
 
@@ -479,7 +498,7 @@
                 </div>
             </div>
 
-            <div class="bg-cardBg border border-cardBorder rounded-2xl overflow-hidden shadow-xl">
+            <div id="productsTable" class="bg-cardBg border border-cardBorder rounded-2xl overflow-hidden shadow-xl scroll-mt-6">
                 <div class="grid grid-cols-12 bg-gray-900/80 p-4 border-b border-cardBorder text-xs font-bold text-gray-400 tracking-wider uppercase select-none">
                     <div class="col-span-2 md:col-span-1 sort-header flex items-center gap-1" onclick="toggleSort('id')">
                         <span>ID</span>
@@ -509,7 +528,7 @@
             </div>
         </div>
 
-        <!-- VIEW 2: ЗАКУПІВЛІ ТА ПРИЙМКА -->
+        <!-- VIEW 2: ЗАКУПІВЛІ ТА ПРИЙМАННЯ -->
         <div id="viewPurchases" class="hidden space-y-6">
             <div class="flex flex-col lg:flex-row lg:items-start gap-4">
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 flex-1 lg:max-w-3xl">
@@ -810,7 +829,7 @@
                 navPurchases.className = "w-full nav-card-active flex flex-col items-center justify-center text-center p-3 rounded-2xl group transition";
                 viewStock.classList.add('hidden');
                 viewPurchases.classList.remove('hidden');
-                pageTitle.innerText = "Закупівлі та приймка";
+                pageTitle.innerText = "Закупівлі та приймання";
                 renderPurchasesList();
             }
         };
@@ -1019,6 +1038,76 @@
             document.getElementById('kpiTotalQty').innerText = totalQty.toLocaleString('uk-UA');
             document.getElementById('kpiTotalSumUah').innerText = `${Math.round(totalSumUah).toLocaleString('uk-UA')} ₴`;
             document.getElementById('kpiTotalSumUsd').innerText = `$${Math.round(totalSumUsd).toLocaleString('en-US')}`;
+
+            updateIlliquid();
+        }
+
+        // ---------- Неліквід: є залишок, але 30+ днів без жодної відправки ----------
+        const ILLIQUID_DAYS = 30;
+        let illiquidIds = new Set();
+        let lastShipmentMap = new Map();
+
+        function productKey(id) {
+            return String(id).trim().toLowerCase();
+        }
+
+        function updateIlliquid() {
+            lastShipmentMap = new Map();
+            allShipments.forEach(s => {
+                const ts = (typeof s.ts === 'number') ? s.ts : new Date(s.date).getTime();
+                if (!Number.isFinite(ts) || !(Number(s.qty) > 0)) return;
+                const key = productKey(s.id);
+                if (!lastShipmentMap.has(key) || lastShipmentMap.get(key) < ts) lastShipmentMap.set(key, ts);
+            });
+
+            const border = Date.now() - ILLIQUID_DAYS * 24 * 60 * 60 * 1000;
+            illiquidIds = new Set();
+            let units = 0, sum = 0;
+            allProducts.forEach(p => {
+                const qty = Number(p.qty) || 0;
+                if (qty <= 0) return;
+                const last = lastShipmentMap.get(productKey(p.id));
+                if (last && last >= border) return;
+                illiquidIds.add(productKey(p.id));
+                units += qty;
+                sum += qty * (Number(p.price) || 0);
+            });
+
+            const n = illiquidIds.size;
+            document.getElementById('kpiIlliquidCount').innerText =
+                `${n.toLocaleString('uk-UA')} ${pluralUk(n, 'позиція', 'позиції', 'позицій')}`;
+            document.getElementById('kpiIlliquidSub').innerText = n
+                ? `${units.toLocaleString('uk-UA')} шт. на ${Math.round(sum).toLocaleString('uk-UA')} ₴ лежать без руху`
+                : 'Усі товари з залишком продавались за 30 днів';
+            updateIlliquidCardState();
+        }
+
+        function updateIlliquidCardState() {
+            const card = document.getElementById('illiquidCard');
+            const action = document.getElementById('kpiIlliquidAction');
+            const active = currentFilter === 'illiquid';
+            card.classList.toggle('border-red-500/50', active);
+            card.classList.toggle('border-cardBorder', !active);
+            action.innerHTML = active
+                ? 'Сховати <i class="fa-solid fa-xmark text-[9px]"></i>'
+                : 'Показати <i class="fa-solid fa-arrow-down text-[9px]"></i>';
+        }
+
+        window.toggleIlliquidFilter = () => {
+            if (currentFilter === 'illiquid') {
+                setFilter('good');
+                return;
+            }
+            document.getElementById('searchInput').value = '';
+            setFilter('illiquid');
+            // Колонка "Відправки" показує той самий період, за який рахується неліквід
+            if (currentPeriod !== '30d') setPeriod('30d');
+            document.getElementById('productsTable').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        };
+
+        function formatDaysAgo(ts) {
+            const days = Math.floor((Date.now() - ts) / (24 * 60 * 60 * 1000));
+            return `${days} ${pluralUk(days, 'день', 'дні', 'днів')} тому`;
         }
 
         window.setPeriod = (period) => {
@@ -1061,7 +1150,7 @@
 
         window.setFilter = (filter) => {
             currentFilter = filter;
-            ['all', 'empty', 'warning', 'good'].forEach(f => {
+            ['all', 'empty', 'warning', 'good', 'illiquid'].forEach(f => {
                 const btn = document.getElementById(`btn-${f}`);
                 if (f === filter) {
                     btn.className = "filter-btn filter-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent bg-brand text-white shadow-lg shadow-brand/20 whitespace-nowrap";
@@ -1069,6 +1158,7 @@
                     btn.className = "filter-btn filter-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400 whitespace-nowrap";
                 }
             });
+            updateIlliquidCardState();
             renderProducts();
         };
 
@@ -1158,11 +1248,18 @@
                 if (currentFilter === 'empty') matchFilter = qty === 0;
                 else if (currentFilter === 'warning') matchFilter = qty >= 1 && qty <= 19;
                 else if (currentFilter === 'good') matchFilter = qty >= 20;
+                else if (currentFilter === 'illiquid') matchFilter = illiquidIds.has(productKey(p.id));
 
                 return matchSearch && matchFilter;
             });
 
             const shipmentsMap = buildShipmentsCountMap();
+
+            // Неліквід без ручного сортування — спочатку ті, де "заморожено" найбільше грошей
+            if (currentFilter === 'illiquid' && !(sortField && sortOrder)) {
+                filtered.sort((a, b) =>
+                    (Number(b.qty) || 0) * (Number(b.price) || 0) - (Number(a.qty) || 0) * (Number(a.price) || 0));
+            }
 
             if (sortField && sortOrder) {
                 filtered.sort((a, b) => {
@@ -1195,7 +1292,9 @@
                 container.innerHTML = `
                     <div class="text-center py-12 text-gray-500">
                         <i class="fa-solid fa-box-open text-3xl mb-2 opacity-50"></i>
-                        <p>Товарів не знайдено</p>
+                        <p>${currentFilter === 'illiquid' && !searchQuery
+                            ? 'Неліквіду немає: усі товари з залишком продавались за останні 30 днів'
+                            : 'Товарів не знайдено'}</p>
                     </div>`;
                 return;
             }
@@ -1221,6 +1320,12 @@
                         </div>
                         <div class="col-span-3 md:col-span-2 text-center font-bold text-gray-300">
                             ${shipmentsCount}
+                            ${currentFilter === 'illiquid' ? (() => {
+                                const last = lastShipmentMap.get(productKey(p.id));
+                                return `<div class="text-[10px] font-medium text-gray-500 mt-0.5">${last
+                                    ? `остання: ${new Date(last).toLocaleDateString('uk-UA')} (${formatDaysAgo(last)})`
+                                    : 'продажів ще не було'}</div>`;
+                            })() : ''}
                         </div>
                         <div class="hidden md:block md:col-span-3 text-right font-mono font-semibold text-emerald-400">
                             ${Math.round(totalCost).toLocaleString('uk-UA')} ₴
@@ -1229,7 +1334,7 @@
             }).join('');
         };
 
-        // ===================== ЗАКУПІВЛІ ТА ПРИЙМКА =====================
+        // ===================== ЗАКУПІВЛІ ТА ПРИЙМАННЯ =====================
 
         let purchaseFilter = 'all';
         let editingOrderId = null;
