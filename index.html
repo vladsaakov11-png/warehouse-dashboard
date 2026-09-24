@@ -175,8 +175,7 @@
                 <div>
                     <label class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block mb-1">Введіть ID або Назву товара *</label>
                     <div class="relative">
-                        <input type="text" id="modalProductIdInput" list="productsDatalist" oninput="onModalProductInputChange()" placeholder="Введіть ID (напр. 3) або назву..." required autocomplete="off" class="w-full bg-gray-900 border border-cardBorder rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brand transition">
-                        <datalist id="productsDatalist"></datalist>
+                        <input type="text" id="modalProductIdInput" oninput="onModalProductInputChange()" placeholder="Введіть ID (напр. 3) або назву..." required autocomplete="off" class="w-full bg-gray-900 border border-cardBorder rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brand transition">
                     </div>
                 </div>
 
@@ -910,7 +909,6 @@
                 allShipments = data.shipments || [];
                 allPurchases = data.purchases || [];
 
-                renderProductsDatalist();
 
                 updateLastUpdatedTime();
                 updateKPIs();
@@ -956,14 +954,6 @@
             return { product: null, matches: partial.length };
         }
 
-        function renderProductsDatalist() {
-            const list = document.getElementById('productsDatalist');
-            if (!list) return;
-            list.innerHTML = allProducts
-                .map(p => `<option value="${escapeHtml(`[ID: ${p.id}] ${p.name}`)}"></option>`)
-                .join('');
-        }
-
         window.onModalProductInputChange = () => {
             const inputVal = document.getElementById('modalProductIdInput').value;
             const infoBox = document.getElementById('selectedProductInfo');
@@ -991,7 +981,7 @@
                 selectedProductForModal = null;
                 infoBox.classList.add('hidden');
                 errorText.innerText = matches > 1
-                    ? `Знайдено ${matches} товарів — оберіть потрібний зі списку або введіть точний ID`
+                    ? `Знайдено ${matches} товарів з такою назвою — уточніть назву або введіть точний ID`
                     : 'Товар з таким ID/назвою не знайдено!';
                 errorBox.classList.remove('hidden');
             }
@@ -1787,7 +1777,7 @@
             const { product, matches } = resolveProductInput(document.getElementById('modalProductIdInput').value);
             if (!product) {
                 showToast(matches > 1
-                    ? "Знайдено кілька товарів — оберіть один зі списку"
+                    ? "Знайдено кілька товарів — уточніть назву або введіть точний ID"
                     : "Будь ласка, введіть дійсний ID або назву товара!", "red");
                 return;
             }
