@@ -111,21 +111,25 @@
             <form onsubmit="handleLogin(event)" class="space-y-4">
                 <div class="text-left">
                     <label class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block mb-1">Email</label>
-                    <input type="email" id="emailInput" required placeholder="user@point.com" class="w-full bg-gray-900/90 border border-cardBorder rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brand transition">
+                    <input type="email" id="emailInput" required autocomplete="username" placeholder="user@point.com" class="w-full bg-gray-900/90 border border-cardBorder rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brand transition">
                 </div>
                 <div class="text-left">
                     <label class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block mb-1">Пароль</label>
                     <div class="relative">
-                        <input type="password" id="passInput" required placeholder="••••••••" class="w-full bg-gray-900/90 border border-cardBorder rounded-xl pl-4 pr-10 py-2.5 text-sm text-white focus:outline-none focus:border-brand transition">
+                        <input type="password" id="passInput" required autocomplete="current-password" placeholder="••••••••" class="w-full bg-gray-900/90 border border-cardBorder rounded-xl pl-4 pr-10 py-2.5 text-sm text-white focus:outline-none focus:border-brand transition">
                         <button type="button" onclick="togglePasswordVisibility()" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition">
                             <i id="passIcon" class="fa-solid fa-eye"></i>
                         </button>
                     </div>
                 </div>
 
-                <div id="authError" class="text-xs text-red-400 hidden font-medium">Помилка входу: перевірте дані</div>
+                <div class="flex justify-end -mt-2">
+                    <button type="button" onclick="handleForgotPassword()" class="text-[11px] text-gray-400 hover:text-brand transition">Забули пароль?</button>
+                </div>
 
-                <button type="submit" id="btnLogin" class="w-full bg-brand hover:bg-[#E06B00] text-white font-bold py-3 rounded-xl shadow-lg shadow-brand/20 transition flex items-center justify-center gap-2">
+                <div id="authError" class="text-xs hidden font-medium" role="alert"></div>
+
+                <button type="submit" id="btnLogin" class="w-full disabled:opacity-60 disabled:cursor-wait bg-brand hover:bg-[#E06B00] text-white font-bold py-3 rounded-xl shadow-lg shadow-brand/20 transition flex items-center justify-center gap-2">
                     <span id="btnText">Увійти в дашборд</span>
                     <i class="fa-solid fa-arrow-right text-xs"></i>
                 </button>
@@ -156,7 +160,8 @@
                 <div>
                     <label class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block mb-1">Введіть ID або Назву товара *</label>
                     <div class="relative">
-                        <input type="text" id="modalProductIdInput" oninput="onModalProductInputChange()" placeholder="Введіть ID (напр. 3) або назву..." required autocomplete="off" class="w-full bg-gray-900 border border-cardBorder rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brand transition">
+                        <input type="text" id="modalProductIdInput" list="productsDatalist" oninput="onModalProductInputChange()" placeholder="Введіть ID (напр. 3) або назву..." required autocomplete="off" class="w-full bg-gray-900 border border-cardBorder rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brand transition">
+                        <datalist id="productsDatalist"></datalist>
                     </div>
                 </div>
 
@@ -172,12 +177,12 @@
                 </div>
 
                 <div id="productNotFoundError" class="hidden text-xs text-red-400 font-medium">
-                    <i class="fa-solid fa-triangle-exclamation mr-1"></i>Товар з таким ID/назвою не знайдено!
+                    <i class="fa-solid fa-triangle-exclamation mr-1"></i><span id="productNotFoundText">Товар з таким ID/назвою не знайдено!</span>
                 </div>
 
                 <div>
                     <label class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block mb-1">Кількість одиниць *</label>
-                    <input type="number" id="modalQty" min="1" required placeholder="Наприклад: 50" class="w-full bg-gray-900/90 border border-cardBorder rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brand transition">
+                    <input type="number" id="modalQty" min="1" step="1" required placeholder="Наприклад: 50" class="w-full bg-gray-900/90 border border-cardBorder rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brand transition">
                 </div>
 
                 <div>
@@ -192,7 +197,7 @@
 
                 <div class="flex items-center justify-end gap-3 pt-3">
                     <button type="button" onclick="closeOrderModal()" class="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-xl text-xs font-semibold transition">Скасувати</button>
-                    <button type="submit" id="btnSubmitPurchase" class="px-5 py-2 bg-brand hover:bg-[#E06B00] text-white rounded-xl text-xs font-bold transition flex items-center gap-2 shadow-lg shadow-brand/20">
+                    <button type="submit" id="btnSubmitPurchase" class="disabled:opacity-60 disabled:cursor-wait px-5 py-2 bg-brand hover:bg-[#E06B00] text-white rounded-xl text-xs font-bold transition flex items-center gap-2 shadow-lg shadow-brand/20">
                         <span id="btnSubmitText">Створити замовлення</span>
                         <i class="fa-solid fa-paper-plane text-xs"></i>
                     </button>
@@ -448,7 +453,7 @@
     <!-- FIREBASE SDKs & LOGIC -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, setPersistence, browserSessionPersistence, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getAuth, setPersistence, browserSessionPersistence, signInWithEmailAndPassword, sendPasswordResetEmail, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBemQDr2DYyNF3Bmac996j_YjjgANJRR5s",
@@ -463,6 +468,9 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
 
+        // Конфіг вище — публічний, так і має бути: захист забезпечують правила
+        // Firebase + перевірка токена на сервері (Apps Script).
+        // ВАЖЛИВО: hash_config (base64_signer_key тощо) НІКОЛИ не вставляйте в цей файл.
         const API_URL = "https://script.google.com/macros/s/AKfycbxHxTydxr0bCSPtjuuwq72QA6eUVgsmApc4Jjwy3qsJA5E8RBM90F2qspizWg6I7_nu/exec";
         
         let allProducts = [];
@@ -478,6 +486,8 @@
         let currentTab = 'stock';
         let timerInterval = null;
         let selectedProductForModal = null;
+        let pendingOrderId = null;
+        let isForcingLogout = false;
 
         let sortField = null;
         let sortOrder = null;
@@ -497,19 +507,35 @@
             }
         }
 
+        const LOADING_HTML = `
+            <div class="text-center py-12 text-gray-500">
+                <i class="fa-solid fa-spinner fa-spin text-2xl mb-2 text-brand"></i>
+                <p>Завантаження даних...</p>
+            </div>`;
+
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 isAuthenticated = true;
+                isForcingLogout = false;
+                hideAuthMessage();
                 document.getElementById('authOverlay').classList.add('hidden');
                 document.getElementById('mainDashboard').classList.remove('hidden');
                 await fetchLiveUsdRate();
-                loadData();
-                startTimer();
+                await loadData();
+                if (isAuthenticated) startTimer();
             } else {
                 isAuthenticated = false;
-                document.getElementById('authOverlay').classList.remove('hidden');
+                if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+                // Прибираємо дані попереднього користувача з пам'яті та з екрана
+                allProducts = [];
+                allShipments = [];
+                allPurchases = [];
+                pendingOrderId = null;
+                document.getElementById('productsContainer').innerHTML = LOADING_HTML;
+                document.getElementById('purchasesListContainer').innerHTML = '';
+                document.getElementById('orderModal').classList.add('hidden');
                 document.getElementById('mainDashboard').classList.add('hidden');
-                if (timerInterval) clearInterval(timerInterval);
+                document.getElementById('authOverlay').classList.remove('hidden');
             }
         });
 
@@ -527,28 +553,92 @@
             }
         };
 
+        function showAuthMessage(text, type = 'error') {
+            const box = document.getElementById('authError');
+            box.innerText = text;
+            box.className = `text-xs font-medium ${type === 'error' ? 'text-red-400' : 'text-emerald-400'}`;
+        }
+
+        function hideAuthMessage() {
+            const box = document.getElementById('authError');
+            box.innerText = '';
+            box.className = 'text-xs hidden font-medium';
+        }
+
+        function mapAuthError(code) {
+            switch (code) {
+                case 'auth/invalid-credential':
+                case 'auth/invalid-login-credentials':
+                case 'auth/wrong-password':
+                case 'auth/user-not-found':
+                    return "Неправильний Email або пароль";
+                case 'auth/invalid-email':
+                    return "Некоректний формат Email";
+                case 'auth/user-disabled':
+                    return "Цей акаунт заблоковано. Зверніться до адміністратора";
+                case 'auth/too-many-requests':
+                    return "Забагато невдалих спроб. Зачекайте кілька хвилин або відновіть пароль";
+                case 'auth/network-request-failed':
+                    return "Немає з'єднання з інтернетом";
+                default:
+                    return "Не вдалося увійти. Спробуйте ще раз";
+            }
+        }
+
         window.handleLogin = async (e) => {
             e.preventDefault();
-            const email = document.getElementById('emailInput').value;
-            const pass = document.getElementById('passInput').value;
+            const email = document.getElementById('emailInput').value.trim();
+            const passInput = document.getElementById('passInput');
+            const btn = document.getElementById('btnLogin');
             const btnText = document.getElementById('btnText');
-            const authError = document.getElementById('authError');
 
-            authError.classList.add('hidden');
+            if (btn.disabled) return;
+            hideAuthMessage();
+            btn.disabled = true;
             btnText.innerText = "Авторизація...";
 
             try {
                 await setPersistence(auth, browserSessionPersistence);
-                await signInWithEmailAndPassword(auth, email, pass);
-                document.getElementById('passInput').value = '';
+                await signInWithEmailAndPassword(auth, email, passInput.value);
+                passInput.value = '';
             } catch (err) {
                 console.error(err);
-                authError.classList.remove('hidden');
-                authError.innerText = "Неправильний Email або пароль!";
+                showAuthMessage(mapAuthError(err.code));
             } finally {
+                btn.disabled = false;
                 btnText.innerText = "Увійти в дашборд";
             }
         };
+
+        window.handleForgotPassword = async () => {
+            const email = document.getElementById('emailInput').value.trim();
+            if (!email) {
+                showAuthMessage("Введіть Email, на який надіслати лист для зміни пароля");
+                document.getElementById('emailInput').focus();
+                return;
+            }
+            try {
+                await sendPasswordResetEmail(auth, email);
+            } catch (err) {
+                // Помилку "користувача не знайдено" навмисно не показуємо, щоб
+                // не можна було перевіряти, які email-и зареєстровані.
+                if (['auth/invalid-email', 'auth/too-many-requests', 'auth/network-request-failed'].includes(err.code)) {
+                    showAuthMessage(mapAuthError(err.code));
+                    return;
+                }
+                console.warn(err);
+            }
+            showAuthMessage("Якщо такий акаунт існує, лист для зміни пароля надіслано на пошту", 'info');
+        };
+
+        async function forceLogout(message) {
+            if (isForcingLogout) return;
+            isForcingLogout = true;
+            isAuthenticated = false;
+            if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+            try { await signOut(auth); } catch (e) { console.error(e); }
+            showAuthMessage(message);
+        }
 
         window.handleLogout = () => {
             signOut(auth);
@@ -579,27 +669,82 @@
             }
         };
 
+        class ApiError extends Error {
+            constructor(message, code = 'error', data = null) {
+                super(message);
+                this.code = code;
+                this.data = data;
+            }
+        }
+
+        const AUTH_ERROR_CODES = ['unauthorized', 'forbidden'];
+
+        // Єдина точка звернення до Apps Script. Кожен запит несе Firebase
+        // ID-токен, сервер його перевіряє. Відповідь читається повністю
+        // (без no-cors), тож реальні помилки сервера видно в інтерфейсі.
+        async function callApi(action, payload = {}, isRetry = false) {
+            const user = auth.currentUser;
+            if (!user) throw new ApiError("Сесія завершилась. Увійдіть знову.", 'unauthorized');
+
+            const token = await user.getIdToken(isRetry); // при повторі — примусово свіжий токен
+
+            let res;
+            try {
+                res = await fetch(API_URL, {
+                    method: 'POST',
+                    // text/plain — щоб браузер не робив preflight (Apps Script його не підтримує)
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ ...payload, action, token })
+                });
+            } catch (netErr) {
+                throw new ApiError("Немає з'єднання з сервером. Перевірте інтернет.", 'network');
+            }
+
+            if (!res.ok) throw new ApiError(`Сервер недоступний (HTTP ${res.status})`, 'http');
+
+            let data;
+            try {
+                data = await res.json();
+            } catch {
+                throw new ApiError("Сервер повернув некоректну відповідь. Перевірте розгортання Apps Script.", 'bad_response');
+            }
+
+            if (data.status === 'success') return data;
+
+            if (data.code === 'unauthorized' && !isRetry) {
+                return callApi(action, payload, true);
+            }
+            if (AUTH_ERROR_CODES.includes(data.code)) {
+                forceLogout(data.message || "Доступ заборонено");
+            }
+            throw new ApiError(data.message || "Невідома помилка сервера", data.code || 'server', data);
+        }
+
+        function upsertPurchase(purchase) {
+            if (!purchase || !purchase.orderId) return;
+            const idx = allPurchases.findIndex(p => String(p.orderId) === String(purchase.orderId));
+            if (idx === -1) allPurchases.push(purchase);
+            else allPurchases[idx] = purchase;
+        }
+
         let isLoadingData = false;
 
         async function loadData() {
-            if (isLoadingData) return;
+            if (isLoadingData || !isAuthenticated) return;
             isLoadingData = true;
 
             const refreshIcon = document.getElementById('refreshIcon');
             if (refreshIcon) refreshIcon.classList.add('fa-spin');
 
             try {
-                const response = await fetch(API_URL);
-                const data = await response.json();
-
-                if (data.status === "error") {
-                    console.error("Сервер повернув помилку:", data.message);
-                    showToast("Помилка сервера: " + data.message, "red");
-                }
+                const data = await callApi('getData');
+                if (!isAuthenticated) return;
 
                 allProducts = data.products || [];
                 allShipments = data.shipments || [];
                 allPurchases = data.purchases || [];
+
+                renderProductsDatalist();
 
                 updateLastUpdatedTime();
                 updateKPIs();
@@ -611,59 +756,77 @@
                 }
             } catch (err) {
                 console.error("Помилка завантаження даних:", err);
-                showToast("Помилка оновлення даних!", "red");
+                if (!AUTH_ERROR_CODES.includes(err.code)) {
+                    showToast(err.message || "Помилка оновлення даних!", "red");
+                }
             } finally {
                 isLoadingData = false;
                 if (refreshIcon) refreshIcon.classList.remove('fa-spin');
             }
         }
 
-        function findProductByInput(inputVal) {
-            if (!inputVal) return null;
-            const str = inputVal.trim();
+        // Повертає { product, matches }. Товар вибирається тільки якщо збіг
+        // однозначний; при кількох збігах за назвою — просимо уточнити.
+        function resolveProductInput(inputVal) {
+            const str = String(inputVal || '').trim();
+            if (!str) return { product: null, matches: 0 };
 
-            let found = allProducts.find(p => String(p.id) === str);
-            if (found) return found;
+            const byId = allProducts.find(p => String(p.id).trim() === str);
+            if (byId) return { product: byId, matches: 1 };
 
-            const match = str.match(/^\[ID:\s*(\d+)\]/i);
-            if (match) {
-                const extractedId = match[1];
-                found = allProducts.find(p => String(p.id) === String(extractedId));
-                if (found) return found;
+            const idMatch = str.match(/^\[ID:\s*([^\]]+)\]/i);
+            if (idMatch) {
+                const found = allProducts.find(p => String(p.id).trim() === idMatch[1].trim());
+                if (found) return { product: found, matches: 1 };
             }
 
-            found = allProducts.find(p => String(p.name || '').toLowerCase() === str.toLowerCase());
-            if (found) return found;
+            const low = str.toLowerCase();
+            const exact = allProducts.filter(p => String(p.name || '').trim().toLowerCase() === low);
+            if (exact.length === 1) return { product: exact[0], matches: 1 };
+            if (exact.length > 1) return { product: null, matches: exact.length };
 
-            found = allProducts.find(p => String(p.name || '').toLowerCase().includes(str.toLowerCase()));
-            return found || null;
+            const partial = allProducts.filter(p => String(p.name || '').toLowerCase().includes(low));
+            if (partial.length === 1) return { product: partial[0], matches: 1 };
+            return { product: null, matches: partial.length };
+        }
+
+        function renderProductsDatalist() {
+            const list = document.getElementById('productsDatalist');
+            if (!list) return;
+            list.innerHTML = allProducts
+                .map(p => `<option value="${escapeHtml(`[ID: ${p.id}] ${p.name}`)}"></option>`)
+                .join('');
         }
 
         window.onModalProductInputChange = () => {
             const inputVal = document.getElementById('modalProductIdInput').value;
             const infoBox = document.getElementById('selectedProductInfo');
             const errorBox = document.getElementById('productNotFoundError');
+            const errorText = document.getElementById('productNotFoundText');
             const nameLabel = document.getElementById('modalProductName');
             const stockLabel = document.getElementById('modalCurrentStock');
 
-            if (!inputVal) {
+            if (!inputVal.trim()) {
                 infoBox.classList.add('hidden');
                 errorBox.classList.add('hidden');
                 selectedProductForModal = null;
                 return;
             }
 
-            const found = findProductByInput(inputVal);
+            const { product, matches } = resolveProductInput(inputVal);
 
-            if (found) {
-                selectedProductForModal = found;
-                nameLabel.innerText = found.name;
-                stockLabel.innerText = `${found.qty || 0} шт`;
+            if (product) {
+                selectedProductForModal = product;
+                nameLabel.innerText = product.name;
+                stockLabel.innerText = `${product.qty || 0} шт`;
                 infoBox.classList.remove('hidden');
                 errorBox.classList.add('hidden');
             } else {
                 selectedProductForModal = null;
                 infoBox.classList.add('hidden');
+                errorText.innerText = matches > 1
+                    ? `Знайдено ${matches} товарів — оберіть потрібний зі списку або введіть точний ID`
+                    : 'Товар з таким ID/назвою не знайдено!';
                 errorBox.classList.remove('hidden');
             }
         };
@@ -708,7 +871,7 @@
             const totalSumUsd = liveUsdRate > 0 ? (totalSumUah / liveUsdRate) : 0;
 
             document.getElementById('kpiTotalQty').innerText = totalQty.toLocaleString('uk-UA');
-            document.getElementById('kpiTotalSumUah').innerText = `${totalSumUah.toLocaleString('uk-UA')} ₴`;
+            document.getElementById('kpiTotalSumUah').innerText = `${Math.round(totalSumUah).toLocaleString('uk-UA')} ₴`;
             document.getElementById('kpiTotalSumUsd').innerText = `$${Math.round(totalSumUsd).toLocaleString('en-US')}`;
         }
 
@@ -808,8 +971,8 @@
             const ms1d = 24 * 60 * 60 * 1000;
 
             allShipments.forEach(s => {
-                const shipDate = new Date(s.date).getTime();
-                if (isNaN(shipDate)) return;
+                const shipDate = (typeof s.ts === 'number') ? s.ts : new Date(s.date).getTime();
+                if (!Number.isFinite(shipDate)) return;
 
                 let inPeriod = false;
                 if (currentPeriod === '1d') {
@@ -914,7 +1077,7 @@
                             ${shipmentsCount}
                         </div>
                         <div class="hidden md:block md:col-span-3 text-right font-mono font-semibold text-emerald-400">
-                            ${totalCost.toLocaleString('uk-UA')} ₴
+                            ${Math.round(totalCost).toLocaleString('uk-UA')} ₴
                         </div>
                     </div>`;
             }).join('');
@@ -945,7 +1108,7 @@
             }
             // Старі рядки без номера заявки (створені ще до впровадження
             // унікальних номерів) - сортуємо за датою як резервний варіант.
-            return parseOrderDate(p.date);
+            return (typeof p.dateTs === 'number') ? p.dateTs : parseOrderDate(p.date);
         }
 
         window.togglePurchaseSort = () => {
@@ -984,6 +1147,14 @@
             const badge = document.getElementById('purchasesCountBadge');
 
             if (badge) badge.innerText = `${allPurchases.length} заявок`;
+
+            // Зберігаємо те, що користувач уже ввів у поля "К-сть", щоб
+            // автооновлення кожні 60 с не стирало недописане значення.
+            const typedValues = {};
+            container.querySelectorAll('[data-receive-input]').forEach(inp => {
+                const row = inp.closest('[data-row]');
+                if (row && inp.value !== '') typedValues[row.dataset.orderId] = inp.value;
+            });
 
             if (allPurchases.length === 0) {
                 container.innerHTML = `<div class="text-center py-12 text-gray-500 text-xs"><p>Заявок ще немає</p></div>`;
@@ -1030,31 +1201,41 @@
 
                 let actionHtml;
                 if (isReceived) {
-                    const deviationNum = Number(p.deviation) || 0;
+                    const hasDev = p.deviation !== '' && p.deviation !== null && p.deviation !== undefined;
+                    const devValue = hasDev ? p.deviation : (Number(p.received) - (Number(p.qty) || 0));
+                    const deviationNum = Number(devValue) || 0;
                     const devClass = deviationNum < 0 ? 'text-red-400' : (deviationNum > 0 ? 'text-emerald-400' : 'text-gray-400');
                     const devSign = deviationNum > 0 ? '+' : '';
                     actionHtml = `
-                        <span class="font-bold text-emerald-400">${p.received} / ${escapeHtml(p.qty)} шт</span>
-                        <div class="text-[10px] font-mono ${devClass}">Відхилення: ${devSign}${escapeHtml(p.deviation)}</div>`;
+                        <span class="font-bold text-emerald-400">${escapeHtml(p.received)} / ${escapeHtml(p.qty)} шт</span>
+                        <div class="text-[10px] font-mono ${devClass}">Відхилення: ${devSign}${escapeHtml(devValue)}</div>
+                        ${p.receivedAt ? `<div class="text-[10px] text-gray-500">${escapeHtml(p.receivedAt)}</div>` : ''}`;
+                } else if (!p.orderId) {
+                    actionHtml = `
+                        <div class="font-bold text-brand mb-1">Замовлено: ${escapeHtml(p.qty)} шт</div>
+                        <div class="text-[10px] text-gray-500">Номер заявки ще не присвоєно — оновіть дані</div>`;
                 } else {
                     actionHtml = `
                         <div class="font-bold text-brand mb-1">Замовлено: ${escapeHtml(p.qty)} шт</div>
                         <div class="flex items-center gap-1 justify-center">
-                            <input type="number" min="0" placeholder="К-сть"
-                                id="receivedInput_${p.orderId}"
+                            <input type="number" min="0" step="1" placeholder="К-сть" data-receive-input
+                                value="${escapeHtml(typedValues[p.orderId] || '')}"
                                 class="w-16 bg-gray-900 border border-cardBorder rounded-lg px-1.5 py-1 text-[11px] text-white focus:outline-none focus:border-brand transition">
-                            <button onclick="submitReceivedQty('${p.orderId}')"
-                                class="text-[10px] bg-brand hover:bg-[#E06B00] text-white px-2 py-1 rounded-lg font-semibold transition">
+                            <button type="button" data-receive-btn
+                                class="text-[10px] bg-brand hover:bg-[#E06B00] disabled:opacity-50 disabled:cursor-wait text-white px-2 py-1 rounded-lg font-semibold transition">
                                 Прийнято
                             </button>
                         </div>`;
                 }
 
+                const hint = [p.ttn && p.ttn !== '-' ? `ЕН: ${p.ttn}` : '', p.supplier && p.supplier !== '-' ? `Постачальник: ${p.supplier}` : '']
+                    .filter(Boolean).join(' | ');
+
                 return `
-                    <div class="grid grid-cols-12 p-3.5 items-center text-xs hover:bg-gray-800/40 transition border-b border-cardBorder/30">
+                    <div data-row data-order-id="${escapeHtml(p.orderId)}" class="grid grid-cols-12 p-3.5 items-center text-xs hover:bg-gray-800/40 transition border-b border-cardBorder/30">
                         <div class="col-span-2 text-gray-400 font-mono">${escapeHtml(p.date || '--')}</div>
                         <div class="col-span-1 font-mono font-bold text-brand">${escapeHtml(p.id)}</div>
-                        <div class="col-span-3 font-medium text-white truncate pr-2" title="${escapeHtml(p.name)}">${escapeHtml(p.name)}</div>
+                        <div class="col-span-3 font-medium text-white truncate pr-2" title="${escapeHtml(hint ? `${p.name}\n${hint}` : p.name)}">${escapeHtml(p.name)}</div>
                         <div class="col-span-2 text-center">${statusBadge}</div>
                         <div class="col-span-4 text-center">${actionHtml}</div>
                     </div>`;
@@ -1065,61 +1246,71 @@
                 : rowsHtml;
         };
 
-        window.submitReceivedQty = async (orderId) => {
-            const input = document.getElementById(`receivedInput_${orderId}`);
-            if (!input) return;
-            const qtyStr = input.value;
+        async function submitReceivedQty(btn) {
+            const row = btn.closest('[data-row]');
+            const input = row ? row.querySelector('[data-receive-input]') : null;
+            const orderId = row ? row.dataset.orderId : '';
+            if (!input || !orderId || btn.disabled) return;
 
-            if (qtyStr === '' || isNaN(qtyStr) || Number(qtyStr) < 0) {
-                showToast("Вкажіть коректну кількість (0 або більше)!", "red");
+            const qtyStr = input.value.trim();
+            const qtyNum = Number(qtyStr);
+            if (qtyStr === '' || !Number.isInteger(qtyNum) || qtyNum < 0) {
+                showToast("Вкажіть коректну кількість (ціле число, 0 або більше)!", "red");
+                input.focus();
                 return;
             }
-            const qtyNum = Number(qtyStr);
+
+            btn.disabled = true;
+            input.disabled = true;
+            btn.innerText = '...';
 
             try {
-                await fetch(API_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({
-                        action: "receivePurchase",
-                        orderId: orderId,
-                        qty: qtyNum
-                    })
-                });
-
-                // Миттєво позначаємо заявку прийнятою в інтерфейсі, не
-                // чекаючи наступного оновлення з таблиці.
-                const target = allPurchases.find(p => String(p.orderId) === String(orderId));
-                if (target) {
-                    target.received = qtyNum;
-                    target.receivedAt = new Date().toLocaleString('uk-UA');
-                    target.deviation = qtyNum - (Number(target.qty) || 0);
-                }
+                const result = await callApi('receivePurchase', { orderId, qty: qtyNum });
+                upsertPurchase(result.purchase);
                 renderPurchasesList();
-
                 showToast("Фактичну кількість збережено!");
-                setTimeout(loadData, 3000);
-
+                loadData(); // підтягнути оновлені залишки і формули з таблиці
             } catch (err) {
                 console.error("Помилка збереження прийнятої кількості:", err);
-                showToast("Помилка при збереженні!", "red");
+                if (err.code === 'already_received' && err.data && err.data.purchase) {
+                    upsertPurchase(err.data.purchase);
+                    renderPurchasesList();
+                } else if (btn.isConnected) {
+                    btn.disabled = false;
+                    input.disabled = false;
+                    btn.innerText = 'Прийнято';
+                }
+                if (!AUTH_ERROR_CODES.includes(err.code)) {
+                    showToast(err.message || "Помилка при збереженні!", "red");
+                }
             }
-        };
+        }
+
+        // Один обробник на весь список замість onclick у кожному рядку —
+        // номер заявки більше не підставляється в JS-код як рядок.
+        const purchasesListEl = document.getElementById('purchasesListContainer');
+        purchasesListEl.addEventListener('click', (e) => {
+            const btn = e.target.closest('[data-receive-btn]');
+            if (btn) submitReceivedQty(btn);
+        });
+        purchasesListEl.addEventListener('keydown', (e) => {
+            if (e.key !== 'Enter' || !e.target.matches('[data-receive-input]')) return;
+            e.preventDefault();
+            const btn = e.target.closest('[data-row]')?.querySelector('[data-receive-btn]');
+            if (btn) submitReceivedQty(btn);
+        });
 
         window.openOrderModal = (id = null) => {
             const input = document.getElementById('modalProductIdInput');
-            if (id) {
-                input.value = id;
-            } else {
-                input.value = '';
-            }
+            input.value = id ? id : '';
             window.onModalProductInputChange();
 
+            pendingOrderId = null;
             document.getElementById('modalQty').value = '';
             document.getElementById('modalTtn').value = '';
             document.getElementById('modalSupplier').value = '';
             document.getElementById('orderModal').classList.remove('hidden');
+            input.focus();
         };
 
         window.closeOrderModal = () => {
@@ -1130,78 +1321,57 @@
             e.preventDefault();
             const btnSubmitText = document.getElementById('btnSubmitText');
             const btnSubmit = document.getElementById('btnSubmitPurchase');
-            const inputVal = document.getElementById('modalProductIdInput').value;
+            if (btnSubmit.disabled) return;
 
-            const product = selectedProductForModal || findProductByInput(inputVal);
-
+            const { product, matches } = resolveProductInput(document.getElementById('modalProductIdInput').value);
             if (!product) {
-                showToast("Будь ласка, введіть дійсний ID або назву товара!", "red");
+                showToast(matches > 1
+                    ? "Знайдено кілька товарів — оберіть один зі списку"
+                    : "Будь ласка, введіть дійсний ID або назву товара!", "red");
                 return;
             }
 
-            const qty = document.getElementById('modalQty').value;
-            const ttn = document.getElementById('modalTtn').value;
-            const supplier = document.getElementById('modalSupplier').value;
+            const qtyStr = document.getElementById('modalQty').value.trim();
+            const qty = Number(qtyStr);
+            const ttn = document.getElementById('modalTtn').value.trim();
+            const supplier = document.getElementById('modalSupplier').value.trim();
 
-            if (!qty || isNaN(qty) || Number(qty) <= 0) {
-                showToast("Вкажіть коректну кількість (більше нуля)!", "red");
+            if (qtyStr === '' || !Number.isInteger(qty) || qty <= 0) {
+                showToast("Вкажіть коректну кількість (ціле число більше нуля)!", "red");
                 return;
+            }
+
+            // Номер заявки генеруємо один раз на відкриття форми: якщо зв'язок
+            // обірвався і користувач натисне ще раз, сервер побачить той самий
+            // номер і не створить дубль.
+            if (!pendingOrderId) {
+                pendingOrderId = `PUR-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
             }
 
             btnSubmit.disabled = true;
             btnSubmitText.innerText = "Відправка...";
 
-            const today = new Date();
-            const formattedDate = today.toLocaleDateString('uk-UA');
-
-            // Генеруємо номер заявки одразу на клієнті (той самий формат,
-            // що й на сервері) - і одразу показуємо заявку в списку, не
-            // чекаючи відповіді сервера чи наступного автооновлення.
-            const uniqueId = "PUR-" + Date.now();
-
-            const payload = {
-                action: "addPurchase",
-                id: String(product.id),
-                name: product.name,
-                qty: Number(qty),
-                ttn: ttn || "-",
-                supplier: supplier || "-",
-                date: formattedDate,
-                orderId: uniqueId
-            };
-
             try {
-                await fetch(API_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify(payload)
+                const result = await callApi('addPurchase', {
+                    id: String(product.id),
+                    qty,
+                    ttn: ttn || '-',
+                    supplier: supplier || '-',
+                    orderId: pendingOrderId
                 });
 
-                // Миттєво додаємо заявку в список - реальний час без очікування.
-                allPurchases.push({
-                    id: payload.id,
-                    name: payload.name,
-                    qty: payload.qty,
-                    ttn: payload.ttn,
-                    supplier: payload.supplier,
-                    date: payload.date,
-                    received: null,
-                    receivedAt: '',
-                    deviation: '',
-                    orderId: uniqueId
-                });
+                upsertPurchase(result.purchase);
+                pendingOrderId = null;
 
-                showToast("Заявку на закупівлю успішно створено!");
+                showToast(result.duplicate ? "Цю заявку вже було створено раніше" : "Заявку на закупівлю успішно створено!");
                 closeOrderModal();
                 if (currentTab === 'purchases') renderPurchasesList();
 
-                // Синхронізація з таблицею у фоні - про всяк випадок.
-                setTimeout(loadData, 3000);
-
             } catch (err) {
                 console.error("Помилка відправки:", err);
-                showToast("Помилка при створенні заявки", "red");
+                if (!AUTH_ERROR_CODES.includes(err.code)) {
+                    showToast(err.message || "Помилка при створенні заявки", "red");
+                }
             } finally {
                 btnSubmit.disabled = false;
                 btnSubmitText.innerText = "Створити замовлення";
@@ -1222,4 +1392,3 @@
     </script>
 </body>
 </html>
- 
