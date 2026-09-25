@@ -105,6 +105,9 @@
         .icon-btn:hover { background: rgba(26, 35, 54, 0.9); }
         .icon-btn:focus-visible, .pf-btn:focus-visible { outline: 2px solid #FF7A00; outline-offset: 1px; }
         .kpi-click { cursor: pointer; }
+        .price-edit { cursor: text; border-bottom: 1px dashed rgba(156, 163, 175, 0.35); padding: 0.15rem 0.25rem; border-radius: 0.25rem; transition: all 0.15s ease; }
+        .price-edit:hover { color: #FF7A00; border-bottom-color: #FF7A00; background: rgba(255, 122, 0, 0.06); }
+        .price-edit:focus-visible { outline: 2px solid #FF7A00; outline-offset: 2px; }
     </style>
 </head>
 <body class="min-h-screen flex">
@@ -293,42 +296,6 @@
                             Зберегти зміни
                         </button>
                     </div>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- MODAL: ЦІНА ЗАКУПУ -->
-    <div id="priceModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
-        <div class="bg-cardBg border border-cardBorder rounded-2xl p-6 max-w-sm w-full shadow-2xl">
-            <div class="flex items-start justify-between mb-5 pb-3 border-b border-cardBorder gap-3">
-                <div class="min-w-0">
-                    <div class="flex items-center gap-2">
-                        <i class="fa-solid fa-tag text-brand text-lg"></i>
-                        <h3 class="text-lg font-bold text-white">Ціна закупу</h3>
-                    </div>
-                    <p class="text-xs text-gray-300 mt-1 truncate" id="priceModalProduct">--</p>
-                    <p class="text-[11px] text-gray-500 mt-0.5" id="priceModalMeta">--</p>
-                </div>
-                <button type="button" onclick="closePriceModal()" class="text-gray-400 hover:text-white transition" title="Закрити">
-                    <i class="fa-solid fa-xmark text-lg"></i>
-                </button>
-            </div>
-
-            <form onsubmit="savePrice(event)" class="space-y-4">
-                <div>
-                    <label for="priceInput" class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block mb-1">Ціна за 1 шт, грн *</label>
-                    <div class="relative">
-                        <input type="number" id="priceInput" min="0" step="0.01" inputmode="decimal" required oninput="updatePricePreview()"
-                            class="w-full bg-gray-900/90 border border-cardBorder rounded-xl pl-4 pr-10 py-2.5 text-sm text-white font-mono focus:outline-none focus:border-[#FF7A00] transition">
-                        <span class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 text-sm pointer-events-none">₴</span>
-                    </div>
-                </div>
-                <div id="pricePreview" class="text-xs text-gray-400 bg-gray-900/60 border border-cardBorder rounded-xl px-3 py-2.5"></div>
-
-                <div class="flex items-center justify-end gap-3 pt-1">
-                    <button type="button" onclick="closePriceModal()" class="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-xl text-xs font-semibold transition">Скасувати</button>
-                    <button type="submit" id="btnSavePrice" class="disabled:opacity-60 disabled:cursor-wait px-5 py-2 bg-brand hover:bg-[#E06B00] text-white rounded-xl text-xs font-bold transition shadow-lg shadow-brand/20">Зберегти ціну</button>
                 </div>
             </form>
         </div>
@@ -738,7 +705,6 @@
                 document.getElementById('purchasesTableBody').innerHTML = '';
                 document.getElementById('editPurchaseModal').classList.add('hidden');
                 document.getElementById('deletePurchaseModal').classList.add('hidden');
-                document.getElementById('priceModal').classList.add('hidden');
                 document.getElementById('orderModal').classList.add('hidden');
                 document.getElementById('mainDashboard').classList.add('hidden');
                 document.getElementById('authOverlay').classList.remove('hidden');
@@ -1268,6 +1234,8 @@
         }
 
         window.renderProducts = () => {
+            // Поки редагується ціна — не перемальовуємо таблицю (інакше автооновлення зітре поле вводу)
+            if (priceEditActive) { priceRenderPending = true; return; }
             const container = document.getElementById('productsContainer');
             const searchQuery = (document.getElementById('searchInput').value || '').toLowerCase().trim();
 
@@ -1362,11 +1330,8 @@
                                     : 'продажів ще не було'}</div>`;
                             })() : ''}
                         </div>
-                        <div class="hidden md:flex md:col-span-2 items-center justify-end gap-1.5">
-                            <span class="font-mono font-semibold ${price > 0 ? 'text-gray-200' : 'text-gray-600'}">${formatPrice(price)} ₴</span>
-                            <button type="button" data-edit-price class="icon-btn hover:text-[#FF7A00] !w-7 !h-7 text-[11px]" title="Змінити ціну закупу" aria-label="Змінити ціну закупу">
-                                <i class="fa-solid fa-pen"></i>
-                            </button>
+                        <div class="hidden md:flex md:col-span-2 items-center justify-end">
+                            <button type="button" data-edit-price class="price-edit font-mono font-semibold ${price > 0 ? 'text-gray-200' : 'text-gray-600'}" title="Натисніть, щоб змінити ціну закупу">${formatPrice(price)} ₴</button>
                         </div>
                         <div class="hidden md:block md:col-span-2 text-right font-mono font-semibold text-emerald-400">
                             ${Math.round(totalCost).toLocaleString('uk-UA')} ₴
@@ -1375,8 +1340,9 @@
             }).join('');
         };
 
-        // ---------- Ціна закупу ----------
-        let editingPriceId = null;
+        // ---------- Ціна закупу: редагування прямо в таблиці ----------
+        let priceEditActive = false;
+        let priceRenderPending = false;
 
         function formatPrice(n) {
             return (Number(n) || 0).toLocaleString('uk-UA', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
@@ -1386,81 +1352,72 @@
             return allProducts.find(p => productKey(p.id) === productKey(id));
         }
 
-        window.openPriceModal = (id) => {
+        function endPriceEdit() {
+            priceEditActive = false;
+            priceRenderPending = false;
+            renderProducts();
+        }
+
+        function startPriceEdit(btn) {
+            if (priceEditActive) return;
+            const id = btn.closest('[data-product-id]')?.dataset.productId;
             const p = findProduct(id);
             if (!p) return;
-            editingPriceId = p.id;
-            document.getElementById('priceModalProduct').innerText = p.name || `Товар ${p.id}`;
-            document.getElementById('priceModalMeta').innerText = `ID ${p.id}, залишок ${(Number(p.qty) || 0).toLocaleString('uk-UA')} шт`;
-            const input = document.getElementById('priceInput');
-            input.value = Number(p.price) > 0 ? Number(p.price) : '';
-            updatePricePreview();
-            document.getElementById('priceModal').classList.remove('hidden');
+
+            priceEditActive = true;
+            const oldPrice = Number(p.price) || 0;
+
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.inputMode = 'decimal';
+            input.autocomplete = 'off';
+            input.value = oldPrice > 0 ? String(oldPrice) : '';
+            input.placeholder = '0';
+            input.setAttribute('aria-label', `Ціна закупу: ${p.name}`);
+            input.className = 'w-24 bg-gray-900 border border-[#FF7A00] rounded-lg px-2 py-1 text-right font-mono text-sm text-white focus:outline-none disabled:opacity-60';
+            btn.replaceWith(input);
             input.focus();
             input.select();
-        };
 
-        window.closePriceModal = () => {
-            document.getElementById('priceModal').classList.add('hidden');
-            editingPriceId = null;
-        };
+            let finished = false;
+            const finish = async (save) => {
+                if (finished) return;
+                finished = true;
 
-        window.updatePricePreview = () => {
-            const p = findProduct(editingPriceId);
-            const box = document.getElementById('pricePreview');
-            if (!p) { box.innerHTML = ''; return; }
-            const qty = Number(p.qty) || 0;
-            const oldSum = qty * (Number(p.price) || 0);
-            const raw = document.getElementById('priceInput').value.replace(',', '.').trim();
-            const newPrice = Number(raw);
-            if (raw === '' || !Number.isFinite(newPrice) || newPrice < 0) {
-                box.innerHTML = `Сума залишку зараз: <b class="text-emerald-400">${Math.round(oldSum).toLocaleString('uk-UA')} ₴</b>`;
-                return;
-            }
-            const newSum = qty * newPrice;
-            box.innerHTML = `Сума залишку: <b class="text-gray-300">${Math.round(oldSum).toLocaleString('uk-UA')} ₴</b>
-                <i class="fa-solid fa-arrow-right text-[10px] mx-1 text-gray-500"></i>
-                <b class="text-emerald-400">${Math.round(newSum).toLocaleString('uk-UA')} ₴</b>`;
-        };
+                if (!save) return endPriceEdit();
 
-        window.savePrice = async (e) => {
-            e.preventDefault();
-            if (editingPriceId === null) return;
-            const btn = document.getElementById('btnSavePrice');
-            if (btn.disabled) return;
+                const raw = input.value.replace(/\s/g, '').replace(',', '.');
+                const price = raw === '' ? 0 : Number(raw);
+                if (!Number.isFinite(price) || price < 0) {
+                    showToast("Ціна має бути числом від 0", "red");
+                    return endPriceEdit();
+                }
+                if (Math.round(price * 100) === Math.round(oldPrice * 100)) return endPriceEdit();
 
-            const raw = document.getElementById('priceInput').value.replace(',', '.').trim();
-            const price = Number(raw);
-            if (raw === '' || !Number.isFinite(price) || price < 0) {
-                showToast("Вкажіть ціну: число від 0", "red");
-                return;
-            }
+                input.disabled = true;
+                try {
+                    const result = await callApi('updateProductPrice', { id: String(p.id), price });
+                    p.price = result.price;
+                    updateKPIs();
+                    showToast(`${p.name}: ціна ${formatPrice(result.price)} ₴`);
+                } catch (err) {
+                    console.error("Помилка збереження ціни:", err);
+                    if (!AUTH_ERROR_CODES.includes(err.code)) showToast(err.message || "Не вдалося зберегти ціну", "red");
+                } finally {
+                    endPriceEdit();
+                }
+            };
 
-            const id = editingPriceId;
-            btn.disabled = true;
-            btn.innerText = "Збереження...";
-            try {
-                const result = await callApi('updateProductPrice', { id: String(id), price });
-                const p = findProduct(id);
-                if (p) p.price = result.price;
-                closePriceModal();
-                updateKPIs();
-                renderProducts();
-                showToast(`Ціну оновлено: ${formatPrice(result.price)} ₴`);
-            } catch (err) {
-                console.error("Помилка збереження ціни:", err);
-                if (!AUTH_ERROR_CODES.includes(err.code)) showToast(err.message || "Не вдалося зберегти ціну", "red");
-            } finally {
-                btn.disabled = false;
-                btn.innerText = "Зберегти ціну";
-            }
-        };
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') { e.preventDefault(); finish(true); }
+                else if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); finish(false); }
+            });
+            input.addEventListener('blur', () => finish(true));
+        }
 
         document.getElementById('productsContainer').addEventListener('click', (e) => {
             const btn = e.target.closest('[data-edit-price]');
-            if (!btn) return;
-            const id = btn.closest('[data-product-id]')?.dataset.productId;
-            if (id !== undefined) openPriceModal(id);
+            if (btn) startPriceEdit(btn);
         });
 
         // ===================== ЗАКУПІВЛІ ТА ПРИЙМАННЯ =====================
@@ -1903,8 +1860,7 @@
         // Esc закриває відкрите вікно
         document.addEventListener('keydown', (e) => {
             if (e.key !== 'Escape') return;
-            if (!document.getElementById('priceModal').classList.contains('hidden')) closePriceModal();
-            else if (!document.getElementById('deletePurchaseModal').classList.contains('hidden')) closeDeletePurchase();
+            if (!document.getElementById('deletePurchaseModal').classList.contains('hidden')) closeDeletePurchase();
             else if (!document.getElementById('editPurchaseModal').classList.contains('hidden')) closeEditPurchase();
             else if (!document.getElementById('orderModal').classList.contains('hidden')) closeOrderModal();
         });
