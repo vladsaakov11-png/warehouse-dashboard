@@ -334,18 +334,17 @@
     </div>
 
     <!-- Сайдбар -->
-    <aside class="w-[84px] bg-cardBg border-r border-cardBorder px-2 py-3 flex flex-col justify-between hidden md:flex shrink-0">
+    <aside class="w-[56px] bg-cardBg border-r border-cardBorder px-1.5 py-3 flex flex-col justify-between hidden md:flex shrink-0">
         <div>
-            <div class="mb-5 flex flex-col items-center border-b border-cardBorder/60 pb-3 text-center">
+            <div class="mb-4 flex justify-center border-b border-cardBorder/60 pb-3" title="POINT. Fulfillment">
                 <div class="flex items-baseline">
-                    <span class="text-[15px] font-black tracking-tight text-white uppercase">POINT</span>
-                    <span class="text-[15px] font-black text-brand ml-0.5">.</span>
+                    <span class="text-xl font-black text-white">P</span>
+                    <span class="text-xl font-black text-brand">.</span>
                 </div>
-                <span class="text-[6.5px] font-bold tracking-[0.08em] text-brand uppercase -mt-0.5">FULFILLMENT</span>
             </div>
 
             <nav class="space-y-2">
-                <button onclick="switchTab('stock')" id="nav-stock" title="Облік товарів" aria-label="Облік товарів" class="nav-btn w-full nav-card-active flex flex-col items-center justify-center text-center py-3 rounded-xl group transition">
+                <button onclick="switchTab('stock')" id="nav-stock" title="Облік товарів" aria-label="Облік товарів" class="nav-btn w-full nav-card-active flex flex-col items-center justify-center text-center py-2.5 rounded-lg group transition">
                     <svg class="w-[25px] h-[25px] transition-transform duration-300 group-hover:scale-110" viewBox="0 0 24 24" aria-hidden="true">
                         <path class="box-top ic1" d="M12 2L7 5v4l5 3 5-3V5l-5-3zm0 2.2l2.8 1.7-2.8 1.7-2.8-1.7L12 4.2z"/>
                         <path class="ic2" d="M6 12l-5 3v4l5 3 5-3v-4l-5-3zm0 2.2l2.8 1.7-2.8 1.7-2.8-1.7L6 14.2z"/>
@@ -353,7 +352,7 @@
                     </svg>
                 </button>
 
-                <button onclick="switchTab('purchases')" id="nav-purchases" title="Закупівлі та приймання" aria-label="Закупівлі та приймання" class="nav-btn w-full nav-card-inactive flex flex-col items-center justify-center text-center py-3 rounded-xl group transition">
+                <button onclick="switchTab('purchases')" id="nav-purchases" title="Закупівлі та приймання" aria-label="Закупівлі та приймання" class="nav-btn w-full nav-card-inactive flex flex-col items-center justify-center text-center py-2.5 rounded-lg group transition">
                     <svg class="w-[25px] h-[25px] transition-transform duration-300 group-hover:scale-110" viewBox="0 0 24 24" aria-hidden="true">
                         <!-- коробка, що "стрибає" над візком, як на значку обліку -->
                         <path class="box-top ic1" d="M13.5 3l-3.6 2.1v3.6l3.6 2.1 3.6-2.1V5.1L13.5 3zm0 1.9l2 1.2-2 1.2-2-1.2 2-1.2z"/>
@@ -369,8 +368,7 @@
 
         <div class="text-[10px] text-gray-500 text-center flex flex-col items-center gap-2">
             <button onclick="handleLogout()" class="text-gray-400 hover:text-red-400 transition text-[11px] flex items-center justify-center gap-1" title="Вийти">
-                <i class="fa-solid fa-right-from-bracket"></i>
-                <span>Вийти</span>
+                <i class="fa-solid fa-right-from-bracket text-sm"></i>
             </button>
             <span class="text-[9px] text-gray-600">© 2026</span>
         </div>
@@ -844,15 +842,15 @@
             const pageTitle = document.getElementById('pageTitle');
 
             if (tab === 'stock') {
-                navStock.className = "nav-btn w-full nav-card-active flex flex-col items-center justify-center text-center py-3 rounded-xl group transition";
-                navPurchases.className = "nav-btn w-full nav-card-inactive flex flex-col items-center justify-center text-center py-3 rounded-xl group transition";
+                navStock.className = "nav-btn w-full nav-card-active flex flex-col items-center justify-center text-center py-2.5 rounded-lg group transition";
+                navPurchases.className = "nav-btn w-full nav-card-inactive flex flex-col items-center justify-center text-center py-2.5 rounded-lg group transition";
                 viewStock.classList.remove('hidden');
                 viewPurchases.classList.add('hidden');
                 pageTitle.innerText = "Облік товарів";
                 renderProducts();
             } else {
-                navStock.className = "nav-btn w-full nav-card-inactive flex flex-col items-center justify-center text-center py-3 rounded-xl group transition";
-                navPurchases.className = "nav-btn w-full nav-card-active flex flex-col items-center justify-center text-center py-3 rounded-xl group transition";
+                navStock.className = "nav-btn w-full nav-card-inactive flex flex-col items-center justify-center text-center py-2.5 rounded-lg group transition";
+                navPurchases.className = "nav-btn w-full nav-card-active flex flex-col items-center justify-center text-center py-2.5 rounded-lg group transition";
                 viewStock.classList.add('hidden');
                 viewPurchases.classList.remove('hidden');
                 pageTitle.innerText = "Закупівлі та приймання";
