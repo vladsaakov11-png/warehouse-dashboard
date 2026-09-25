@@ -276,7 +276,6 @@
                                 <option value="Прийнято повністю">Прийнято повністю</option>
                                 <option value="Частково">Частково</option>
                                 <option value="Брак / Недостача">Брак / Недостача</option>
-                                <option value="Питань немає">Питань немає (розбіжність закрито)</option>
                             </select>
                         </div>
                     </div>
@@ -285,6 +284,13 @@
                         <label for="editComment" class="text-[11px] font-semibold text-gray-400 block mb-1">Коментар складу</label>
                         <textarea id="editComment" rows="3" maxlength="500" placeholder="Наприклад: 2 шт. не вистачило в коробці" class="w-full bg-gray-900/90 border border-cardBorder rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500 transition resize-none"></textarea>
                     </div>
+                    <label id="editResolvedWrap" for="editResolved" class="hidden flex items-start gap-3 p-3 rounded-xl border border-teal-500/25 bg-teal-500/[0.05] cursor-pointer hover:border-teal-400/50 transition select-none">
+                        <input type="checkbox" id="editResolved" onchange="updateEditPreview()" class="mt-0.5 w-4 h-4 shrink-0 cursor-pointer" style="accent-color:#2dd4bf">
+                        <span>
+                            <span class="block text-xs font-bold text-teal-200">Питання по замовленню вирішено</span>
+                            <span class="block text-[11px] text-gray-400 mt-0.5 leading-snug">Постачальник повернув гроші або дослав товар. Заявка перейде в «Прийнято» і зникне з розбіжностей.</span>
+                        </span>
+                    </label>
                 </div>
 
                 <div class="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-3 pt-1">
@@ -1639,10 +1645,6 @@
                     <td class="${wh} text-center">${renderDeviationBadge(getPurchaseDeviation(p), st === STATUS_STYLES.resolved)}</td>
                     <td class="${wh}">
                         <span class="status-badge ${st.cls}" title="${escapeHtml(statusTitle)}"><i class="fa-solid ${st.icon}"></i>${st.label}</span>
-                        ${hasPurchaseIssue(p) && p.orderId ? `
-                            <button type="button" data-action="resolve" class="mt-1.5 flex items-center gap-1 text-[10px] font-semibold text-teal-300/80 hover:text-teal-200 transition disabled:opacity-50 disabled:cursor-wait" title="Питання з постачальником вирішено: перенести в прийняті">
-                                <i class="fa-solid fa-check"></i>Прийнято, питань немає
-                            </button>` : ''}
                     </td>
                     <td class="${wh} max-w-[280px]">${commentHtml}</td>
                     <td class="${wh} text-right">${actions}</td>
@@ -1719,7 +1721,9 @@
 
             const received = isPurchaseReceived(p);
             document.getElementById('editReceivedQty').value = received ? p.received : '';
-            document.getElementById('editStatus').value = STORED_STATUS_KEYS[p.status] ? p.status : '';
+            const isResolved = p.status === RESOLVED_STATUS;
+            document.getElementById('editStatus').value = !isResolved && STORED_STATUS_KEYS[p.status] ? p.status : '';
+            document.getElementById('editResolved').checked = isResolved;
             document.getElementById('editComment').value = p.comment || '';
             document.getElementById('btnReturnTransit').classList.toggle('hidden', !received);
 
@@ -1736,29 +1740,50 @@
         window.updateEditPreview = () => {
             const box = document.getElementById('editDeviationPreview');
             const statusSel = document.getElementById('editStatus');
+            const resolvedWrap = document.getElementById('editResolvedWrap');
+            const resolvedBox = document.getElementById('editResolved');
             const ordered = Number(document.getElementById('editOrderedQty').value) || 0;
             const rv = document.getElementById('editReceivedQty').value.trim();
 
             if (rv === '') {
                 statusSel.disabled = true;
+                resolvedWrap.classList.add('hidden');
+                resolvedBox.checked = false;
                 box.innerHTML = 'Поки кількість не вказано, заявка має статус <b class="text-sky-300">В дорозі</b>.';
                 return;
             }
-            statusSel.disabled = false;
 
             const dev = Number(rv) - ordered;
+
+            // Галочку показуємо тільки коли є що вирішувати: розбіжність або брак/частково
+            const hasProblem = dev !== 0 || ['Частково', 'Брак / Недостача'].includes(statusSel.value);
+            resolvedWrap.classList.toggle('hidden', !hasProblem && !resolvedBox.checked);
+            if (!hasProblem && resolvedBox.checked) {
+                resolvedBox.checked = false;
+                resolvedWrap.classList.add('hidden');
+            }
+
+            const resolved = resolvedBox.checked;
+            statusSel.disabled = resolved;
+
             const devText = dev === 0
                 ? '<b class="text-emerald-400">0</b>, усе збігається'
                 : dev < 0
                     ? `<b class="text-red-400">${dev}</b> шт. (недостача)`
                     : `<b class="text-violet-300">+${dev}</b> шт. (надлишок)`;
-            const st = getPurchaseStatus({ received: Number(rv), qty: ordered, status: statusSel.value });
-            box.innerHTML = `Розбіжність: ${devText}. Статус: <b class="text-white">${st.label}</b>.`;
+            const st = getPurchaseStatus({
+                received: Number(rv),
+                qty: ordered,
+                status: resolved ? RESOLVED_STATUS : statusSel.value
+            });
+            const stClass = st === STATUS_STYLES.resolved ? 'text-teal-300' : 'text-white';
+            box.innerHTML = `Розбіжність: ${devText}. Статус: <b class="${stClass}">${st.label}</b>.`;
         };
 
         window.returnToTransit = () => {
             document.getElementById('editReceivedQty').value = '';
             document.getElementById('editStatus').value = '';
+            document.getElementById('editResolved').checked = false;
             updateEditPreview();
             showToast("Кількість очищено. Натисніть «Зберегти зміни», щоб повернути заявку в дорогу.");
         };
@@ -1788,7 +1813,11 @@
                 ttn: document.getElementById('editTtn').value.trim() || '-',
                 clientComment: document.getElementById('editClientComment').value.trim(),
                 received: rv === '' ? null : Number(rv),
-                status: rv === '' ? '' : document.getElementById('editStatus').value,
+                status: rv === ''
+                    ? ''
+                    : (document.getElementById('editResolved').checked
+                        ? RESOLVED_STATUS
+                        : document.getElementById('editStatus').value),
                 comment: document.getElementById('editComment').value.trim()
             };
 
@@ -1809,29 +1838,6 @@
                 btn.innerText = "Зберегти зміни";
             }
         };
-
-        // ---------- "Прийнято, питань немає" ----------
-        // Розбіжність закрито з постачальником: заявка йде з "З розбіжностями" в "Прийнято".
-        // Скасувати можна в олівці: змінити статус приймки.
-        async function resolvePurchase(orderId, btn) {
-            const p = findPurchase(orderId);
-            if (!p || btn.disabled) return;
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>Зберігаю...';
-            try {
-                const result = await callApi('updatePurchase', { orderId: p.orderId, status: RESOLVED_STATUS });
-                upsertPurchase(result.purchase);
-                renderPurchasesList();
-                showToast(`${p.number || 'Заявку'}: питань немає, перенесено в прийняті`);
-            } catch (err) {
-                console.error("Помилка закриття розбіжності:", err);
-                if (btn.isConnected) {
-                    btn.disabled = false;
-                    btn.innerHTML = '<i class="fa-solid fa-check"></i>Прийнято, питань немає';
-                }
-                if (!AUTH_ERROR_CODES.includes(err.code)) showToast(err.message || "Не вдалося зберегти", "red");
-            }
-        }
 
         // ---------- Видалення ----------
 
@@ -1889,8 +1895,7 @@
 
             const orderId = btn.closest('tr[data-order-id]')?.dataset.orderId;
             if (!orderId) return;
-            if (btn.dataset.action === 'resolve') resolvePurchase(orderId, btn);
-            else if (btn.dataset.action === 'edit') openEditPurchase(orderId);
+            if (btn.dataset.action === 'edit') openEditPurchase(orderId);
             else if (btn.dataset.action === 'delete') openDeletePurchase(orderId);
         });
 
