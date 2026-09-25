@@ -121,6 +121,8 @@
         .kpi-click { cursor: pointer; }
         .price-edit { cursor: text; border-bottom: 1px dashed rgba(156, 163, 175, 0.35); padding: 0.15rem 0.25rem; border-radius: 0.25rem; transition: all 0.15s ease; }
         .price-edit:hover { color: #FF7A00; border-bottom-color: #FF7A00; background: rgba(255, 122, 0, 0.06); }
+        .price-missing { color: #FF9A3D; font-family: inherit; font-size: 0.75rem; font-weight: 700; border-bottom-color: rgba(255, 122, 0, 0.5); background: rgba(255, 122, 0, 0.08); padding: 0.2rem 0.5rem; white-space: nowrap; }
+        .price-missing:hover { background: rgba(255, 122, 0, 0.16); }
         .price-edit:focus-visible { outline: 2px solid #FF7A00; outline-offset: 2px; }
     </style>
 </head>
@@ -438,6 +440,9 @@
                     </div>
                     <div class="my-1.5">
                         <div class="text-3xl font-black text-gradient-emerald tracking-tight" id="kpiTotalSumUah">0 ₴</div>
+                        <button type="button" id="kpiNoPrice" onclick="event.stopPropagation(); toggleNoPriceFilter()"
+                                class="hidden mt-1 text-[11px] font-semibold text-orange-300 hover:text-orange-200 bg-orange-500/10 hover:bg-orange-500/15 border border-orange-500/25 rounded-md px-2 py-0.5 transition text-left"
+                                title="Показати товари із залишком, але без ціни закупу"></button>
                     </div>
                     <div class="flex items-center justify-between pt-2 border-t border-cardBorder/40">
                         <span class="text-[11px] text-gray-400">Оцінка в валюті:</span>
@@ -505,6 +510,7 @@
                         <button onclick="setFilter('warning')" id="btn-warning" class="filter-btn filter-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400 whitespace-nowrap">Малий залишок (1–19)</button>
                         <button onclick="setFilter('good')" id="btn-good" class="filter-btn filter-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent bg-brand text-white shadow-lg shadow-brand/20 whitespace-nowrap">У наявності (&ge;20)</button>
                         <button onclick="setFilter('illiquid')" id="btn-illiquid" class="filter-btn filter-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400 whitespace-nowrap">Без руху 30+ дн</button>
+                        <button onclick="setFilter('noprice')" id="btn-noprice" class="filter-btn filter-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent text-gray-400 whitespace-nowrap">Без ціни</button>
                     </div>
                 </div>
 
@@ -1051,7 +1057,38 @@
             document.getElementById('kpiTotalSumUsd').innerText = `$${Math.round(totalSumUsd).toLocaleString('en-US')}`;
 
             updateIlliquid();
+            updateNoPrice();
         }
+
+        // ---------- Товари із залишком, але без ціни закупу ----------
+        function isNoPrice(p) {
+            return (Number(p.qty) || 0) > 0 && !((Number(p.price) || 0) > 0);
+        }
+
+        function updateNoPrice() {
+            let n = 0, units = 0;
+            allProducts.forEach(p => { if (isNoPrice(p)) { n++; units += Number(p.qty) || 0; } });
+
+            const btn = document.getElementById('btn-noprice');
+            btn.innerText = n ? `Без ціни (${n.toLocaleString('uk-UA')})` : 'Без ціни';
+
+            const line = document.getElementById('kpiNoPrice');
+            if (!n) {
+                line.classList.add('hidden');
+            } else {
+                line.classList.remove('hidden');
+                line.innerHTML = currentFilter === 'noprice'
+                    ? '<i class="fa-solid fa-xmark text-[9px] mr-1"></i>Сховати товари без ціни'
+                    : `<i class="fa-solid fa-triangle-exclamation text-[10px] mr-1"></i>${n.toLocaleString('uk-UA')} ${pluralUk(n, 'товар', 'товари', 'товарів')} без ціни (${units.toLocaleString('uk-UA')} шт.) — сума занижена`;
+            }
+        }
+
+        window.toggleNoPriceFilter = () => {
+            if (currentFilter === 'noprice') { setFilter('good'); return; }
+            document.getElementById('searchInput').value = '';
+            setFilter('noprice');
+            document.getElementById('productsTable').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        };
 
         // ---------- Неліквід: є залишок, але 30+ днів без жодної відправки ----------
         const ILLIQUID_DAYS = 30;
@@ -1161,7 +1198,7 @@
 
         window.setFilter = (filter) => {
             currentFilter = filter;
-            ['all', 'empty', 'warning', 'good', 'illiquid'].forEach(f => {
+            ['all', 'empty', 'warning', 'good', 'illiquid', 'noprice'].forEach(f => {
                 const btn = document.getElementById(`btn-${f}`);
                 if (f === filter) {
                     btn.className = "filter-btn filter-btn-hover px-3.5 py-1.5 rounded-lg text-xs font-medium border border-transparent bg-brand text-white shadow-lg shadow-brand/20 whitespace-nowrap";
@@ -1170,6 +1207,7 @@
                 }
             });
             updateIlliquidCardState();
+            updateNoPrice();
             renderProducts();
         };
 
@@ -1262,6 +1300,7 @@
                 else if (currentFilter === 'warning') matchFilter = qty >= 1 && qty <= 19;
                 else if (currentFilter === 'good') matchFilter = qty >= 20;
                 else if (currentFilter === 'illiquid') matchFilter = illiquidIds.has(productKey(p.id));
+                else if (currentFilter === 'noprice') matchFilter = isNoPrice(p);
 
                 return matchSearch && matchFilter;
             });
@@ -1272,6 +1311,11 @@
             if (currentFilter === 'illiquid' && !(sortField && sortOrder)) {
                 filtered.sort((a, b) =>
                     (Number(b.qty) || 0) * (Number(b.price) || 0) - (Number(a.qty) || 0) * (Number(a.price) || 0));
+            }
+
+            // Без ціни — спочатку ті, яких найбільше на складі
+            if (currentFilter === 'noprice' && !(sortField && sortOrder)) {
+                filtered.sort((a, b) => (Number(b.qty) || 0) - (Number(a.qty) || 0));
             }
 
             if (sortField && sortOrder) {
@@ -1310,6 +1354,8 @@
                         <i class="fa-solid fa-box-open text-3xl mb-2 opacity-50"></i>
                         <p>${currentFilter === 'illiquid' && !searchQuery
                             ? 'Товарів без руху немає: усі товари з залишком продавались за останні 30 днів'
+                            : currentFilter === 'noprice' && !searchQuery
+                            ? 'Чудово: у всіх товарів із залишком вказана ціна закупу'
                             : 'Товарів не знайдено'}</p>
                     </div>`;
                 return;
@@ -1344,10 +1390,12 @@
                             })() : ''}
                         </div>
                         <div class="hidden md:flex md:col-span-2 items-center justify-end">
-                            <button type="button" data-edit-price class="price-edit font-mono font-semibold ${price > 0 ? 'text-gray-200' : 'text-gray-600'}" title="Натисніть, щоб змінити ціну закупу">${formatPrice(price)} ₴</button>
+                            ${price <= 0 && qty > 0
+                                ? `<button type="button" data-edit-price class="price-edit price-missing" title="Ціна закупу не вказана — натисніть, щоб ввести"><i class="fa-solid fa-triangle-exclamation text-[10px] mr-1"></i>вкажіть ціну</button>`
+                                : `<button type="button" data-edit-price class="price-edit font-mono font-semibold ${price > 0 ? 'text-gray-200' : 'text-gray-600'}" title="Натисніть, щоб змінити ціну закупу">${formatPrice(price)} ₴</button>`}
                         </div>
                         <div class="hidden md:block md:col-span-2 text-right font-mono font-semibold text-emerald-400">
-                            ${Math.round(totalCost).toLocaleString('uk-UA')} ₴
+                            ${price <= 0 && qty > 0 ? '<span class="text-gray-600">—</span>' : `${Math.round(totalCost).toLocaleString('uk-UA')} ₴`}
                         </div>
                     </div>`;
             }).join('');
