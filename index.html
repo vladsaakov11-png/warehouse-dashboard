@@ -1587,6 +1587,17 @@
             return `<span class="dev-badge bg-violet-500/10 text-violet-300 border-violet-500/30">+${dev}</span>`;
         }
 
+        const RESOLVE_BTN_CLASS = "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-brandOrange/40 text-brandOrange hover:bg-brandOrange hover:text-white hover:border-brandOrange text-[11px] font-semibold whitespace-nowrap transition disabled:opacity-60 disabled:cursor-wait disabled:hover:bg-transparent disabled:hover:text-brandOrange";
+        const RESOLVE_BTN_IDLE = '<i class="fa-solid fa-handshake text-[10px]"></i>Питань немає';
+        const RESOLVE_BTN_BUSY = '<i class="fa-solid fa-spinner fa-spin text-[10px]"></i>Зберігаю...';
+        const resolvingOrders = new Set(); // заявки, які зараз зберігаються
+
+        function renderResolveButton(p) {
+            const busy = resolvingOrders.has(String(p.orderId));
+            return `<button type="button" data-action="resolve" ${busy ? 'disabled' : ''} class="${RESOLVE_BTN_CLASS}"
+                title="Питання з постачальником вирішено: перенести заявку в «Прийнято»">${busy ? RESOLVE_BTN_BUSY : RESOLVE_BTN_IDLE}</button>`;
+        }
+
         function renderPurchaseRow(p) {
             const received = isPurchaseReceived(p);
             const st = getPurchaseStatus(p);
@@ -1640,12 +1651,7 @@
                     <td class="${wh}">
                         <div class="flex items-center gap-1.5 flex-wrap">
                             <span class="status-badge ${st.cls}" title="${escapeHtml(statusTitle)}"><i class="fa-solid ${st.icon}"></i>${st.label}</span>
-                            ${hasPurchaseIssue(p) && p.orderId ? `
-                                <button type="button" data-action="resolve"
-                                    class="inline-flex items-center gap-1 px-2 py-1 rounded-lg border border-teal-500/30 text-teal-300 hover:bg-teal-500/15 hover:border-teal-400/60 text-[10px] font-bold whitespace-nowrap transition disabled:opacity-50 disabled:cursor-wait"
-                                    title="Питання з постачальником вирішено: перенести заявку в «Прийнято»">
-                                    <i class="fa-solid fa-check"></i>Питань немає
-                                </button>` : ''}
+                            ${hasPurchaseIssue(p) && p.orderId ? renderResolveButton(p) : ''}
                         </div>
                     </td>
                     <td class="${wh} max-w-[280px]">${commentHtml}</td>
@@ -1820,20 +1826,33 @@
         // Скасувати можна в олівці: змінити статус приймки.
         async function resolvePurchase(orderId, btn) {
             const p = findPurchase(orderId);
-            if (!p || btn.disabled) return;
+            const key = String(orderId);
+            if (!p || btn.disabled || resolvingOrders.has(key)) return;
+
+            resolvingOrders.add(key);
             btn.disabled = true;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>Зберігаю...';
+            btn.innerHTML = RESOLVE_BTN_BUSY;
+
             try {
                 const result = await callApi('updatePurchase', { orderId: p.orderId, status: RESOLVED_STATUS });
-                upsertPurchase(result.purchase);
+                const saved = result.purchase;
+
+                // Перевіряємо, що в таблиці справді записався новий статус
+                if (!saved || saved.status !== RESOLVED_STATUS) {
+                    throw new ApiError(
+                        "Сервер не зберіг статус «Питань немає». Перевірте, що в Apps Script опубліковано версію v8-resolved.",
+                        'not_saved'
+                    );
+                }
+
+                upsertPurchase(saved);
+                resolvingOrders.delete(key);
                 renderPurchasesList();
-                showToast(`${p.number || 'Заявку'}: питань немає, перенесено в прийняті`);
+                showToast(`${p.number || 'Заявку'} прийнято, питань по ній немає`);
             } catch (err) {
                 console.error("Помилка закриття розбіжності:", err);
-                if (btn.isConnected) {
-                    btn.disabled = false;
-                    btn.innerHTML = '<i class="fa-solid fa-check"></i>Питань немає';
-                }
+                resolvingOrders.delete(key);
+                renderPurchasesList();
                 if (!AUTH_ERROR_CODES.includes(err.code)) showToast(err.message || "Не вдалося зберегти", "red");
             }
         }
