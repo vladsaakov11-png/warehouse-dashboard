@@ -1839,10 +1839,13 @@
 
                 // Перевіряємо, що в таблиці справді записався новий статус
                 if (!saved || saved.status !== RESOLVED_STATUS) {
-                    throw new ApiError(
-                        "Сервер не зберіг статус «Питань немає». Перевірте, що в Apps Script опубліковано версію v8-resolved.",
-                        'not_saved'
-                    );
+                    const d = result.debug;
+                    console.warn("Статус не збережено", result);
+                    const details = d
+                        ? `Лист «${d.sheet}», рядок ${d.row}, колонка ${String.fromCharCode(64 + d.statusCol)} («${d.header}»). ` +
+                          `Надіслано: «${d.sent}», у таблиці: «${d.readBack}»${d.formula ? `, там формула ${d.formula}` : ''}. Версія ${d.version}.`
+                        : 'Сервер старої версії: опублікуйте новий Code.gs (версія v9-debug).';
+                    throw new ApiError(`Статус не збережено. ${details}`, 'not_saved');
                 }
 
                 upsertPurchase(saved);
