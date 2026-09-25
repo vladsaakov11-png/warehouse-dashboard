@@ -73,7 +73,7 @@
         /* Іконки меню: сірі, коли вкладка неактивна, помаранчеві — коли активна або під курсором */
         .brand-mark { filter: drop-shadow(0 0 6px rgba(255, 122, 0, 0.3)); transition: transform 0.3s ease, filter 0.3s ease; }
         .brand-mark:hover { transform: scale(1.06); filter: drop-shadow(0 0 10px rgba(255, 122, 0, 0.5)); }
-        .brand-dot { transform-origin: 26px 25.2px; animation: brandDot 3s ease-in-out infinite; }
+        .brand-dot { transform-origin: 36px 17.3px; animation: brandDot 3s ease-in-out infinite; }
         @keyframes brandDot { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.25); } }
         @media (prefers-reduced-motion: reduce) { .brand-dot { animation: none; } }
         .nav-btn { --ic1: #6B7280; --ic2: #4B5563; }
@@ -341,19 +341,17 @@
     <!-- Сайдбар -->
     <aside class="w-[56px] bg-cardBg border-r border-cardBorder px-1.5 py-3 flex flex-col justify-between hidden md:flex shrink-0">
         <div>
-            <div class="mb-4 flex flex-col items-center gap-1.5 border-b border-cardBorder/60 pb-3" title="POINT. Fulfillment">
-                <svg class="brand-mark" width="36" height="36" viewBox="0 0 36 36" role="img" aria-label="POINT. Fulfillment">
+            <div class="mb-4 flex justify-center border-b border-cardBorder/60 pb-3" title="POINT. Fulfillment">
+                <svg class="brand-mark" width="44" height="40" viewBox="0 0 44 40" role="img" aria-label="POINT. Fulfillment">
                     <defs>
                         <linearGradient id="bmBg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1F2A40"/><stop offset="1" stop-color="#0B0F19"/></linearGradient>
                         <linearGradient id="bmOr" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FF9A3D"/><stop offset="1" stop-color="#E05A00"/></linearGradient>
                     </defs>
-                    <rect x="0.75" y="0.75" width="34.5" height="34.5" rx="10" fill="url(#bmBg)" stroke="url(#bmOr)" stroke-width="1.5"/>
-                    <path fill="#fff" fill-rule="evenodd" d="M10.5 8.5h7.5a6.25 6.25 0 0 1 0 12.5h-3.5v6.5h-4zM14.5 12v5.5h3.5a2.75 2.75 0 0 0 0-5.5z"/>
-                    <circle class="brand-dot" cx="26" cy="25.2" r="2.4" fill="url(#bmOr)"/>
-                </svg>
-                <svg width="44" height="12" viewBox="0 0 44 12" aria-hidden="true">
-                    <text x="0" y="10" font-size="11" font-weight="900" fill="#fff" textLength="38" lengthAdjust="spacingAndGlyphs" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">POINT</text>
-                    <circle cx="41.5" cy="8.6" r="1.6" fill="#FF7A00"/>
+                    <rect x="0.75" y="0.75" width="42.5" height="38.5" rx="10" fill="url(#bmBg)" stroke="url(#bmOr)" stroke-width="1.5"/>
+                    <text x="6" y="19" font-size="10" font-weight="900" fill="#fff" textLength="28" lengthAdjust="spacingAndGlyphs" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">POINT</text>
+                    <circle class="brand-dot" cx="36" cy="17.3" r="1.5" fill="url(#bmOr)"/>
+                    <line x1="12" y1="23.5" x2="32" y2="23.5" stroke="#FF7A00" stroke-opacity="0.35" stroke-width="1"/>
+                    <text x="22.5" y="33" text-anchor="middle" font-size="8" font-weight="800" fill="url(#bmOr)" letter-spacing="1" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">FF</text>
                 </svg>
             </div>
 
