@@ -71,6 +71,15 @@
         .box-top { animation: boxFloat 2.5s ease-in-out infinite; transform-origin: center; }
 
         /* Іконки меню: сірі, коли вкладка неактивна, помаранчеві — коли активна або під курсором */
+        .log-row:hover { background: rgba(31, 41, 55, 0.35); }
+        .log-chip.active { background: rgba(255, 122, 0, 0.12); border-color: rgba(255, 122, 0, 0.45); color: #FF9A3D; }
+        .product-row { cursor: pointer; }
+        .product-row:hover .row-chart-hint { opacity: 1; }
+        .row-chart-hint { opacity: 0; transition: opacity 0.2s ease; }
+        .sales-bar { transition: opacity 0.15s ease; }
+        .sales-chart:hover .sales-bar { opacity: 0.45; }
+        .sales-chart .sales-bar:hover, .sales-chart .sales-bar.hl { opacity: 1; }
+        .nav-btn .ic-hand { fill: none; stroke: #0B0F19; stroke-width: 1.4; stroke-linecap: round; }
         .brand-mark { filter: drop-shadow(0 0 6px rgba(255, 122, 0, 0.3)); transition: transform 0.3s ease, filter 0.3s ease; }
         .brand-mark:hover { transform: scale(1.06); filter: drop-shadow(0 0 10px rgba(255, 122, 0, 0.5)); }
         .brand-dot { transform-origin: 36px 17.3px; animation: brandDot 3s ease-in-out infinite; }
@@ -368,6 +377,16 @@
                         </g>
                     </svg>
                 </button>
+
+                <button onclick="switchTab('log')" id="nav-log" title="Журнал змін" aria-label="Журнал змін" class="nav-btn w-full nav-card-inactive flex flex-col items-center justify-center text-center py-2.5 rounded-lg group transition">
+                    <svg class="w-[25px] h-[25px] transition-transform duration-300 group-hover:scale-110" viewBox="0 0 24 24" aria-hidden="true">
+                        <path class="ic2" d="M5 1.5h9.2L19 6.3v5.1a6.9 6.9 0 0 0-2-.35V7.2h-3.7V3.5H6v17h5.2a6.9 6.9 0 0 0 1.25 2H5a1 1 0 0 1-1-1v-19a1 1 0 0 1 1-1z"/>
+                        <rect class="ic2" x="8" y="9" width="6.5" height="1.7" rx=".85"/>
+                        <rect class="ic2" x="8" y="12.6" width="3.8" height="1.7" rx=".85"/>
+                        <circle class="ic1" cx="17.5" cy="17.8" r="5.4"/>
+                        <path class="ic-hand" d="M17.5 15.2v2.8l1.9 1.2"/>
+                    </svg>
+                </button>
             </nav>
         </div>
 
@@ -641,7 +660,62 @@
                 <div id="purchasesFooter" class="px-4 py-2.5 text-[11px] text-gray-500 border-t border-cardBorder"></div>
             </div>
         </div>
+
+        <!-- VIEW 3: ЖУРНАЛ ЗМІН -->
+        <div id="viewLog" class="hidden space-y-4">
+            <div class="flex flex-col lg:flex-row lg:items-center gap-3">
+                <div class="flex flex-wrap gap-1.5" id="logChips"></div>
+                <div class="flex items-center gap-2 lg:ml-auto">
+                    <select id="logUser" onchange="renderLog()" class="bg-cardBg border border-cardBorder rounded-lg px-3 py-2 text-xs text-gray-300 focus:outline-none focus:border-brandOrange/60">
+                        <option value="">Усі користувачі</option>
+                    </select>
+                    <div class="relative">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-xs"></i>
+                        <input id="logSearch" oninput="renderLog()" type="text" placeholder="ID, назва, PO-номер…" class="bg-cardBg border border-cardBorder rounded-lg pl-8 pr-3 py-2 text-xs text-white w-56 focus:outline-none focus:border-brandOrange/60">
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-cardBg border border-cardBorder rounded-2xl overflow-hidden shadow-xl">
+                <div class="hidden md:grid grid-cols-12 gap-3 px-4 py-3 bg-gray-900/60 border-b border-cardBorder text-[10px] font-bold text-gray-500 uppercase tracking-wider">
+                    <div class="col-span-1">Час</div>
+                    <div class="col-span-2">Хто</div>
+                    <div class="col-span-2">Дія</div>
+                    <div class="col-span-4">Об'єкт</div>
+                    <div class="col-span-3">Було → Стало</div>
+                </div>
+                <div id="logBody"></div>
+                <div id="logFooter" class="px-4 py-2.5 text-[11px] text-gray-500 border-t border-cardBorder"></div>
+            </div>
+        </div>
     </main>
+
+    <!-- Історія продажів товару -->
+    <div id="salesModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 hidden" onclick="if(event.target===this)closeSalesModal()">
+        <div class="bg-cardBg border border-cardBorder rounded-2xl w-full max-w-3xl shadow-2xl max-h-[92vh] overflow-y-auto">
+            <div class="flex items-start justify-between gap-4 px-6 pt-5 pb-4 border-b border-cardBorder">
+                <div class="min-w-0">
+                    <div class="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">Історія продажів · 90 днів</div>
+                    <h3 id="salesTitle" class="text-base font-bold text-white truncate"></h3>
+                    <div id="salesSub" class="text-xs text-gray-400 mt-1"></div>
+                </div>
+                <button type="button" onclick="closeSalesModal()" class="w-8 h-8 shrink-0 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-400 hover:text-white transition" aria-label="Закрити"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="p-6 space-y-5">
+                <div id="salesStats" class="grid grid-cols-2 md:grid-cols-4 gap-3"></div>
+                <div>
+                    <div class="flex items-center justify-between mb-2 gap-3">
+                        <div id="salesReadout" class="text-xs text-gray-400 min-h-[1rem]"></div>
+                        <div class="inline-flex bg-gray-900/60 border border-cardBorder rounded-lg p-0.5 shrink-0">
+                            <button type="button" data-sales-mode="week" onclick="setSalesMode('week')" class="px-3 py-1 rounded-md text-[11px] font-semibold transition">Тижні</button>
+                            <button type="button" data-sales-mode="day" onclick="setSalesMode('day')" class="px-3 py-1 rounded-md text-[11px] font-semibold transition">Дні</button>
+                        </div>
+                    </div>
+                    <div id="salesChart" class="bg-gray-900/40 border border-cardBorder/60 rounded-xl p-3"></div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- FIREBASE SDKs & LOGIC -->
     <script type="module">
@@ -838,29 +912,25 @@
             signOut(auth);
         };
 
-        window.switchTab = (tab) => {
-            currentTab = tab;
-            const navStock = document.getElementById('nav-stock');
-            const navPurchases = document.getElementById('nav-purchases');
-            const viewStock = document.getElementById('viewStock');
-            const viewPurchases = document.getElementById('viewPurchases');
-            const pageTitle = document.getElementById('pageTitle');
+        const TABS = {
+            stock:     { nav: 'nav-stock',     view: 'viewStock',     title: 'Облік товарів' },
+            purchases: { nav: 'nav-purchases', view: 'viewPurchases', title: 'Закупівлі та приймання' },
+            log:       { nav: 'nav-log',       view: 'viewLog',       title: 'Журнал змін' }
+        };
+        const NAV_BASE = "nav-btn w-full flex flex-col items-center justify-center text-center py-2.5 rounded-lg group transition";
 
-            if (tab === 'stock') {
-                navStock.className = "nav-btn w-full nav-card-active flex flex-col items-center justify-center text-center py-2.5 rounded-lg group transition";
-                navPurchases.className = "nav-btn w-full nav-card-inactive flex flex-col items-center justify-center text-center py-2.5 rounded-lg group transition";
-                viewStock.classList.remove('hidden');
-                viewPurchases.classList.add('hidden');
-                pageTitle.innerText = "Облік товарів";
-                renderProducts();
-            } else {
-                navStock.className = "nav-btn w-full nav-card-inactive flex flex-col items-center justify-center text-center py-2.5 rounded-lg group transition";
-                navPurchases.className = "nav-btn w-full nav-card-active flex flex-col items-center justify-center text-center py-2.5 rounded-lg group transition";
-                viewStock.classList.add('hidden');
-                viewPurchases.classList.remove('hidden');
-                pageTitle.innerText = "Закупівлі та приймання";
-                renderPurchasesList();
-            }
+        window.switchTab = (tab) => {
+            if (!TABS[tab]) return;
+            currentTab = tab;
+            Object.entries(TABS).forEach(([k, t]) => {
+                document.getElementById(t.nav).className = `${NAV_BASE} ${k === tab ? 'nav-card-active' : 'nav-card-inactive'}`;
+                document.getElementById(t.view).classList.toggle('hidden', k !== tab);
+            });
+            document.getElementById('pageTitle').innerText = TABS[tab].title;
+
+            if (tab === 'stock') renderProducts();
+            else if (tab === 'purchases') renderPurchasesList();
+            else { renderLog(); loadLog(); }
         };
 
         class ApiError extends Error {
@@ -944,8 +1014,14 @@
 
                 if (currentTab === 'stock') {
                     renderProducts();
-                } else {
+                } else if (currentTab === 'purchases') {
                     renderPurchasesList();
+                } else {
+                    loadLog();
+                }
+                if (salesState) {
+                    const fresh = findProduct(salesState.product.id);
+                    if (fresh) { salesState = { product: fresh, ...buildSalesSeries(fresh.id) }; renderSalesModal(); }
                 }
             } catch (err) {
                 console.error("Помилка завантаження даних:", err);
@@ -1375,9 +1451,12 @@
                 else if (qty < 20) badgeClass = "bg-amber-500/10 text-amber-400 border-amber-500/20";
 
                 return `
-                    <div data-product-id="${escapeHtml(p.id)}" class="grid grid-cols-12 p-4 items-center text-sm hover:bg-gray-800/40 transition border-b border-cardBorder/40">
+                    <div data-product-id="${escapeHtml(p.id)}" class="product-row grid grid-cols-12 p-4 items-center text-sm hover:bg-gray-800/40 transition border-b border-cardBorder/40" title="Натисніть, щоб побачити історію продажів">
                         <div class="col-span-2 md:col-span-1 font-mono font-bold text-brand">${escapeHtml(p.id)}</div>
-                        <div class="col-span-4 md:col-span-3 font-medium text-white pr-2 truncate" title="${escapeHtml(p.name)}">${escapeHtml(p.name)}</div>
+                        <div class="col-span-4 md:col-span-3 font-medium text-white pr-2 flex items-center gap-2 min-w-0">
+                            <span class="truncate">${escapeHtml(p.name)}</span>
+                            <i class="row-chart-hint fa-solid fa-chart-column text-[11px] text-brand/70 shrink-0"></i>
+                        </div>
                         <div class="col-span-3 md:col-span-2 text-center">
                             <span class="inline-block px-2.5 py-1 rounded-lg text-xs font-bold border ${badgeClass}">
                                 ${qty} шт
@@ -1481,8 +1560,342 @@
 
         document.getElementById('productsContainer').addEventListener('click', (e) => {
             const btn = e.target.closest('[data-edit-price]');
-            if (btn) startPriceEdit(btn);
+            if (btn) { startPriceEdit(btn); return; }
+            if (priceEditActive || e.target.closest('input, button, a')) return;
+            if (window.getSelection && String(window.getSelection()).length > 0) return; // виділяли текст
+            const row = e.target.closest('[data-product-id]');
+            if (row) openSalesHistory(row.dataset.productId);
         });
+
+        // ===================== ІСТОРІЯ ПРОДАЖІВ ТОВАРУ =====================
+
+        const SALES_DAYS = 91; // 13 повних тижнів
+        let salesState = null;
+        let salesMode = 'week';
+
+        function dayStart(ts) { const d = new Date(ts); d.setHours(0, 0, 0, 0); return d.getTime(); }
+        function fmtShortDate(ts) { return new Date(ts).toLocaleDateString('uk-UA', { day: '2-digit', month: '2-digit' }); }
+        function fmtNum(n) { return (Number(n) || 0).toLocaleString('uk-UA'); }
+
+        function buildSalesSeries(id) {
+            const key = productKey(id);
+            const today = dayStart(Date.now());
+            const first = today - (SALES_DAYS - 1) * 86400000;
+            const days = Array.from({ length: SALES_DAYS }, (_, i) => ({ ts: first + i * 86400000, qty: 0 }));
+            let lastSale = null, totalAll = 0;
+            allShipments.forEach(s => {
+                if (productKey(s.id) !== key) return;
+                const ts = (typeof s.ts === 'number') ? s.ts : new Date(s.date).getTime();
+                const q = Number(s.qty) || 0;
+                if (!Number.isFinite(ts) || q <= 0) return;
+                totalAll += q;
+                if (!lastSale || ts > lastSale) lastSale = ts;
+                const idx = Math.round((dayStart(ts) - first) / 86400000); // round — на випадок переходу на літній час
+                if (idx >= 0 && idx < SALES_DAYS) days[idx].qty += q;
+            });
+            return { days, lastSale, totalAll };
+        }
+
+        function sumQty(arr) { return arr.reduce((a, d) => a + d.qty, 0); }
+
+        window.openSalesHistory = (id) => {
+            const product = findProduct(id);
+            if (!product) return;
+            salesState = { product, ...buildSalesSeries(product.id) };
+            renderSalesModal();
+            document.getElementById('salesModal').classList.remove('hidden');
+        };
+
+        window.closeSalesModal = () => {
+            document.getElementById('salesModal').classList.add('hidden');
+            salesState = null;
+        };
+
+        window.setSalesMode = (mode) => { salesMode = mode; renderSalesModal(); };
+
+        function renderSalesModal() {
+            if (!salesState) return;
+            const { product, days, lastSale } = salesState;
+            const qty = Number(product.qty) || 0;
+            const last90 = days.slice(-90);
+            const total90 = sumQty(last90);
+            const last30 = sumQty(days.slice(-30));
+            const prev30 = sumQty(days.slice(-60, -30));
+            const avg30 = last30 / 30;
+            const avg90 = total90 / 90;
+            const avg = avg30 > 0 ? avg30 : avg90;
+
+            const inTransit = allPurchases
+                .filter(p => productKey(p.id) === productKey(product.id) && (p.received === null || p.received === undefined || p.received === ''))
+                .reduce((a, p) => a + (Number(p.qty) || 0), 0);
+
+            document.getElementById('salesTitle').innerHTML =
+                `<span class="font-mono text-brand mr-2">${escapeHtml(product.id)}</span>${escapeHtml(product.name)}`;
+            document.getElementById('salesSub').innerHTML = [
+                `Залишок: <b class="text-white">${fmtNum(qty)} шт</b>`,
+                inTransit > 0 ? `<span class="text-sky-300">+${fmtNum(inTransit)} в дорозі</span>` : '',
+                lastSale ? `Остання відправка: ${new Date(lastSale).toLocaleDateString('uk-UA')} (${formatDaysAgo(lastSale)})` : 'Відправок ще не було'
+            ].filter(Boolean).join('<span class="text-gray-600 mx-2">·</span>');
+
+            // Тренд: останні 30 днів проти попередніх 30
+            let trend;
+            if (last30 === 0 && prev30 === 0) trend = { text: 'немає продажів', cls: 'text-gray-500', icon: 'fa-minus' };
+            else if (prev30 === 0) trend = { text: 'нові продажі', cls: 'text-emerald-400', icon: 'fa-arrow-trend-up' };
+            else {
+                const pct = Math.round((last30 - prev30) / prev30 * 100);
+                if (Math.abs(pct) < 10) trend = { text: `стабільно (${pct > 0 ? '+' : ''}${pct}%)`, cls: 'text-gray-300', icon: 'fa-arrows-left-right' };
+                else if (pct > 0) trend = { text: `зростає +${pct}%`, cls: 'text-emerald-400', icon: 'fa-arrow-trend-up' };
+                else trend = { text: `падає ${pct}%`, cls: 'text-red-400', icon: 'fa-arrow-trend-down' };
+            }
+
+            // На скільки днів вистачить (з урахуванням того, що в дорозі)
+            let cover;
+            if (avg <= 0) cover = { main: '—', sub: 'продажів немає', cls: 'text-gray-400' };
+            else {
+                const d = Math.floor(qty / avg);
+                const dAll = Math.floor((qty + inTransit) / avg);
+                const cls = d < 7 ? 'text-red-400' : d < 21 ? 'text-amber-400' : 'text-emerald-400';
+                cover = {
+                    main: qty <= 0 ? '0 днів' : `~${fmtNum(d)} ${pluralUk(d, 'день', 'дні', 'днів')}`,
+                    sub: inTransit > 0 ? `з тим, що в дорозі: ~${fmtNum(dAll)} дн.` : 'за темпом останніх 30 днів',
+                    cls
+                };
+            }
+
+            const stat = (label, main, sub, cls = 'text-white') => `
+                <div class="bg-gray-900/40 border border-cardBorder/60 rounded-xl p-3">
+                    <div class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">${label}</div>
+                    <div class="text-lg font-black mt-1 ${cls}">${main}</div>
+                    <div class="text-[11px] text-gray-500 mt-0.5">${sub}</div>
+                </div>`;
+            document.getElementById('salesStats').innerHTML =
+                stat('Продано за 90 днів', `${fmtNum(total90)} шт`, `за 30 днів: ${fmtNum(last30)} шт`) +
+                stat('В середньому', `${avg90 >= 10 ? fmtNum(Math.round(avg90)) : avg90.toFixed(1).replace('.', ',')} шт/день`, `≈ ${fmtNum(Math.round(avg90 * 7))} шт на тиждень`) +
+                stat('Тренд', `<i class="fa-solid ${trend.icon} text-sm mr-1"></i>${trend.text.split(' (')[0]}`, trend.text.includes('(') ? '30 днів проти попередніх' : (prev30 || last30 ? '30 днів проти попередніх' : '&nbsp;'), trend.cls) +
+                stat('Вистачить на', cover.main, cover.sub, cover.cls);
+
+            document.querySelectorAll('[data-sales-mode]').forEach(b => {
+                const on = b.dataset.salesMode === salesMode;
+                b.className = `px-3 py-1 rounded-md text-[11px] font-semibold transition ${on ? 'bg-brandOrange/15 text-brand' : 'text-gray-400 hover:text-white'}`;
+            });
+
+            // Стовпчики
+            let bars;
+            if (salesMode === 'week') {
+                bars = [];
+                for (let i = 0; i < SALES_DAYS; i += 7) {
+                    const chunk = days.slice(i, i + 7);
+                    bars.push({ qty: sumQty(chunk), from: chunk[0].ts, to: chunk[chunk.length - 1].ts });
+                }
+            } else {
+                bars = last90.map(d => ({ qty: d.qty, from: d.ts, to: d.ts }));
+            }
+            renderSalesChart(bars);
+            document.getElementById('salesReadout').innerHTML = salesMode === 'week'
+                ? 'Продажі по тижнях · наведіть на стовпчик'
+                : 'Продажі по днях · наведіть на стовпчик';
+        }
+
+        function renderSalesChart(bars) {
+            const W = 680, H = 200, padL = 34, padR = 8, padT = 10, padB = 24;
+            const cw = W - padL - padR, ch = H - padT - padB;
+            const max = Math.max(...bars.map(b => b.qty), 0);
+            const niceMax = max <= 0 ? 1 : (() => {
+                const pow = Math.pow(10, Math.floor(Math.log10(max)));
+                return [1, 2, 2.5, 5, 10].map(m => m * pow).find(v => v >= max);
+            })();
+            const step = cw / bars.length;
+            const bw = Math.max(2, step * (bars.length > 30 ? 0.7 : 0.62));
+            const y = v => padT + ch - (v / niceMax) * ch;
+
+            let grid = '';
+            [0, 0.5, 1].forEach(f => {
+                const v = niceMax * f, yy = y(v);
+                grid += `<line x1="${padL}" x2="${W - padR}" y1="${yy}" y2="${yy}" stroke="#1F2937" stroke-dasharray="${f === 0 ? '' : '3 4'}"/>`;
+                grid += `<text x="${padL - 6}" y="${yy + 3}" text-anchor="end" font-size="10" fill="#6B7280">${max <= 0 && f > 0 ? '' : fmtNum(Math.round(v * 10) / 10)}</text>`;
+            });
+
+            const labelEvery = bars.length > 30 ? 15 : 2;
+            let rects = '', labels = '';
+            bars.forEach((b, i) => {
+                const x = padL + i * step + (step - bw) / 2;
+                const h = b.qty > 0 ? Math.max(2, ch - (y(b.qty) - padT)) : 1.5;
+                const tip = (b.from === b.to
+                    ? new Date(b.from).toLocaleDateString('uk-UA', { weekday: 'short', day: '2-digit', month: '2-digit' })
+                    : `${fmtShortDate(b.from)} – ${fmtShortDate(b.to)}`) + `: <b class="text-white">${fmtNum(b.qty)} шт</b>`;
+                rects += `<rect class="sales-bar" data-tip="${escapeHtml(tip)}" x="${x.toFixed(1)}" y="${(padT + ch - h).toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" rx="${Math.min(3, bw / 3).toFixed(1)}" fill="${b.qty > 0 ? 'url(#salesGrad)' : '#374151'}"/>`;
+                // широка невидима зона для наведення
+                rects += `<rect class="sales-hit" data-idx="${i}" data-tip="${escapeHtml(tip)}" x="${(padL + i * step).toFixed(1)}" y="${padT}" width="${step.toFixed(1)}" height="${ch}" fill="transparent"/>`;
+                const isLast = i === bars.length - 1;
+                if (i % labelEvery === 0 || (bars.length <= 30 && isLast)) {
+                    labels += `<text x="${(padL + i * step + step / 2).toFixed(1)}" y="${H - 6}" text-anchor="middle" font-size="10" fill="#6B7280">${fmtShortDate(b.from)}</text>`;
+                }
+            });
+
+            const box = document.getElementById('salesChart');
+            box.innerHTML = `
+                <svg class="sales-chart w-full h-auto block" viewBox="0 0 ${W} ${H}" role="img" aria-label="Графік продажів">
+                    <defs><linearGradient id="salesGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FF9A3D"/><stop offset="1" stop-color="#E05A00"/></linearGradient></defs>
+                    ${grid}${rects}${labels}
+                </svg>
+                ${max <= 0 ? '<div class="text-center text-xs text-gray-500 -mt-24 mb-16 relative">За останні 90 днів відправок не було</div>' : ''}`;
+
+            const svg = box.querySelector('svg');
+            const bars$ = svg.querySelectorAll('.sales-bar');
+            const readout = document.getElementById('salesReadout');
+            const def = readout.innerHTML;
+            svg.addEventListener('mousemove', (e) => {
+                const hit = e.target.closest('.sales-hit');
+                bars$.forEach(r => r.classList.remove('hl'));
+                if (!hit) return;
+                const bar = bars$[Number(hit.dataset.idx)];
+                bar.classList.add('hl');
+                readout.innerHTML = hit.dataset.tip;
+            });
+            svg.addEventListener('mouseleave', () => {
+                bars$.forEach(r => r.classList.remove('hl'));
+                readout.innerHTML = salesMode === 'week' ? 'Продажі по тижнях · наведіть на стовпчик' : 'Продажі по днях · наведіть на стовпчик';
+            });
+        }
+
+        // ===================== ЖУРНАЛ ЗМІН =====================
+
+        let logEntries = [];
+        let logTotal = 0;
+        let logLoaded = false;
+        let logLoading = false;
+        let logError = '';
+        let logCategory = 'all';
+
+        const LOG_CATEGORIES = {
+            all:      { label: 'Усі' },
+            price:    { label: 'Ціни',       cls: 'bg-amber-500/10 text-amber-300 border-amber-500/30',     icon: 'fa-tag' },
+            orders:   { label: 'Заявки',     cls: 'bg-sky-500/10 text-sky-300 border-sky-500/30',           icon: 'fa-file-circle-plus' },
+            receive:  { label: 'Приймання',  cls: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30', icon: 'fa-box-open' },
+            delete:   { label: 'Видалення',  cls: 'bg-red-500/10 text-red-400 border-red-500/30',           icon: 'fa-trash-can' }
+        };
+
+        function logCategoryOf(action) {
+            if (action === 'Ціна закупу') return 'price';
+            if (action === 'Видалено заявку') return 'delete';
+            if (['Прийнято', 'Статус приймки', 'Коментар складу'].includes(action)) return 'receive';
+            return 'orders';
+        }
+
+        const USER_COLORS = ['#FF7A00', '#38BDF8', '#34D399', '#A78BFA', '#F472B6', '#FACC15'];
+        function userColor(email) {
+            let h = 0;
+            for (const c of String(email)) h = (h * 31 + c.charCodeAt(0)) >>> 0;
+            return USER_COLORS[h % USER_COLORS.length];
+        }
+        function userShort(email) { return String(email || '—').split('@')[0]; }
+
+        async function loadLog() {
+            if (logLoading) return;
+            logLoading = true;
+            if (!logLoaded) renderLog();
+            try {
+                const data = await callApi('getLog', { limit: 1000 });
+                logEntries = data.log || [];
+                logTotal = data.total || logEntries.length;
+                logLoaded = true;
+                logError = '';
+            } catch (err) {
+                if (AUTH_ERROR_CODES.includes(err.code)) return;
+                logError = /Невідома дія/.test(err.message || '')
+                    ? 'Сервер ще не вміє віддавати журнал. Опублікуйте нову версію Apps Script (Code.gs v10-log).'
+                    : (err.message || 'Не вдалося завантажити журнал');
+            } finally {
+                logLoading = false;
+                if (currentTab === 'log') renderLog();
+            }
+        }
+
+        window.setLogCategory = (cat) => { logCategory = cat; renderLog(); };
+
+        function dayLabel(ts) {
+            if (!ts) return 'Без дати';
+            const d = dayStart(ts), today = dayStart(Date.now());
+            if (d === today) return 'Сьогодні';
+            if (d === today - 86400000) return 'Вчора';
+            return new Date(ts).toLocaleDateString('uk-UA', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+        }
+
+        window.renderLog = () => {
+            const body = document.getElementById('logBody');
+            const footer = document.getElementById('logFooter');
+
+            // Фільтр-чіпи з лічильниками
+            const counts = { all: logEntries.length, price: 0, orders: 0, receive: 0, delete: 0 };
+            logEntries.forEach(e => counts[logCategoryOf(e.action)]++);
+            document.getElementById('logChips').innerHTML = Object.entries(LOG_CATEGORIES).map(([k, c]) => `
+                <button type="button" onclick="setLogCategory('${k}')" class="log-chip ${logCategory === k ? 'active' : ''} px-3 py-1.5 rounded-lg text-xs font-medium border border-cardBorder text-gray-400 hover:text-white transition whitespace-nowrap">
+                    ${c.icon ? `<i class="fa-solid ${c.icon} text-[10px] mr-1"></i>` : ''}${c.label} <span class="opacity-60 ml-0.5">${counts[k]}</span>
+                </button>`).join('');
+
+            // Список користувачів
+            const sel = document.getElementById('logUser');
+            const users = [...new Set(logEntries.map(e => e.user).filter(Boolean))].sort();
+            const curUser = sel.value;
+            sel.innerHTML = '<option value="">Усі користувачі</option>' +
+                users.map(u => `<option value="${escapeHtml(u)}" ${u === curUser ? 'selected' : ''}>${escapeHtml(userShort(u))}</option>`).join('');
+
+            if (!logLoaded) {
+                body.innerHTML = logError
+                    ? `<div class="text-center py-12 text-red-400 text-sm px-6"><i class="fa-solid fa-circle-exclamation text-2xl mb-2 block"></i>${escapeHtml(logError)}</div>`
+                    : `<div class="text-center py-12 text-gray-500 text-sm"><i class="fa-solid fa-spinner fa-spin mr-2"></i>Завантаження журналу…</div>`;
+                footer.innerText = '';
+                return;
+            }
+
+            const q = document.getElementById('logSearch').value.trim().toLowerCase();
+            const filtered = logEntries.filter(e =>
+                (logCategory === 'all' || logCategoryOf(e.action) === logCategory) &&
+                (!curUser || e.user === curUser) &&
+                (!q || [e.object, e.action, e.before, e.after, e.details, e.user].join(' ').toLowerCase().includes(q)));
+
+            if (!filtered.length) {
+                body.innerHTML = `<div class="text-center py-12 text-gray-500 text-sm"><i class="fa-solid fa-clock-rotate-left text-3xl mb-2 opacity-50 block"></i>${
+                    logEntries.length ? 'Нічого не знайдено за цими фільтрами' : 'Журнал поки порожній. Тут з\'являться зміни цін, заявок і приймання.'}</div>`;
+            } else {
+                let html = '', lastDay = null;
+                filtered.forEach(e => {
+                    const day = e.ts ? dayStart(e.ts) : 0;
+                    if (day !== lastDay) {
+                        lastDay = day;
+                        html += `<div class="px-4 py-2 bg-gray-900/40 border-b border-cardBorder/40 text-[10px] font-bold text-gray-500 uppercase tracking-wider">${escapeHtml(dayLabel(e.ts))}</div>`;
+                    }
+                    const cat = LOG_CATEGORIES[logCategoryOf(e.action)];
+                    const color = userColor(e.user);
+                    const time = e.ts ? new Date(e.ts).toLocaleTimeString('uk-UA', { hour: '2-digit', minute: '2-digit' }) : (e.at || '');
+                    const change = (e.before || e.after)
+                        ? `<span class="text-gray-500 ${e.after ? 'line-through decoration-gray-600' : ''}">${escapeHtml(e.before || '—')}</span>
+                           ${e.after ? `<i class="fa-solid fa-arrow-right-long text-[10px] text-gray-600 mx-1.5"></i><span class="text-white font-semibold">${escapeHtml(e.after)}</span>` : ''}`
+                        : '';
+                    html += `
+                        <div class="log-row grid grid-cols-12 gap-x-3 gap-y-1 px-4 py-3 items-start text-sm border-b border-cardBorder/40 transition">
+                            <div class="col-span-3 md:col-span-1 font-mono text-xs font-bold text-brand pt-0.5" title="${escapeHtml(e.at)}">${escapeHtml(time)}</div>
+                            <div class="col-span-9 md:col-span-2 flex items-center gap-2 min-w-0" title="${escapeHtml(e.user)}">
+                                <span class="w-6 h-6 rounded-full shrink-0 flex items-center justify-center text-[10px] font-black text-black" style="background:${color}">${escapeHtml(userShort(e.user).charAt(0).toUpperCase())}</span>
+                                <span class="text-xs text-gray-300 truncate">${escapeHtml(userShort(e.user))}</span>
+                            </div>
+                            <div class="col-span-12 md:col-span-2">
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md border text-[11px] font-semibold ${cat.cls}"><i class="fa-solid ${cat.icon} text-[9px]"></i>${escapeHtml(e.action)}</span>
+                            </div>
+                            <div class="col-span-12 md:col-span-4 text-xs text-gray-200 min-w-0 break-words">
+                                ${escapeHtml(e.object)}
+                                ${e.details ? `<div class="text-[11px] text-gray-500 mt-0.5">${escapeHtml(e.details)}</div>` : ''}
+                            </div>
+                            <div class="col-span-12 md:col-span-3 text-xs break-words">${change}</div>
+                        </div>`;
+                });
+                body.innerHTML = html;
+            }
+
+            footer.innerHTML = `Показано ${fmtNum(filtered.length)} з ${fmtNum(logTotal)} записів` +
+                (logTotal > logEntries.length ? ` · у дашборді останні ${fmtNum(logEntries.length)}, повна історія — на листі ЖУРНАЛ` : '') +
+                ` · <span class="text-gray-600">записуються зміни, зроблені через дашборд</span>`;
+        };
 
         // ===================== ЗАКУПІВЛІ ТА ПРИЙМАННЯ =====================
 
@@ -1987,7 +2400,8 @@
         // Esc закриває відкрите вікно
         document.addEventListener('keydown', (e) => {
             if (e.key !== 'Escape') return;
-            if (!document.getElementById('deletePurchaseModal').classList.contains('hidden')) closeDeletePurchase();
+            if (!document.getElementById('salesModal').classList.contains('hidden')) closeSalesModal();
+            else if (!document.getElementById('deletePurchaseModal').classList.contains('hidden')) closeDeletePurchase();
             else if (!document.getElementById('editPurchaseModal').classList.contains('hidden')) closeEditPurchase();
             else if (!document.getElementById('orderModal').classList.contains('hidden')) closeOrderModal();
         });
