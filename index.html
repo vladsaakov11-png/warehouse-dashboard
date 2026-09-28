@@ -202,7 +202,7 @@
 
             <form onsubmit="submitPurchaseOrder(event)" class="space-y-4">
                 <div>
-                    <label class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block mb-1">Введіть ID або Назву товара *</label>
+                    <label class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block mb-1">Введіть ID або Назву товару *</label>
                     <div class="relative">
                         <input type="text" id="modalProductIdInput" oninput="onModalProductInputChange()" placeholder="Введіть ID (напр. 3) або назву..." required autocomplete="off" class="w-full bg-gray-900 border border-cardBorder rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brand transition">
                     </div>
@@ -210,7 +210,7 @@
 
                 <div id="selectedProductInfo" class="hidden bg-gray-900/80 p-3 rounded-xl border border-cardBorder text-xs space-y-1">
                     <div class="flex items-center justify-between">
-                        <span class="text-gray-400">Назва товара:</span>
+                        <span class="text-gray-400">Назва товару:</span>
                         <span id="modalProductName" class="font-bold text-white truncate max-w-[200px]">--</span>
                     </div>
                     <div class="flex items-center justify-between pt-1 border-t border-gray-800">
@@ -2437,7 +2437,7 @@
             if (!product) {
                 showToast(matches > 1
                     ? "Знайдено кілька товарів — уточніть назву або введіть точний ID"
-                    : "Будь ласка, введіть дійсний ID або назву товара!", "red");
+                    : "Будь ласка, введіть дійсний ID або назву товару!", "red");
                 return;
             }
 
