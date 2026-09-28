@@ -154,12 +154,12 @@
             </div>
 
             <h3 class="text-lg font-bold mb-1">Авторизація Складу</h3>
-            <p class="text-xs text-gray-400 mb-6">Введіть Email та пароль для доступу</p>
+            <p class="text-xs text-gray-400 mb-6">Введіть логін та пароль для доступу</p>
 
             <form onsubmit="handleLogin(event)" class="space-y-4">
                 <div class="text-left">
-                    <label class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block mb-1">Email</label>
-                    <input type="email" id="emailInput" required autocomplete="username" placeholder="user@point.com" class="w-full bg-gray-900/90 border border-cardBorder rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brand transition">
+                    <label class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block mb-1">Логін</label>
+                    <input type="text" id="emailInput" required autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="наприклад: vladislav" class="w-full bg-gray-900/90 border border-cardBorder rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brand transition">
                 </div>
                 <div class="text-left">
                     <label class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block mb-1">Пароль</label>
@@ -835,13 +835,13 @@
                 case 'auth/invalid-login-credentials':
                 case 'auth/wrong-password':
                 case 'auth/user-not-found':
-                    return "Неправильний Email або пароль";
+                    return "Неправильний логін або пароль";
                 case 'auth/invalid-email':
-                    return "Некоректний формат Email";
+                    return "Логін може містити лише латинські літери, цифри, крапку, дефіс і _";
                 case 'auth/user-disabled':
                     return "Цей акаунт заблоковано. Зверніться до адміністратора";
                 case 'auth/too-many-requests':
-                    return "Забагато невдалих спроб. Зачекайте кілька хвилин або відновіть пароль";
+                    return "Забагато невдалих спроб. Зачекайте кілька хвилин";
                 case 'auth/network-request-failed':
                     return "Немає з'єднання з інтернетом";
                 default:
@@ -849,9 +849,17 @@
             }
         }
 
+        // Логін без "@" перетворюється на службовий email: vladislav -> vladislav@pointff.app.
+        // Повний email (зі знаком @) теж приймається — для запасного входу адміністратора.
+        const LOGIN_DOMAIN = 'pointff.app';
+        function loginToEmail(login) {
+            const v = String(login || '').trim().toLowerCase();
+            return v.includes('@') ? v : `${v}@${LOGIN_DOMAIN}`;
+        }
+
         window.handleLogin = async (e) => {
             e.preventDefault();
-            const email = document.getElementById('emailInput').value.trim();
+            const email = loginToEmail(document.getElementById('emailInput').value);
             const passInput = document.getElementById('passInput');
             const btn = document.getElementById('btnLogin');
             const btnText = document.getElementById('btnText');
